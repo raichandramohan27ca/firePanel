@@ -1,0 +1,681 @@
+; new two zone fire alarm panel with repitar module 
+; port1 for lcd data and rs- p0.6 en p0.7
+; p1.4 is hot
+; p1.5 is buz
+; p1.6 is fire led ;i1
+; p1.7 is fault led ;i2
+; p0.0 is f1
+; p0.1 is o1
+; p0.2 is s1
+; p0.3 is f2
+; p0.4 is o2
+; p0.5 is s2
+; p0.6 is rs
+; p0.7 is en
+; p2.0 is sil
+; p2.1 is evq
+; p2.2 is low battery moniter ;dn/f
+; p2.3 is clock output ;menu/test
+; p2.4 is zone2 isolate ;ok/open
+; p2.5 is zone1 isolate ;up/short
+; p2.6 is test ;lamp
+; p2.7 is back light ;ps2
+; p3.0 is z1r/rx
+; p3.1 is z2r/tx
+; p3.2 is control ;exit/com
+; p3.3 is ps2 ;m6
+; p3.4 is ps2 ;m5
+; p3.5 is SDA ;ps2
+; p3.6 is SCL1 ;lb
+; p3.7 is SCL2 ;back light
+;COMPLITE BY NAGESH 02/02/18 ;edit 14/06/2018
+;complite normal 2zone 18/06/2018
+
+                     ZONE1 EQU P2.4
+                     ZONE2 EQU P2.5
+                     BL    EQU P2.7       ;LCD BACK LIGHT
+					 LB    EQU P2.2	      ;LOW BATTERY
+                     LAMP  EQU P2.6
+					 SIL   EQU P2.0       ; SILENCE
+					 EVQ   EQU P2.1
+		             RS    EQU P0.6
+                     EN    EQU P0.7
+                     PORT  EQU P1
+                     U     EQU 30H
+                     L     EQU 31H
+				     HOT   EQU P1.4
+				     BUZ   EQU P1.5 
+					 CFLR  EQU P1.6
+				     CFTLR EQU P1.7
+					 BLT1  EQU 32H
+					 BLT3  EQU 33H
+                     RAP   EQU 34H						 
+				     
+					 Z1    BIT 00H       ;ISO ZONE1
+					 Z2    BIT 01H       ;ISO ZONE2
+					 SLC1  BIT 02H       ;SILENCE ZONE1
+					 SLC2  BIT 03H       ;SILENCE ZONE2
+					 LISO  BIT 04H       ;LOW BATTERY SILENCE
+                     PR1   BIT 05H       ;ZONE 1 PROBLAM
+					 PR2   BIT 06H	     ;ZONE 2 PROBLAM
+					 
+
+                      ORG  00H
+						  
+REST:				  ACALL	DELAY  
+					  MOV P1, #05FH
+                      MOV A,  #0FFH
+                      MOV P0, A
+					  MOV P2, A
+					  MOV P3, A
+					  MOV R0, #00H
+					  CLR LISO
+					  CLR SLC1
+					  CLR SLC2
+					  CLR Z1
+					  CLR Z2  ;EXTRA BIT IN THIS PROGRAM
+					  CLR PR1
+					  CLR PR2
+					  MOV BLT1, #1EH
+					  MOV RAP, #00H
+					  ;MOV BLT3, #01H
+					  mov tmod, #20h
+					  mov th1, #-3
+					  mov scon, #50h
+					  setb tr1
+					  
+NEXT:	              
+                      MOV DPTR,#INIT_COMMANDS     ;LCD SETUP
+                      ACALL LCD_CMD
+                      ACALL DELAY
+                      inc R0
+                      cjne R0,#0Fh, NEXT
+					  
+					  ;ACALL DELAY1
+					  
+			          MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT2
+                      ACALL LCD_DISP
+	                  ACALL DELAY
+                      MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT1
+                      ACALL LCD_DISP1
+					 ;;;;;;;;;;;;;;;ISOLATE
+MAIN:				  jnb ri, N
+                      ACALL RECIVE  
+
+	                   
+
+N:                    
+                      MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT1
+                      ACALL LCD_DISP
+					  ;JNB ZONE1, N1
+                      jnb ri, N1
+                      ACALL RECIVE  
+					  
+N1:			          JNB ZONE1, N2
+                      MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#ISO1
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  jnb ri, N3
+                      ACALL RECIVE   
+N2:					  ;JNB ZONE2, N3 
+                      
+					  
+					  
+N3:					  JNB ZONE2, N4
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#ISO2
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  jnb ri, N4
+                      ACALL RECIVE  
+N4:                   MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT3
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  jnb ri, PROBLAME
+                      ACALL RECIVE  
+PROBLAME:            
+                      JB ZONE1, PPR
+					  JB PR1, PPR1
+					  JB PR2, NMGS1 
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#ISO1H
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  jnb ri, NMGS1
+                      ACALL RECIVE 
+NMGS1:				  
+					  MOV A, P0
+                      MOV B, #07H
+					  ANL A, B
+					  CJNE A, B, PPR1
+					  CLR SLC1
+					  CLR PR1
+					  JMP PPR
+					   
+PPR1:                 SETB PR1
+                      SETB BL
+					  ACALL PRZ1
+					  jnb ri, PPR
+                      ACALL RECIVE 
+PPR:                  
+                      JB ZONE2, LSW
+					  JB PR2, PPR2
+					  JB PR1, NMGS2
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#ISO2H
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  jnb ri, NMGS2
+                      ACALL RECIVE
+NMGS2:
+					  MOV A, P0
+                      MOV B, #38H
+					  ANL A, B
+					  CJNE A, B, PPR2
+                      CLR SLC2
+                      CLR PR2
+					  JMP LSW
+					  
+PPR2: 				  SETB PR2
+                      SETB BL
+					  ACALL PRZ2
+					  
+
+                     
+					  
+				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	  
+LSW:                  jnb ri, LSW1
+                      ACALL RECIVE
+					  
+
+					  
+LSW1:	             
+                     JB Z2, LTT3
+                     JB LAMP, ESW
+					 CLR LAMP
+LTT1:                jnb ri, LTT1
+                     ACALL RECIVE
+LTT2:                jnb ri, LTT2
+                     ACALL RECIVE					 
+LTT3:			     SETB BL
+					 SETB Z1
+                     MOV DPTR,#LINE1 
+                     ACALL LCD_CMD
+                     MOV DPTR,#TLAMP
+                     ACALL LCD_DISP
+					 MOV DPTR,#LINE2 
+                     ACALL LCD_CMD
+                     MOV DPTR,#TZONE1
+                     ACALL LCD_DISP
+					 ACALL DELAY1
+					 ACALL DELAY1
+                     CLR P0.0
+					 ACALL PRZ1
+					 SETB P0.0
+					 ACALL DELAY1
+					 CLR P0.2
+					 ACALL PRZ1
+					 SETB P0.2
+					 ACALL DELAY1
+					 CLR P0.1
+					 ACALL PRZ1
+					 SETB P0.1
+					 ACALL DELAY1
+					 ACALL PRZ2
+					 MOV DPTR,#LINE2 
+                     ACALL LCD_CMD
+                     MOV DPTR,#TZONE2
+                     ACALL LCD_DISP
+					 ACALL DELAY1
+					 CLR P0.3
+					 ACALL PRZ2
+					 SETB P0.3
+					 ACALL DELAY1
+					 CLR P0.5
+					 ACALL PRZ2
+					 SETB P0.5
+					 ACALL DELAY1
+					 CLR P0.4
+					 ACALL PRZ2
+					 SETB P0.4
+					 ACALL DELAY1
+					 ACALL PRZ2
+					 CLR Z1
+					 CLR Z2
+					 SETB LAMP
+					 jnb ri, ESW
+                     ACALL RECIVE
+			        
+					  
+ESW:				  
+                      JB EVQ, NEXT1
+					  CLR EVQ
+                      SETB BL
+                      SETB BUZ
+					  CLR HOT
+					  CLR CFLR
+					  MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEVQ
+                      ACALL LCD_DISP
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT4
+                      ACALL LCD_DISP
+					  ;JB Z2, $
+TEST:				  jnb ri, TEST
+                      ACALL RECIVE	  
+                   	  SJMP TEST
+NEXT1:               
+                      JNB PR1, NOPR2
+					  SETB BL
+					  MOV BLT1, #1EH
+					            					  
+					  LJMP PROBLAME
+NOPR2:  			  JNB PR2, NOPR
+                      SETB BL
+					  MOV BLT1, #1EH
+                      LJMP PROBLAME
+NOPR:	              
+                      ACALL DELAY
+					  
+                      MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT1
+                      ACALL LCD_DISP
+                      MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TEXT3
+                      ACALL LCD_DISP
+					  DJNZ BLT1, TT1
+					  CLR BL
+TT1:                  JNB LB, TT2
+                      SETB CFTLR
+                      JB LISO, LBB
+					  SETB SIL
+					  JB SIL,  LBB1
+TT5:				  CLR SIL
+					  SETB LISO
+					  SJMP LBB
+LBB1:				  SETB BUZ
+LBB:				  
+                 	  SETB BL
+					  MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#LOWB
+                      ACALL LCD_DISP
+                      MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#LOWM
+                      ACALL LCD_DISP
+					  ACALL DELAY1
+					  ACALL DELAY1
+					  CLR BUZ
+					  CLR CFTLR
+					  CLR BL
+					  LJMP MAIN  
+TT2:                  
+                      CLR LISO
+					  JB SLC1, TT3
+					  JB SLC2, TT3
+					  SETB SIL
+TT3:                  LJMP MAIN  
+					  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	  
+					  
+					  
+PRZ2:                 JB SLC2, NBUZ2
+					  SETB BUZ
+                      SETB SIL
+                      JB SIL, CZ2S
+                      SETB SLC2
+					  SETB HOT
+					  CLR  BUZ
+					  CLR SIL
+					  
+CZ2S:                 
+                      
+					 
+					
+NBUZ2:                JB Z1, TESTZ2
+                      MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TZONE2
+                      ACALL LCD_DISP
+					  
+TESTZ2:					  
+					  JB P0.5, FIRE2
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#SHORT
+                      ACALL LCD_DISP
+					  SETB CFTLR
+					  JNB P0.0,YEF2
+					  SETB CFLR
+					  SETB HOT
+YEF2:				  SJMP SHORT2
+FIRE2:                
+                      JB P0.3, OPEN2
+					  JNB P0.1, FTLC1
+					  JNB P0.2, FTLC1
+					  CLR CFTLR
+FTLC1:
+					  CLR BUZ
+                      CLR CFLR	  
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#FIRE
+                      ACALL LCD_DISP
+					  JB SLC2, SHORT2 
+					  SETB BUZ
+					  CLR HOT
+					  SJMP SHORT2
+OPEN2:
+                      JB P0.4, SPROB2
+                	  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#OPEN
+                      ACALL LCD_DISP
+					  SETB CFTLR
+					  JNB P0.0,SHORT2
+					  SETB CFLR
+					  SETB HOT
+SHORT2:               ACALL DELAY1
+                      CLR BUZ
+                      RET
+SPROB2:		          CLR BUZ
+                      CLR PR2
+					  CLR SLC2
+					  JB PR1, EXT2
+					  CLR CFTLR
+					  SETB HOT
+					  SETB CFLR
+EXT2:	     		  RET
+
+					  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+PRZ1:                 
+                      JB SLC1, NBUZ1
+					  SETB BUZ
+                      SETB SIL
+                      JB SIL, CZ1S
+                      SETB SLC1
+					  SETB HOT
+					  CLR  BUZ
+					  CLR SIL
+CZ1S:                 
+					  
+NBUZ1:                JB Z1, TESTZ1
+                      MOV DPTR,#LINE1 
+                      ACALL LCD_CMD
+                      MOV DPTR,#TZONE1
+                      ACALL LCD_DISP
+TESTZ1:						  
+					  
+					  JB P0.2, FIRE1
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#SHORT
+                      ACALL LCD_DISP
+					  SETB CFTLR
+					  JNB P0.3, YEF1
+					  SETB CFLR
+					  SETB HOT
+YEF1:	        	  SJMP SHORT1
+FIRE1:                
+                      JB P0.0, OPEN1
+					  JNB P0.4, FTLC2
+					  JNB P0.5, FTLC2
+					  CLR CFTLR
+FTLC2:
+					  CLR BUZ
+                      CLR CFLR				  
+					  MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#FIRE
+                      ACALL LCD_DISP
+					  JB SLC1, SHORT1 
+					  SETB BUZ
+					  CLR HOT
+					  SJMP SHORT1
+OPEN1:
+                      JB P0.1, SPROB1
+                      MOV DPTR,#LINE2 
+                      ACALL LCD_CMD
+                      MOV DPTR,#OPEN
+                      ACALL LCD_DISP
+					  SETB CFTLR
+					  JNB P0.3,SHORT1
+					  SETB CFLR
+					  SETB HOT
+SHORT1:               ACALL DELAY1
+                      CLR BUZ
+                      RET
+SPROB1:		          CLR BUZ
+                      CLR PR1
+					  CLR SLC1
+					  JB PR2, EXT1
+					  CLR CFTLR
+					  SETB HOT
+					  SETB CFLR
+EXT1:	     		  RET	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RECIVE:
+									                
+                                       MOV A, SBUF
+									   clr ri
+									   mov sbuf, A
+hack4:                                 jnb ti,hack4
+                                       clr ti
+									   CJNE A, #0AAH, RC1
+									   MOV A, P2
+									   SJMP SEND
+RC1:                                   CJNE A, #0BBH, RC2
+									   MOV A, P0
+									   MOV B, #0C0H
+									   ORL A, B
+									   SJMP SEND
+RC2:								   CJNE A, #00H, RC0
+                                       CLR SIL
+									   SETB SLC1
+									   mov sbuf, A
+hack3:                                 jnb ti,hack3 	   
+									   clr ti
+									   RET
+RC0:                                   CJNE A, #01H, RC3
+                                       CLR SIL
+									   SETB SLC2
+									   mov sbuf, A
+hack0:                                 jnb ti,hack0 	   
+									   clr ti
+									   RET
+									   
+RC3:                                   CJNE A, #02H, RC4
+                                       CLR EVQ
+									   mov sbuf, A
+hack1:                                 jnb ti,hack1
+                                       clr ti
+									   JMP ESW
+RC4:                             	   CJNE A, #40H, RC5
+     								   SETB Z2
+									   mov sbuf, A
+hack2:                                 jnb ti,hack2
+                                       clr ti
+									   JMP LTT3
+RC5:                                   CJNE A, #03H, RC6
+                                       CLR SIL
+									   mov sbuf, A
+hack5:                                 jnb ti,hack5 	   
+									   clr ti
+									   JMP TT5
+RC6:                                   CJNE A, #0FFH, RC7
+                                       mov sbuf, A
+hack6:                                 jnb ti,hack6
+                                       clr ti
+									   JMP REST
+RC7:                                   JMP REST								   
+                                      
+										
+SEND:                                  mov sbuf, A
+hack:                                  jnb ti,hack
+                                       clr ti
+									   ret
+									   
+
+					  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	  
+
+SPLITER: MOV L,A 
+ANL L,#00FH 
+SWAP A 
+ANL A,#00FH 
+MOV U,A 
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MOVE: ANL PORT,#0F0H 
+ORL PORT,A
+SETB EN 
+ACALL DELAY
+CLR EN 
+ACALL DELAY
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MOVE1: ANL PORT,#0F0H 
+ORL PORT,A
+SETB EN
+NOP 
+CLR EN 
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+SETB EN
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+LCD_CMD:
+CLR A
+MOVC A,@A+DPTR
+JZ EXIT2
+INC DPTR 
+CLR RS
+ACALL SPLITER
+MOV A,U
+ACALL MOVE
+MOV A,L
+ACALL MOVE
+SJMP LCD_CMD 
+EXIT2: RET 
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+ 
+LCD_DATA: SETB RS
+ACALL SPLITER
+MOV A,U
+ACALL MOVE1
+MOV A,L
+ACALL MOVE1 
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+LCD_DISP: CLR A               ; LINE SELECTION
+MOVC A,@A+DPTR
+JZ EXIT1
+INC DPTR 
+ACALL LCD_DATA 
+SJMP LCD_DISP 
+EXIT1: RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+ 
+LCD_DISP1:CLR A               ; SINGAL CHARECTER
+MOVC A, @A+DPTR
+JZ EXIT3
+INC DPTR 
+ACALL LCD_DATA 
+ACALL DELAY2
+SJMP LCD_DISP1 
+EXIT3: 
+RET
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DELAY2: 
+      MOV R5, #01H
+LLL3: MOV R7, #0FFH
+LLL2: MOV R6, #0FFH
+LLL1: DJNZ R6, LLL1
+DJNZ R7, LLL2
+DJNZ R5, LLL3
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;						   
+						   
+DELAY1: 
+     MOV R5, #08H
+LL3: MOV R7, #0FFH
+LL2: MOV R6, #0FFH
+LL1: DJNZ R6, LL1
+     DJNZ R7, LL2
+     DJNZ R5, LL3
+     jnb ri,  LL4
+     ACALL RECIVE
+LL4:
+RET
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DELAY: MOV R7, #07H
+L2: MOV R6,#0FH
+L1: DJNZ R6, L1
+DJNZ R7, L2
+RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+INIT_COMMANDS: DB 20H,28H,0CH,01H,06H,80H,0 
+LINE1:  DB 01H,06H,80H,0
+LINE2:  DB 0C0H,0 
+CLEAR:  DB 01H,0
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEXT1:  DB " AGNI PROTECTION",0 
+TEXT2:  DB " WELCOME TO ....",0
+TEXT3:  DB "FIRE ALARM PANEL",0 
+TZONE1: DB " ZONE - 01      ",0
+TZONE2: DB " ZONE - 02      ",0
+FIRE:   DB " FIRE DETECTED  ",0
+SHORT:  DB " SHORT DETECTED ",0
+OPEN:   DB " OPEN DETECTED  ",0
+TEXT4:  DB " ALL THE AREA   ",0
+TLAMP:  DB "PANEL TESTING ON",0
+TEVQ:   DB " PLEASE EVACUATE",0
+ISO1:   DB "ZONE- 01 ISOLATE",0
+ISO2:   DB "ZONE- 02 ISOLATE",0
+ISO1H:  DB "ZONE- 01 HEALTHY",0					  
+ISO2H:  DB "ZONE- 02 HEALTHY",0					  
+LOWB:   DB "  BATTERY LOW   ",0	
+LOWM:   DB " CHECK AC SUPPLY",0
+NUM:	DB "01,02,03,04,05,06,07,08,09,10,11"
+                      END
