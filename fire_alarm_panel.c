@@ -1,73 +1,72 @@
-#include <reg51.h>
+#include <8052.h>    // SDCC 8051 register definitions
 #include <string.h>
-#include <intrins.h>  // For _nop_() function
 
-// Port and Pin Definitions (Fixed bit addressing syntax)
-sbit ZONE1 = P2^4;    // Zone 1 isolate
-sbit ZONE2 = P2^5;    // Zone 2 isolate  
-sbit BL = P2^7;       // LCD backlight
-sbit LB = P2^2;       // Low battery monitor
-sbit LAMP = P2^6;     // Test lamp
-sbit SIL = P2^0;      // Silence
-sbit EVQ = P2^1;      // Evacuate
-sbit RS = P0^6;       // LCD RS
-sbit EN = P0^7;       // LCD Enable
-sbit HOT = P1^4;      // Hot indicator
-sbit BUZ = P1^5;      // Buzzer
-sbit CFLR = P1^6;     // Fire LED
-sbit CFTLR = P1^7;    // Fault LED
+// Port and Pin Definitions using SDCC syntax
+__sbit __at (0xA4) ZONE1;    // P2.4 - Zone 1 isolate
+__sbit __at (0xA5) ZONE2;    // P2.5 - Zone 2 isolate  
+__sbit __at (0xA7) BL;       // P2.7 - LCD backlight
+__sbit __at (0xA2) LB;       // P2.2 - Low battery monitor
+__sbit __at (0xA6) LAMP;     // P2.6 - Test lamp
+__sbit __at (0xA0) SIL;      // P2.0 - Silence
+__sbit __at (0xA1) EVQ;      // P2.1 - Evacuate
+__sbit __at (0x86) RS;       // P0.6 - LCD RS
+__sbit __at (0x87) EN;       // P0.7 - LCD Enable
+__sbit __at (0x94) HOT;      // P1.4 - Hot indicator
+__sbit __at (0x95) BUZ;      // P1.5 - Buzzer
+__sbit __at (0x96) CFLR;     // P1.6 - Fire LED
+__sbit __at (0x97) CFTLR;    // P1.7 - Fault LED
 
-// Fire detection inputs
-sbit F1 = P0^0;       // Zone 1 Fire
-sbit O1 = P0^1;       // Zone 1 Open
-sbit S1 = P0^2;       // Zone 1 Short
-sbit F2 = P0^3;       // Zone 2 Fire
-sbit O2 = P0^4;       // Zone 2 Open
-sbit S2 = P0^5;       // Zone 2 Short
+// Fire detection inputs (renamed to avoid conflicts)
+__sbit __at (0x80) FIRE1;    // P0.0 - Zone 1 Fire
+__sbit __at (0x81) OPEN1;    // P0.1 - Zone 1 Open
+__sbit __at (0x82) SHORT1;   // P0.2 - Zone 1 Short
+__sbit __at (0x83) FIRE2;    // P0.3 - Zone 2 Fire
+__sbit __at (0x84) OPEN2;    // P0.4 - Zone 2 Open
+__sbit __at (0x85) SHORT2;   // P0.5 - Zone 2 Short
 
 // Global Variables and Flags
-bit Z1 = 0;          // ISO Zone 1
-bit Z2 = 0;          // ISO Zone 2
-bit SLC1 = 0;        // Silence Zone 1
-bit SLC2 = 0;        // Silence Zone 2
-bit LISO = 0;        // Low battery silence
-bit PR1 = 0;         // Zone 1 Problem
-bit PR2 = 0;         // Zone 2 Problem
+__bit Z1 = 0;          // ISO Zone 1
+__bit Z2 = 0;          // ISO Zone 2
+__bit SLC1 = 0;        // Silence Zone 1
+__bit SLC2 = 0;        // Silence Zone 2
+__bit LISO = 0;        // Low battery silence
+__bit PR1 = 0;         // Zone 1 Problem
+__bit PR2 = 0;         // Zone 2 Problem
 
 unsigned char BLT1;  // Backlight timer
 unsigned char RAP;   // Repeat counter
 
 // LCD Commands and Text Strings
-unsigned char code INIT_COMMANDS[] = {0x20, 0x28, 0x0C, 0x01, 0x06, 0x80, 0};
-unsigned char code LINE1[] = {0x01, 0x06, 0x80, 0};
-unsigned char code LINE2[] = {0xC0, 0};
+__code unsigned char INIT_COMMANDS[] = {0x20, 0x28, 0x0C, 0x01, 0x06, 0x80, 0};
+__code unsigned char LINE1[] = {0x01, 0x06, 0x80, 0};
+__code unsigned char LINE2[] = {0xC0, 0};
 
-unsigned char code TEXT1[] = " AGNI PROTECTION";
-unsigned char code TEXT2[] = " WELCOME TO ....";
-unsigned char code TEXT3[] = "FIRE ALARM PANEL";
-unsigned char code TZONE1[] = " ZONE - 01      ";
-unsigned char code TZONE2[] = " ZONE - 02      ";
-unsigned char code FIRE[] = " FIRE DETECTED  ";
-unsigned char code SHORT[] = " SHORT DETECTED ";
-unsigned char code OPEN[] = " OPEN DETECTED  ";
-unsigned char code TEXT4[] = " ALL THE AREA   ";
-unsigned char code TLAMP[] = "PANEL TESTING ON";
-unsigned char code TEVQ[] = " PLEASE EVACUATE";
-unsigned char code ISO1[] = "ZONE- 01 ISOLATE";
-unsigned char code ISO2[] = "ZONE- 02 ISOLATE";
-unsigned char code ISO1H[] = "ZONE- 01 HEALTHY";
-unsigned char code ISO2H[] = "ZONE- 02 HEALTHY";
-unsigned char code LOWB[] = "  BATTERY LOW   ";
-unsigned char code LOWM[] = " CHECK AC SUPPLY";
+__code unsigned char TEXT1[] = " AGNI PROTECTION";
+__code unsigned char TEXT2[] = " WELCOME TO ....";
+__code unsigned char TEXT3[] = "FIRE ALARM PANEL";
+__code unsigned char TZONE1[] = " ZONE - 01      ";
+__code unsigned char TZONE2[] = " ZONE - 02      ";
+__code unsigned char FIRE[] = " FIRE DETECTED  ";
+__code unsigned char SHORT[] = " SHORT DETECTED ";
+__code unsigned char OPEN[] = " OPEN DETECTED  ";
+__code unsigned char TEXT4[] = " ALL THE AREA   ";
+__code unsigned char TLAMP[] = "PANEL TESTING ON";
+__code unsigned char TEVQ[] = " PLEASE EVACUATE";
+__code unsigned char ISO1[] = "ZONE- 01 ISOLATE";
+__code unsigned char ISO2[] = "ZONE- 02 ISOLATE";
+__code unsigned char ISO1H[] = "ZONE- 01 HEALTHY";
+__code unsigned char ISO2H[] = "ZONE- 02 HEALTHY";
+__code unsigned char LOWB[] = "  BATTERY LOW   ";
+__code unsigned char LOWM[] = " CHECK AC SUPPLY";
 
 // Function Prototypes
 void delay(void);
 void delay1(void);
 void delay2(void);
-void lcd_cmd(unsigned char code *cmd_ptr);
+void lcd_cmd(unsigned char *cmd_ptr);
 void lcd_data(unsigned char data);
-void lcd_disp(unsigned char code *text_ptr);
-void lcd_disp1(unsigned char code *text_ptr);
+void lcd_disp(unsigned char *text_ptr);
+void lcd_disp1(unsigned char *text_ptr);
 void move(unsigned char data);
 void move1(unsigned char data);
 void spliter(unsigned char data);
@@ -205,20 +204,20 @@ void main(void)
             delay1();
             delay1();
             
-            // Test Zone 1 outputs
-            F1 = 0; prz1(); F1 = 1; delay1();
-            S1 = 0; prz1(); S1 = 1; delay1();
-            O1 = 0; prz1(); O1 = 1; delay1();
+            // Test Zone 1 outputs (updated names)
+            FIRE1 = 0; prz1(); FIRE1 = 1; delay1();
+            SHORT1 = 0; prz1(); SHORT1 = 1; delay1();
+            OPEN1 = 0; prz1(); OPEN1 = 1; delay1();
             
             prz2();
             lcd_cmd(LINE2);
             lcd_disp(TZONE2);
             delay1();
             
-            // Test Zone 2 outputs  
-            F2 = 0; prz2(); F2 = 1; delay1();
-            S2 = 0; prz2(); S2 = 1; delay1();
-            O2 = 0; prz2(); O2 = 1; delay1();
+            // Test Zone 2 outputs (updated names)
+            FIRE2 = 0; prz2(); FIRE2 = 1; delay1();
+            SHORT2 = 0; prz2(); SHORT2 = 1; delay1();
+            OPEN2 = 0; prz2(); OPEN2 = 1; delay1();
             
             prz2();
             Z1 = 0;
@@ -357,17 +356,17 @@ void prz1(void)
         lcd_disp(TZONE1);
     }
     
-    // Check Zone 1 status
-    if(!S1) {
+    // Check Zone 1 status (updated names)
+    if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;
-        if(!F2) {
+        if(!FIRE2) {
             CFLR = 1;
             HOT = 1;
         }
-    } else if(!F1) {
-        if(!O2 || !S2) {
+    } else if(!FIRE1) {
+        if(!OPEN2 || !SHORT2) {
             CFTLR = 0;
         }
         BUZ = 0;
@@ -378,11 +377,11 @@ void prz1(void)
             BUZ = 1;
             HOT = 0;
         }
-    } else if(!O1) {
+    } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;
-        if(!F2) {
+        if(!FIRE2) {
             CFLR = 1;
             HOT = 1;
         }
@@ -419,17 +418,17 @@ void prz2(void)
         lcd_disp(TZONE2);
     }
     
-    // Check Zone 2 status
-    if(!S2) {
+    // Check Zone 2 status (updated names)
+    if(!SHORT2) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;
-        if(!F1) {
+        if(!FIRE1) {
             CFLR = 1;
             HOT = 1;
         }
-    } else if(!F2) {
-        if(!O1 || !S1) {
+    } else if(!FIRE2) {
+        if(!OPEN1 || !SHORT1) {
             CFTLR = 0;
         }
         BUZ = 0;
@@ -440,11 +439,11 @@ void prz2(void)
             BUZ = 1;
             HOT = 0;
         }
-    } else if(!O2) {
+    } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;
-        if(!F1) {
+        if(!FIRE1) {
             CFLR = 1;
             HOT = 1;
         }
@@ -562,14 +561,25 @@ void move1(unsigned char data)
 {
     P1 = (P1 & 0xF0) | data;
     EN = 1;
-    _nop_();
+    // SDCC equivalent of _nop_()
+    __asm
+        nop
+    __endasm;
     EN = 0;
-    _nop_(); _nop_(); _nop_(); _nop_();
-    _nop_(); _nop_(); _nop_(); _nop_();
+    __asm
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+    __endasm;
     EN = 1;
 }
 
-void lcd_cmd(unsigned char code *cmd_ptr)
+void lcd_cmd(unsigned char *cmd_ptr)
 {
     unsigned char cmd;
     unsigned char i = 0;
@@ -591,7 +601,7 @@ void lcd_data(unsigned char data)
     move1(L);
 }
 
-void lcd_disp(unsigned char code *text_ptr)
+void lcd_disp(unsigned char *text_ptr)
 {
     unsigned char ch;
     unsigned char i = 0;
@@ -602,7 +612,7 @@ void lcd_disp(unsigned char code *text_ptr)
     }
 }
 
-void lcd_disp1(unsigned char code *text_ptr)
+void lcd_disp1(unsigned char *text_ptr)
 {
     unsigned char ch;
     unsigned char i = 0;

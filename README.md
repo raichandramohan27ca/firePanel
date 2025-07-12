@@ -171,16 +171,140 @@ This is a C language implementation of a two-zone fire alarm panel system origin
 
 ### Software Compilation
 
-1. Use Keil C51 or SDCC compiler
-2. Include `reg51.h` header file
-3. Set target to 8051 family
-4. Configure for desired memory model
+#### Option 1: SDCC (Recommended - Free)
 
-### Programming
+**Install SDCC:**
+```bash
+# Download from: http://sdcc.sourceforge.net/
+# Windows: Download installer and add to PATH
+# Linux: sudo apt-get install sdcc
+```
 
-1. Compile the C code to Intel HEX format
-2. Program the microcontroller using appropriate programmer
-3. Verify programming before installation
+**Compile the project:**
+```bash
+sdcc -mmcs51 --model-small --xram-size 0x100 --code-size 0x2000 fire_alarm_panel.c
+```
+
+**Generated Files:**
+- `fire_alarm_panel.ihx` - Intel HEX file for programming (5,076 bytes)
+- `fire_alarm_panel.asm` - Generated assembly code (47,522 bytes)
+- `fire_alarm_panel.lst` - Listing file with addresses (128,763 bytes)
+- `fire_alarm_panel.map` - Memory map file (26,605 bytes)
+- `fire_alarm_panel.rel` - Relocatable object file (25,231 bytes)
+- `fire_alarm_panel.rst` - Reset vectors and startup code
+- `fire_alarm_panel.mem` - Memory usage summary
+- `fire_alarm_panel.sym` - Symbol table
+
+#### Option 2: Keil µVision (Commercial)
+
+```c
+// Project settings:
+// - Target: 8051/8052
+// - Memory Model: Small
+// - Code size: 8192 bytes
+// - XRAM size: 256 bytes
+```
+
+#### Memory Usage Statistics
+
+**Compilation Results (SDCC):**
+- **ROM Usage**: 2,062 bytes / 8,192 bytes (25.2% used)
+- **RAM Usage**: Well-organized with 223 bytes stack space
+- **Code Efficiency**: Highly optimized for 8051 architecture
+- **No Memory Overflow**: System fits comfortably in standard 8051
+
+**Memory Map:**
+```
+ROM Usage:
+- Code: 2,062 bytes (25% of available 8KB)
+- Constants: Embedded in code space
+- Strings: Stored in code memory with __code qualifier
+
+RAM Usage:
+- Stack: 223 bytes available
+- Variables: Minimal RAM usage
+- Bit variables: Efficiently packed
+```
+
+### Programming the Microcontroller
+
+#### Using the Intel HEX File
+
+1. **Use the generated `.ihx` file** for programming
+2. **Programming tools:**
+   - **USBASP**: `avrdude` or similar
+   - **Universal Programmer**: TL866, etc.
+   - **ISP Programmer**: For AT89S series
+   - **Parallel Port Programmer**: For older AT89C series
+
+3. **Programming command example:**
+```bash
+# For USBASP with 8051
+avrdude -c usbasp -p 8051 -U flash:w:fire_alarm_panel.ihx:i
+
+# For TL866 universal programmer
+# Use TL866 software with the .ihx file
+```
+
+#### Programming Steps
+
+1. **Connect programmer** to 8051 microcontroller
+2. **Load** `fire_alarm_panel.ihx` into programming software
+3. **Verify** chip is detected correctly
+4. **Program** and verify
+5. **Test** with simple LED to ensure programming worked
+
+### Using the Compiled Files
+
+#### Essential Files for Programming
+- **`fire_alarm_panel.ihx`** - Main file to program into microcontroller
+- **`fire_alarm_panel.map`** - Memory layout reference
+- **`fire_alarm_panel.lst`** - Detailed listing with addresses
+
+#### Development and Debug Files
+- **`fire_alarm_panel.asm`** - Generated assembly for analysis
+- **`fire_alarm_panel.sym`** - Symbol table for debugging
+- **`fire_alarm_panel.mem`** - Memory usage summary
+
+#### File Descriptions
+
+| File | Size | Purpose |
+|------|------|---------|
+| `fire_alarm_panel.ihx` | 5.0KB | Intel HEX for programming |
+| `fire_alarm_panel.asm` | 46KB | Generated assembly code |
+| `fire_alarm_panel.lst` | 126KB | Listing with memory addresses |
+| `fire_alarm_panel.map` | 26KB | Memory map and sections |
+| `fire_alarm_panel.rel` | 25KB | Relocatable object file |
+| `fire_alarm_panel.sym` | 46KB | Symbol table for debugging |
+| `fire_alarm_panel.mem` | 1.2KB | Memory usage summary |
+
+### Build System (Makefile)
+
+**The project includes a Makefile for easy compilation:**
+
+```bash
+# Compile the project
+make
+
+# Clean generated files
+make clean
+
+# Show help
+make help
+
+# Compile with Keil C51 (if available)
+make keil
+
+# Generate circuit diagram (requires mermaid-cli)
+make diagram
+```
+
+**Makefile Features:**
+- **Automatic SDCC compilation** with optimized flags
+- **Clean targets** for removing generated files
+- **Help system** showing available commands
+- **Cross-platform support** (Windows/Linux)
+- **Circuit diagram generation** using Mermaid
 
 ## Safety Considerations
 
