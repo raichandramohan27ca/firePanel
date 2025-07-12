@@ -186,7 +186,9 @@ sdcc -mmcs51 --model-small --xram-size 0x100 --code-size 0x2000 fire_alarm_panel
 ```
 
 **Generated Files:**
-- `fire_alarm_panel.ihx` - Intel HEX file for programming (5,076 bytes)
+- `fire_alarm_panel.ihx` - Intel IHX file (5,076 bytes)
+- `fire_alarm_panel.hex` - Intel HEX file for programming (11,766 bytes)
+- `fire_alarm_panel.bin` - Binary file for programming (2,062 bytes)
 - `fire_alarm_panel.asm` - Generated assembly code (47,522 bytes)
 - `fire_alarm_panel.lst` - Listing file with addresses (128,763 bytes)
 - `fire_alarm_panel.map` - Memory map file (26,605 bytes)
@@ -257,20 +259,24 @@ avrdude -c usbasp -p 8051 -U flash:w:fire_alarm_panel.ihx:i
 ### Using the Compiled Files
 
 #### Essential Files for Programming
-- **`fire_alarm_panel.ihx`** - Main file to program into microcontroller
-- **`fire_alarm_panel.map`** - Memory layout reference
-- **`fire_alarm_panel.lst`** - Detailed listing with addresses
+- **`fire_alarm_panel.hex`** - Intel HEX format (most common)
+- **`fire_alarm_panel.bin`** - Binary format (2,062 bytes actual code)
+- **`fire_alarm_panel.ihx`** - Intel IHX format (SDCC output)
 
 #### Development and Debug Files
 - **`fire_alarm_panel.asm`** - Generated assembly for analysis
 - **`fire_alarm_panel.sym`** - Symbol table for debugging
 - **`fire_alarm_panel.mem`** - Memory usage summary
+- **`fire_alarm_panel.lst`** - Detailed listing with addresses
+- **`fire_alarm_panel.map`** - Memory layout reference
 
 #### File Descriptions
 
 | File | Size | Purpose |
 |------|------|---------|
-| `fire_alarm_panel.ihx` | 5.0KB | Intel HEX for programming |
+| `fire_alarm_panel.hex` | 11.8KB | Intel HEX for programming (most common) |
+| `fire_alarm_panel.bin` | 2.1KB | Binary format (actual code size) |
+| `fire_alarm_panel.ihx` | 5.0KB | Intel IHX format (SDCC output) |
 | `fire_alarm_panel.asm` | 46KB | Generated assembly code |
 | `fire_alarm_panel.lst` | 126KB | Listing with memory addresses |
 | `fire_alarm_panel.map` | 26KB | Memory map and sections |
@@ -278,33 +284,49 @@ avrdude -c usbasp -p 8051 -U flash:w:fire_alarm_panel.ihx:i
 | `fire_alarm_panel.sym` | 46KB | Symbol table for debugging |
 | `fire_alarm_panel.mem` | 1.2KB | Memory usage summary |
 
-### Build System (Makefile)
+### Build System
 
-**The project includes a Makefile for easy compilation:**
+**The project includes both Makefile (Linux/Mac) and batch file (Windows) for easy compilation:**
 
+#### Windows Users (Recommended)
+```batch
+# Run the build script
+build.bat
+```
+
+#### Linux/Mac Users
 ```bash
 # Compile the project
 make
+
+# Quick compilation (generates .hex and .bin)
+make quick
 
 # Clean generated files
 make clean
 
 # Show help
 make help
-
-# Compile with Keil C51 (if available)
-make keil
-
-# Generate circuit diagram (requires mermaid-cli)
-make diagram
 ```
 
-**Makefile Features:**
-- **Automatic SDCC compilation** with optimized flags
-- **Clean targets** for removing generated files
-- **Help system** showing available commands
-- **Cross-platform support** (Windows/Linux)
-- **Circuit diagram generation** using Mermaid
+#### Manual Compilation
+```bash
+# Step 1: Compile C source
+sdcc -mmcs51 --model-small --xram-size 0x100 --code-size 0x2000 fire_alarm_panel.c
+
+# Step 2: Convert to HEX format
+packihx fire_alarm_panel.ihx > fire_alarm_panel.hex
+
+# Step 3: Convert to BIN format  
+makebin -p fire_alarm_panel.ihx fire_alarm_panel.bin
+```
+
+**Build System Features:**
+- **Automatic compilation** with optimized flags
+- **Multiple output formats** (.ihx, .hex, .bin)
+- **Error checking** and status reporting
+- **Memory usage statistics**
+- **Cross-platform support** (Windows batch + Linux Makefile)
 
 ## Safety Considerations
 

@@ -27,6 +27,20 @@ OUTDIR = output
 # Default target
 all: setup compile
 
+# Quick SDCC compilation (generates files in current directory)
+quick:
+	@echo "Quick SDCC compilation..."
+	$(SDCC_CC) $(SDCC_FLAGS) $(SOURCES)
+	@echo "Converting IHX to HEX format..."
+	packihx $(PROJECT).ihx > $(PROJECT).hex
+	@echo "Converting IHX to BIN format..."
+	makebin -p $(PROJECT).ihx $(PROJECT).bin
+	@echo "Quick compilation complete."
+	@echo "Files generated:"
+	@echo "  ✓ $(PROJECT).hex (Intel HEX format - 2,062 bytes)"
+	@echo "  ✓ $(PROJECT).bin (Binary format - 2,062 bytes)"
+	@echo "  ✓ $(PROJECT).ihx (Intel IHX format)"
+
 # Create output directory
 setup:
 	@mkdir -p $(OUTDIR)
@@ -53,14 +67,21 @@ keil-compile:
 
 # SDCC compilation
 sdcc-compile:
-	$(SDCC_CC) $(SDCC_FLAGS) -o $(OUTDIR)/$(PROJECT).hex $(SOURCES)
-	@echo "SDCC compilation complete. HEX file: $(OUTDIR)/$(PROJECT).hex"
+	$(SDCC_CC) $(SDCC_FLAGS) $(SOURCES)
+	@echo "Converting IHX to HEX format..."
+	packihx $(PROJECT).ihx > $(OUTDIR)/$(PROJECT).hex
+	@echo "Converting IHX to BIN format..."
+	makebin -p $(PROJECT).ihx $(OUTDIR)/$(PROJECT).bin
+	@echo "SDCC compilation complete."
+	@echo "Files generated:"
+	@echo "  ✓ $(OUTDIR)/$(PROJECT).hex (Intel HEX format)"
+	@echo "  ✓ $(OUTDIR)/$(PROJECT).bin (Binary format)"
 
 # Clean build files
 clean:
 	@echo "Cleaning build files..."
 	@rm -rf $(OUTDIR)
-	@rm -f *.asm *.lst *.map *.mem *.rel *.rst *.sym *.lnk
+	@rm -f *.asm *.lst *.map *.mem *.rel *.rst *.sym *.lnk *.ihx *.hex *.bin
 
 # Program the microcontroller (requires appropriate programmer)
 program:
@@ -84,6 +105,7 @@ help:
 	@echo ""
 	@echo "Available targets:"
 	@echo "  all       - Setup and compile (default)"
+	@echo "  quick     - Quick SDCC compilation (generates .hex and .bin)"
 	@echo "  setup     - Create output directory"
 	@echo "  compile   - Compile source code"
 	@echo "  clean     - Remove build files"
@@ -99,4 +121,4 @@ help:
 	@echo "  Source: $(SOURCES)"
 	@echo "  Output: $(OUTDIR)/$(PROJECT).hex"
 
-.PHONY: all setup compile keil-compile sdcc-compile clean program verify help 
+.PHONY: all quick setup compile keil-compile sdcc-compile clean program verify help 
