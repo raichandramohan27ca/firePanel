@@ -1,28 +1,29 @@
 #include <reg51.h>
 #include <string.h>
+#include <intrins.h>  // For _nop_() function
 
-// Port and Pin Definitions
-#define ZONE1     P2_4    // Zone 1 isolate
-#define ZONE2     P2_5    // Zone 2 isolate  
-#define BL        P2_7    // LCD backlight
-#define LB        P2_2    // Low battery monitor
-#define LAMP      P2_6    // Test lamp
-#define SIL       P2_0    // Silence
-#define EVQ       P2_1    // Evacuate
-#define RS        P0_6    // LCD RS
-#define EN        P0_7    // LCD Enable
-#define HOT       P1_4    // Hot indicator
-#define BUZ       P1_5    // Buzzer
-#define CFLR      P1_6    // Fire LED
-#define CFTLR     P1_7    // Fault LED
+// Port and Pin Definitions (Fixed bit addressing syntax)
+sbit ZONE1 = P2^4;    // Zone 1 isolate
+sbit ZONE2 = P2^5;    // Zone 2 isolate  
+sbit BL = P2^7;       // LCD backlight
+sbit LB = P2^2;       // Low battery monitor
+sbit LAMP = P2^6;     // Test lamp
+sbit SIL = P2^0;      // Silence
+sbit EVQ = P2^1;      // Evacuate
+sbit RS = P0^6;       // LCD RS
+sbit EN = P0^7;       // LCD Enable
+sbit HOT = P1^4;      // Hot indicator
+sbit BUZ = P1^5;      // Buzzer
+sbit CFLR = P1^6;     // Fire LED
+sbit CFTLR = P1^7;    // Fault LED
 
 // Fire detection inputs
-#define F1        P0_0    // Zone 1 Fire
-#define O1        P0_1    // Zone 1 Open
-#define S1        P0_2    // Zone 1 Short
-#define F2        P0_3    // Zone 2 Fire
-#define O2        P0_4    // Zone 2 Open
-#define S2        P0_5    // Zone 2 Short
+sbit F1 = P0^0;       // Zone 1 Fire
+sbit O1 = P0^1;       // Zone 1 Open
+sbit S1 = P0^2;       // Zone 1 Short
+sbit F2 = P0^3;       // Zone 2 Fire
+sbit O2 = P0^4;       // Zone 2 Open
+sbit S2 = P0^5;       // Zone 2 Short
 
 // Global Variables and Flags
 bit Z1 = 0;          // ISO Zone 1
@@ -63,10 +64,10 @@ unsigned char code LOWM[] = " CHECK AC SUPPLY";
 void delay(void);
 void delay1(void);
 void delay2(void);
-void lcd_cmd(unsigned char *cmd_ptr);
+void lcd_cmd(unsigned char code *cmd_ptr);
 void lcd_data(unsigned char data);
-void lcd_disp(unsigned char *text_ptr);
-void lcd_disp1(unsigned char *text_ptr);
+void lcd_disp(unsigned char code *text_ptr);
+void lcd_disp1(unsigned char code *text_ptr);
 void move(unsigned char data);
 void move1(unsigned char data);
 void spliter(unsigned char data);
@@ -136,45 +137,48 @@ void main(void)
         delay1();
         if(RI) receive();
         
-        // Problem detection logic
+        // Problem detection logic for Zone 1
         if(!ZONE1) {
             if(PR1) {
-                goto problem_z1;
+                PR1 = 1;
+                BL = 1;
+                prz1();
+                if(RI) receive();
+                continue;
             }
-            if(PR2) {
-                goto next_check;
+            if(!PR2) {
+                lcd_cmd(LINE2);
+                lcd_disp(ISO1H);
+                delay1();
+                if(RI) receive();
             }
-            lcd_cmd(LINE2);
-            lcd_disp(ISO1H);
-            delay1();
-            if(RI) receive();
         }
         
-next_check:
         // Check Zone 1 inputs
         if((P0 & 0x07) == 0x07) {
             SLC1 = 0;
             PR1 = 0;
         } else {
-problem_z1:
             PR1 = 1;
             BL = 1;
             prz1();
             if(RI) receive();
         }
         
-        // Similar logic for Zone 2
+        // Problem detection logic for Zone 2
         if(!ZONE2) {
             if(PR2) {
-                goto problem_z2;
+                PR2 = 1;
+                BL = 1;
+                prz2();
+                continue;
             }
-            if(PR1) {
-                goto lamp_test;
+            if(!PR1) {
+                lcd_cmd(LINE2);
+                lcd_disp(ISO2H);
+                delay1();
+                if(RI) receive();
             }
-            lcd_cmd(LINE2);
-            lcd_disp(ISO2H);
-            delay1();
-            if(RI) receive();
         }
         
         // Check Zone 2 inputs
@@ -182,22 +186,15 @@ problem_z1:
             SLC2 = 0;
             PR2 = 0;
         } else {
-problem_z2:
             PR2 = 1;
             BL = 1;
             prz2();
         }
         
-lamp_test:
+        // Lamp test check
         if(RI) receive();
         
-        if(!Z2) {
-            if(!LAMP) {
-                LAMP = 0;
-                while(!RI);
-                receive();
-            }
-        } else {
+        if(Z2) {
             // Lamp test sequence
             BL = 1;
             Z1 = 1;
@@ -228,6 +225,10 @@ lamp_test:
             Z2 = 0;
             LAMP = 1;
             if(RI) receive();
+        } else if(!LAMP) {
+            // Wait for lamp test activation
+            while(!RI && !LAMP);
+            if(RI) receive();
         }
         
         // Evacuate test
@@ -243,8 +244,10 @@ lamp_test:
             lcd_disp(TEXT4);
             
             while(!RI) {
-                receive();
+                // Wait for serial command to exit evacuate mode
+                delay1();
             }
+            receive();
         }
         
         // Problem handling
@@ -269,9 +272,11 @@ lamp_test:
         lcd_disp(TEXT3);
         
         // Backlight timer
-        BLT1--;
-        if(BLT1 == 0) {
-            BL = 0;
+        if(BLT1 > 0) {
+            BLT1--;
+            if(BLT1 == 0) {
+                BL = 0;
+            }
         }
         
         // Low battery check
@@ -498,7 +503,6 @@ void receive(void)
             SBUF = received_data;
             while(!TI);
             TI = 0;
-            // Jump to evacuate routine
             break;
             
         case 0x40:
@@ -506,7 +510,6 @@ void receive(void)
             SBUF = received_data;
             while(!TI);
             TI = 0;
-            // Jump to lamp test
             break;
             
         case 0x03:
@@ -520,11 +523,15 @@ void receive(void)
             SBUF = received_data;
             while(!TI);
             TI = 0;
-            // System reset
+            // Perform system reset
+            init_system();
             break;
             
         default:
-            // Invalid command - reset system
+            // Echo unknown command
+            SBUF = received_data;
+            while(!TI);
+            TI = 0;
             break;
     }
 }
@@ -562,7 +569,7 @@ void move1(unsigned char data)
     EN = 1;
 }
 
-void lcd_cmd(unsigned char *cmd_ptr)
+void lcd_cmd(unsigned char code *cmd_ptr)
 {
     unsigned char cmd;
     unsigned char i = 0;
@@ -584,7 +591,7 @@ void lcd_data(unsigned char data)
     move1(L);
 }
 
-void lcd_disp(unsigned char *text_ptr)
+void lcd_disp(unsigned char code *text_ptr)
 {
     unsigned char ch;
     unsigned char i = 0;
@@ -595,7 +602,7 @@ void lcd_disp(unsigned char *text_ptr)
     }
 }
 
-void lcd_disp1(unsigned char *text_ptr)
+void lcd_disp1(unsigned char code *text_ptr)
 {
     unsigned char ch;
     unsigned char i = 0;
