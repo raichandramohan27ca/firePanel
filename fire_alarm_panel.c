@@ -73,6 +73,7 @@ void spliter(unsigned char data);
 void prz1(void);
 void prz2(void);
 void receive(void);
+void silence_alarms(void);
 void send_data(unsigned char data);
 void init_system(void);
 
@@ -159,17 +160,21 @@ void main(void)
             PR1 = 0;
         } else {
             PR1 = 1;
+        }
+        
+        if (PR1) {
             BL = 1;
             prz1();
             if(RI) receive();
         }
-        
+
         // Problem detection logic for Zone 2
         if(!ZONE2) {
             if(PR2) {
-                PR2 = 1;
+                PR2 = 1; // This seems redundant
                 BL = 1;
                 prz2();
+                if(RI) receive();
                 continue;
             }
             if(!PR1) {
@@ -186,10 +191,19 @@ void main(void)
             PR2 = 0;
         } else {
             PR2 = 1;
+        }
+
+        if (PR2) {
             BL = 1;
             prz2();
+            if(RI) receive();
         }
         
+        // Silence button check
+        if(!SIL) {
+            silence_alarms();
+        }
+
         // Lamp test check
         if(RI) receive();
         
@@ -250,16 +264,18 @@ void main(void)
         }
         
         // Problem handling
-        if(PR1) {
+        if(PR1 || PR2) {
             BL = 1;
             BLT1 = 30;
             continue;
         }
-        
-        if(PR2) {
-            BL = 1;
-            BLT1 = 30;
-            continue;
+
+        // Turn off outputs if no problems exist
+        if (!PR1 && !PR2) {
+            CFLR = 0;
+            CFTLR = 0;
+            HOT = 0;
+            BUZ = 0;
         }
         
         delay();
@@ -314,7 +330,7 @@ void main(void)
 void init_system(void)
 {
     // Initialize ports
-    P1 = 0x5F;
+    P1 = 0x0F; // Initialize P1 with indicators OFF (active high)
     P0 = 0xFF;
     P2 = 0xFF;
     P3 = 0xFF;
@@ -340,80 +356,62 @@ void init_system(void)
 
 void prz1(void)
 {
-    if(!SLC1) {
-        BUZ = 1;
-        SIL = 1;
-        if(!SIL) {
-            SLC1 = 1;
-            HOT = 1;
-            BUZ = 0;
-            SIL = 0;
-        }
-    }
-    
     if(!Z1) {
         lcd_cmd(LINE1);
         lcd_disp(TZONE1);
     }
-    
+
     // Check Zone 1 status (updated names)
     if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;
-        if(!FIRE2) {
-            CFLR = 1;
-            HOT = 1;
+        CFLR = 0;
+        HOT = 0;
+        if(!SLC1) {
+            BUZ = 1;
         }
     } else if(!FIRE1) {
         if(!OPEN2 || !SHORT2) {
             CFTLR = 0;
         }
-        BUZ = 0;
-        CFLR = 0;
+        CFLR = 1;
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
         if(!SLC1) {
             BUZ = 1;
-            HOT = 0;
+            HOT = 1;
         }
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;
-        if(!FIRE2) {
-            CFLR = 1;
-            HOT = 1;
+        CFLR = 0;
+        HOT = 0;
+        if(!SLC1) {
+            BUZ = 1;
         }
     } else {
-        BUZ = 0;
         PR1 = 0;
         SLC1 = 0;
         if(!PR2) {
             CFTLR = 0;
-            HOT = 1;
-            CFLR = 1;
+            CFLR = 0;
+            HOT = 0;
+            BUZ = 0;
+        }
+         if(ZONE1) {
+            lcd_cmd(LINE2);
+            lcd_disp(ISO1H);
         }
     }
     
     delay1();
-    BUZ = 0;
 }
 
 void prz2(void)
 {
-    if(!SLC2) {
-        BUZ = 1;
-        SIL = 1;
-        if(!SIL) {
-            SLC2 = 1;
-            HOT = 1;
-            BUZ = 0;
-            SIL = 0;
-        }
-    }
-    
-    if(!Z1) {
+    if(!Z1) { // Should be Z2 for zone 2 testing
         lcd_cmd(LINE1);
         lcd_disp(TZONE2);
     }
@@ -423,43 +421,47 @@ void prz2(void)
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;
-        if(!FIRE1) {
-            CFLR = 1;
-            HOT = 1;
+        CFLR = 0;
+        HOT = 0;
+        if(!SLC2) {
+            BUZ = 1;
         }
     } else if(!FIRE2) {
         if(!OPEN1 || !SHORT1) {
             CFTLR = 0;
         }
-        BUZ = 0;
-        CFLR = 0;
+        CFLR = 1;
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
         if(!SLC2) {
             BUZ = 1;
-            HOT = 0;
+            HOT = 1;
         }
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;
-        if(!FIRE1) {
-            CFLR = 1;
-            HOT = 1;
+        CFLR = 0;
+        HOT = 0;
+        if(!SLC2) {
+            BUZ = 1;
         }
     } else {
-        BUZ = 0;
         PR2 = 0;
         SLC2 = 0;
         if(!PR1) {
             CFTLR = 0;
-            HOT = 1;
-            CFLR = 1;
+            CFLR = 0;
+            HOT = 0;
+            BUZ = 0;
+        }
+         if(ZONE2) {
+            lcd_cmd(LINE2);
+            lcd_disp(ISO2H);
         }
     }
     
     delay1();
-    BUZ = 0;
 }
 
 void receive(void)
@@ -482,16 +484,14 @@ void receive(void)
             break;
             
         case 0x00:
-            SIL = 0;
-            SLC1 = 1;
+            silence_alarms();
             SBUF = received_data;
             while(!TI);
             TI = 0;
             break;
             
         case 0x01:
-            SIL = 0;
-            SLC2 = 1;
+            silence_alarms();
             SBUF = received_data;
             while(!TI);
             TI = 0;
@@ -512,7 +512,7 @@ void receive(void)
             break;
             
         case 0x03:
-            SIL = 0;
+            silence_alarms();
             SBUF = received_data;
             while(!TI);
             TI = 0;
@@ -540,6 +540,15 @@ void send_data(unsigned char data)
     SBUF = data;
     while(!TI);
     TI = 0;
+}
+
+void silence_alarms(void)
+{
+    SLC1 = 1;
+    SLC2 = 1;
+    LISO = 1;
+    BUZ = 0;
+    HOT = 0;
 }
 
 void spliter(unsigned char data)
