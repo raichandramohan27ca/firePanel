@@ -185,6 +185,14 @@ void main(void)
             if(RI) receive();
         }
         
+        // CRITICAL: Ensure all indicators are OFF when no problems exist
+        if (!PR1 && !PR2) {
+            CFLR = 0;   // Fire LED OFF
+            CFTLR = 0;  // Fault LED OFF
+            HOT = 0;    // Hooter OFF
+            BUZ = 0;    // Buzzer OFF
+        }
+        
         // Silence button check
         if(!SIL) {
             silence_alarms();
@@ -246,14 +254,6 @@ void main(void)
             CFLR = 0;
         }
         
-        // Clear all alarms if no problems exist
-        if (!PR1 && !PR2) {
-            CFLR = 0;
-            CFTLR = 0;
-            HOT = 0;
-            BUZ = 0;
-        }
-        
         delay();
         
         // Normal display when no alarms
@@ -312,6 +312,13 @@ void init_system(void)
     P0 = 0xFF;
     P2 = 0xFF;
     P3 = 0xFF;
+    
+    // Explicitly turn OFF all indicators
+    CFLR = 0;   // Fire LED OFF
+    CFTLR = 0;  // Fault LED OFF  
+    HOT = 0;    // Hooter OFF
+    BUZ = 0;    // Buzzer OFF
+    BL = 0;     // Backlight OFF initially
     
     // Clear flags
     LISO = 0;
