@@ -115,39 +115,24 @@ void main(void)
             receive();
         }
         
-        // Check Zone 1 - if isolated, show isolation message
+        // Check Zone 1 status
         if(!ZONE1) {
+            // Zone 1 OFF = HEALTHY (no operations)
+            Z1 = 0; // Mark as healthy/not isolated
+            PR1 = 0; // No problems
+            lcd_cmd(LINE2);
+            lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
+            delay1();
+            if(RI) receive();
+        } else {
+            // Zone 1 ON = ISOLATE (perform operations)
             Z1 = 1; // Mark as isolated
             lcd_cmd(LINE2);
-            lcd_disp(ISO1);
+            lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
             delay1();
             if(RI) receive();
-        } else {
-            Z1 = 0; // Not isolated
-        }
-        
-        // Check Zone 2 - if isolated, show isolation message
-        if(!ZONE2) {
-            Z2 = 1; // Mark as isolated
-            lcd_cmd(LINE2);
-            lcd_disp(ISO2);
-            delay1();
-            if(RI) receive();
-        } else {
-            Z2 = 0; // Not isolated
-        }
-        
-        // If both zones isolated, show normal display
-        if(Z1 && Z2) {
-            lcd_cmd(LINE2);
-            lcd_disp(TEXT3);
-            delay1();
-            if(RI) receive();
-        }
-        
-        // Check Zone 1 inputs (only if not isolated)
-        if(ZONE1) {
-            // Check for healthy condition - all inputs should be HIGH (1) in normal state
+            
+            // Check Zone 1 inputs (only when isolated/active)
             if(FIRE1 && OPEN1 && SHORT1) {
                 // Zone 1 is healthy
                 PR1 = 0;
@@ -159,21 +144,26 @@ void main(void)
                 prz1();
                 if(RI) receive();
             }
-        } else {
-            // Zone is isolated - no problem detection
-            PR1 = 0;
-            // Show healthy message if no other problems
-            if(!PR2) {
-                lcd_cmd(LINE2);
-                lcd_disp(ISO1H);
-                delay1();
-                if(RI) receive();
-            }
         }
-
-        // Check Zone 2 inputs (only if not isolated)
-        if(ZONE2) {
-            // Check for healthy condition - all inputs should be HIGH (1) in normal state
+        
+        // Check Zone 2 status
+        if(!ZONE2) {
+            // Zone 2 OFF = HEALTHY (no operations)
+            Z2 = 0; // Mark as healthy/not isolated
+            PR2 = 0; // No problems
+            lcd_cmd(LINE2);
+            lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
+            delay1();
+            if(RI) receive();
+        } else {
+            // Zone 2 ON = ISOLATE (perform operations)
+            Z2 = 1; // Mark as isolated
+            lcd_cmd(LINE2);
+            lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
+            delay1();
+            if(RI) receive();
+            
+            // Check Zone 2 inputs (only when isolated/active)
             if(FIRE2 && OPEN2 && SHORT2) {
                 // Zone 2 is healthy
                 PR2 = 0;
@@ -185,16 +175,14 @@ void main(void)
                 prz2();
                 if(RI) receive();
             }
-        } else {
-            // Zone is isolated - no problem detection
-            PR2 = 0;
-            // Show healthy message if no other problems
-            if(!PR1) {
-                lcd_cmd(LINE2);
-                lcd_disp(ISO2H);
-                delay1();
-                if(RI) receive();
-            }
+        }
+        
+        // If both zones are healthy (OFF), show normal display
+        if(!ZONE1 && !ZONE2) {
+            lcd_cmd(LINE2);
+            lcd_disp(TEXT3);
+            delay1();
+            if(RI) receive();
         }
         
         // Silence button check
@@ -284,7 +272,7 @@ void main(void)
             }
         }
         
-        // Low battery check
+        // Low battery check - ALWAYS check during primary time
         if(!LB) {
             CFTLR = 1;
             if(!LISO) {
@@ -309,7 +297,7 @@ void main(void)
             }
         } else {
             LISO = 0;
-            // Clear low battery fault if battery is OK
+            // Clear low battery fault if battery is OK and no other problems
             if(!PR1 && !PR2) {
                 CFTLR = 0;
             }

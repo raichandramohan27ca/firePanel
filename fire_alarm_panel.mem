@@ -26,4 +26,4 @@ Other memory:
    ---------------- -------- -------- -------- --------
    PAGED EXT. RAM                         0      256   
    EXTERNAL RAM                           0      256   
-   ROM/EPROM/FLASH  0x0000   0x082f    2096     8192   
+   ROM/EPROM/FLASH  0x0000   0x081f    2080     8192   

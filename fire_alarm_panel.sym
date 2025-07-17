@@ -390,23 +390,23 @@ Symbol Table
     __sdcc_gsinit_startup                                          ****** GX
   F __sdcc_program_startup                                         000049 GR
   7 __start__stack                                                 000000 GR
- 18 _delay                                                         000623 GR
- 18 _delay1                                                        000610 GR
- 18 _delay2                                                        000603 GR
- 18 _init_system                                                   0002B1 GR
- 18 _lcd_cmd                                                       000542 GR
- 18 _lcd_data                                                      000585 GR
- 18 _lcd_disp                                                      000596 GR
- 18 _lcd_disp1                                                     0005CB GR
+ 18 _delay                                                         000613 GR
+ 18 _delay1                                                        000600 GR
+ 18 _delay2                                                        0005F3 GR
+ 18 _init_system                                                   0002A1 GR
+ 18 _lcd_cmd                                                       000532 GR
+ 18 _lcd_data                                                      000575 GR
+ 18 _lcd_disp                                                      000586 GR
+ 18 _lcd_disp1                                                     0005BB GR
  18 _main                                                          000000 GR
- 18 _move                                                          000516 GR
- 18 _move1                                                         000529 GR
- 18 _prz1                                                          0002DD GR
- 18 _prz2                                                          00039E GR
- 18 _receive                                                       00045F GR
- 18 _send_data                                                     0004F4 GR
- 18 _silence_alarms                                                0004FD GR
- 18 _spliter                                                       000508 GR
+ 18 _move                                                          000506 GR
+ 18 _move1                                                         000519 GR
+ 18 _prz1                                                          0002CD GR
+ 18 _prz2                                                          00038E GR
+ 18 _receive                                                       00044F GR
+ 18 _send_data                                                     0004E4 GR
+ 18 _silence_alarms                                                0004ED GR
+ 18 _spliter                                                       0004F8 GR
     a                                                           =  0000E0 L
     a.0                                                         =  0000E0 L
     a.1                                                         =  0000E1 L
@@ -653,7 +653,7 @@ Area Table
   15 GSINIT5                                    size      0   flags   20
   16 GSINIT                                     size      E   flags   20
   17 GSFINAL                                    size      3   flags   20
-  18 CSEG                                       size    62C   flags   20
+  18 CSEG                                       size    61C   flags   20
   19 CONST                                      size    12E   flags   20
   1A XINIT                                      size      0   flags   20
   1B CABS                                       size      0   flags   28
