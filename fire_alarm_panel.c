@@ -115,37 +115,52 @@ void main(void)
             receive();
         }
         
-        // Check Zone 1 isolation
+        // Check Zone 1 - if isolated, show isolation message
         if(!ZONE1) {
+            Z1 = 1; // Mark as isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO1);
             delay1();
             if(RI) receive();
+        } else {
+            Z1 = 0; // Not isolated
         }
         
-        // Check Zone 2 isolation  
+        // Check Zone 2 - if isolated, show isolation message
         if(!ZONE2) {
+            Z2 = 1; // Mark as isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO2);
             delay1();
             if(RI) receive();
+        } else {
+            Z2 = 0; // Not isolated
         }
         
-        // Normal display
-        lcd_cmd(LINE2);
-        lcd_disp(TEXT3);
-        delay1();
-        if(RI) receive();
+        // If both zones isolated, show normal display
+        if(Z1 && Z2) {
+            lcd_cmd(LINE2);
+            lcd_disp(TEXT3);
+            delay1();
+            if(RI) receive();
+        }
         
-        // Problem detection logic for Zone 1
-        if(!ZONE1) {
-            if(PR1) {
+        // Check Zone 1 inputs (only if not isolated)
+        if(ZONE1) {
+            if((P0 & 0x07) == 0x07) {
+                SLC1 = 0;
+                PR1 = 0;
+            } else {
                 PR1 = 1;
+            }
+            
+            if (PR1) {
                 BL = 1;
                 prz1();
                 if(RI) receive();
-                continue;
             }
+        } else {
+            // Zone is isolated - show healthy if no other problems
             if(!PR2) {
                 lcd_cmd(LINE2);
                 lcd_disp(ISO1H);
@@ -153,50 +168,29 @@ void main(void)
                 if(RI) receive();
             }
         }
-        
-        // Check Zone 1 inputs
-        if((P0 & 0x07) == 0x07) {
-            SLC1 = 0;
-            PR1 = 0;
-        } else {
-            PR1 = 1;
-        }
-        
-        if (PR1) {
-            BL = 1;
-            prz1();
-            if(RI) receive();
-        }
 
-        // Problem detection logic for Zone 2
-        if(!ZONE2) {
-            if(PR2) {
-                PR2 = 1; // This seems redundant
+        // Check Zone 2 inputs (only if not isolated)
+        if(ZONE2) {
+            if((P0 & 0x38) == 0x38) {
+                SLC2 = 0;
+                PR2 = 0;
+            } else {
+                PR2 = 1;
+            }
+
+            if (PR2) {
                 BL = 1;
                 prz2();
                 if(RI) receive();
-                continue;
             }
+        } else {
+            // Zone is isolated - show healthy if no other problems
             if(!PR1) {
                 lcd_cmd(LINE2);
                 lcd_disp(ISO2H);
                 delay1();
                 if(RI) receive();
             }
-        }
-        
-        // Check Zone 2 inputs
-        if((P0 & 0x38) == 0x38) {
-            SLC2 = 0;
-            PR2 = 0;
-        } else {
-            PR2 = 1;
-        }
-
-        if (PR2) {
-            BL = 1;
-            prz2();
-            if(RI) receive();
         }
         
         // Silence button check
@@ -207,10 +201,9 @@ void main(void)
         // Lamp test check
         if(RI) receive();
         
-        if(Z2) {
+        if(!LAMP) { // Lamp test button pressed (active low)
             // Lamp test sequence
             BL = 1;
-            Z1 = 1;
             lcd_cmd(LINE1);
             lcd_disp(TLAMP);
             lcd_cmd(LINE2);
@@ -218,59 +211,50 @@ void main(void)
             delay1();
             delay1();
             
-            // Test Zone 1 outputs (updated names)
-            FIRE1 = 0; prz1(); FIRE1 = 1; delay1();
-            SHORT1 = 0; prz1(); SHORT1 = 1; delay1();
-            OPEN1 = 0; prz1(); OPEN1 = 1; delay1();
+            // Test all indicators
+            CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+            delay1();
+            CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
             
-            prz2();
             lcd_cmd(LINE2);
             lcd_disp(TZONE2);
             delay1();
             
-            // Test Zone 2 outputs (updated names)
-            FIRE2 = 0; prz2(); FIRE2 = 1; delay1();
-            SHORT2 = 0; prz2(); SHORT2 = 1; delay1();
-            OPEN2 = 0; prz2(); OPEN2 = 1; delay1();
+            // Test all indicators again
+            CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+            delay1();
+            CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
             
-            prz2();
-            Z1 = 0;
-            Z2 = 0;
-            LAMP = 1;
-            if(RI) receive();
-        } else if(!LAMP) {
-            // Wait for lamp test activation
-            while(!RI && !LAMP);
+            // Wait for button release
+            while(!LAMP);
             if(RI) receive();
         }
         
         // Evacuate test
         if(!EVQ) {
-            EVQ = 0;
             BL = 1;
             BUZ = 1;
-            HOT = 0;
-            CFLR = 0;
+            HOT = 1;
+            CFLR = 1;
             lcd_cmd(LINE1);
             lcd_disp(TEVQ);
             lcd_cmd(LINE2);
             lcd_disp(TEXT4);
             
-            while(!RI) {
-                // Wait for serial command to exit evacuate mode
+            // Wait for button release or serial command
+            while(!EVQ && !RI) {
                 delay1();
             }
-            receive();
+            
+            if(RI) receive();
+            
+            // Turn off evacuate alarms
+            BUZ = 0;
+            HOT = 0;
+            CFLR = 0;
         }
         
-        // Problem handling
-        if(PR1 || PR2) {
-            BL = 1;
-            BLT1 = 30;
-            continue;
-        }
-
-        // Turn off outputs if no problems exist
+        // Clear all alarms if no problems exist
         if (!PR1 && !PR2) {
             CFLR = 0;
             CFTLR = 0;
@@ -280,11 +264,13 @@ void main(void)
         
         delay();
         
-        // Normal display
-        lcd_cmd(LINE1);
-        lcd_disp(TEXT1);
-        lcd_cmd(LINE2);
-        lcd_disp(TEXT3);
+        // Normal display when no alarms
+        if(!PR1 && !PR2) {
+            lcd_cmd(LINE1);
+            lcd_disp(TEXT1);
+            lcd_cmd(LINE2);
+            lcd_disp(TEXT3);
+        }
         
         // Backlight timer
         if(BLT1 > 0) {
@@ -298,12 +284,11 @@ void main(void)
         if(!LB) {
             CFTLR = 1;
             if(!LISO) {
-                SIL = 1;
+                BUZ = 1;
                 if(!SIL) {
-                    SIL = 0;
+                    // Silence pressed for low battery
                     LISO = 1;
-                } else {
-                    BUZ = 1;
+                    BUZ = 0;
                 }
             }
             
@@ -314,23 +299,24 @@ void main(void)
             lcd_disp(LOWM);
             delay1();
             delay1();
-            BUZ = 0;
-            CFTLR = 0;
-            BL = 0;
-            continue;
-        }
-        
-        LISO = 0;
-        if(!SLC1 && !SLC2) {
-            SIL = 1;
+            
+            if(LISO) {
+                BUZ = 0; // Keep buzzer off if silenced
+            }
+        } else {
+            LISO = 0;
+            // Clear low battery fault if battery is OK
+            if(!PR1 && !PR2) {
+                CFTLR = 0;
+            }
         }
     }
 }
 
 void init_system(void)
 {
-    // Initialize ports
-    P1 = 0x0F; // Initialize P1 with indicators OFF (active high)
+    // Initialize ports - P1 bits 4-7 are active high indicators, should start LOW (OFF)
+    P1 = 0x00; // All indicators OFF initially
     P0 = 0xFF;
     P2 = 0xFF;
     P3 = 0xFF;
@@ -361,46 +347,49 @@ void prz1(void)
         lcd_disp(TZONE1);
     }
 
-    // Check Zone 1 status (updated names)
+    // Check Zone 1 status - inputs are active low (0 = alarm condition)
     if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        CFTLR = 1;
-        CFLR = 0;
-        HOT = 0;
+        CFTLR = 1;  // Fault LED ON
+        CFLR = 0;   // Fire LED OFF
+        HOT = 0;    // Hooter OFF
         if(!SLC1) {
-            BUZ = 1;
+            BUZ = 1; // Buzzer ON if not silenced
         }
     } else if(!FIRE1) {
-        if(!OPEN2 || !SHORT2) {
-            CFTLR = 0;
-        }
-        CFLR = 1;
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
+        CFLR = 1;   // Fire LED ON
+        // Only turn fault LED OFF if no other zone has faults
+        if(!(!OPEN2 || !SHORT2)) {
+            CFTLR = 0;
+        }
         if(!SLC1) {
-            BUZ = 1;
-            HOT = 1;
+            BUZ = 1;  // Buzzer ON if not silenced
+            HOT = 1;  // Hooter ON if not silenced
         }
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        CFTLR = 1;
-        CFLR = 0;
-        HOT = 0;
+        CFTLR = 1;  // Fault LED ON
+        CFLR = 0;   // Fire LED OFF
+        HOT = 0;    // Hooter OFF
         if(!SLC1) {
-            BUZ = 1;
+            BUZ = 1; // Buzzer ON if not silenced
         }
     } else {
+        // Zone 1 is healthy
         PR1 = 0;
         SLC1 = 0;
-        if(!PR2) {
+        // Only turn off alarms if both zones are healthy
+        if(!PR2 && ((P0 & 0x38) == 0x38)) { // Zone 2 also healthy
             CFTLR = 0;
             CFLR = 0;
             HOT = 0;
             BUZ = 0;
         }
-         if(ZONE1) {
+        if(ZONE1) { // If zone is not isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO1H);
         }
@@ -411,51 +400,54 @@ void prz1(void)
 
 void prz2(void)
 {
-    if(!Z1) { // Should be Z2 for zone 2 testing
+    if(!Z2) { // Fixed: should check Z2 for zone 2 testing
         lcd_cmd(LINE1);
         lcd_disp(TZONE2);
     }
     
-    // Check Zone 2 status (updated names)
+    // Check Zone 2 status - inputs are active low (0 = alarm condition)
     if(!SHORT2) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        CFTLR = 1;
-        CFLR = 0;
-        HOT = 0;
+        CFTLR = 1;  // Fault LED ON
+        CFLR = 0;   // Fire LED OFF
+        HOT = 0;    // Hooter OFF
         if(!SLC2) {
-            BUZ = 1;
+            BUZ = 1; // Buzzer ON if not silenced
         }
     } else if(!FIRE2) {
-        if(!OPEN1 || !SHORT1) {
-            CFTLR = 0;
-        }
-        CFLR = 1;
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
+        CFLR = 1;   // Fire LED ON
+        // Only turn fault LED OFF if no other zone has faults
+        if(!(!OPEN1 || !SHORT1)) {
+            CFTLR = 0;
+        }
         if(!SLC2) {
-            BUZ = 1;
-            HOT = 1;
+            BUZ = 1;  // Buzzer ON if not silenced
+            HOT = 1;  // Hooter ON if not silenced
         }
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        CFTLR = 1;
-        CFLR = 0;
-        HOT = 0;
+        CFTLR = 1;  // Fault LED ON
+        CFLR = 0;   // Fire LED OFF
+        HOT = 0;    // Hooter OFF
         if(!SLC2) {
-            BUZ = 1;
+            BUZ = 1; // Buzzer ON if not silenced
         }
     } else {
+        // Zone 2 is healthy
         PR2 = 0;
         SLC2 = 0;
-        if(!PR1) {
+        // Only turn off alarms if both zones are healthy
+        if(!PR1 && ((P0 & 0x07) == 0x07)) { // Zone 1 also healthy
             CFTLR = 0;
             CFLR = 0;
             HOT = 0;
             BUZ = 0;
         }
-         if(ZONE2) {
+        if(ZONE2) { // If zone is not isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO2H);
         }
