@@ -107,6 +107,14 @@ void main(void)
             receive();
         }
         
+        // ENSURE INDICATORS START OFF EACH CYCLE (Primary Time)
+        if (!PR1 && !PR2 && !LB) {
+            CFLR = 0;   // Fire LED OFF
+            CFTLR = 0;  // Fault LED OFF
+            HOT = 0;    // Hooter OFF
+            BUZ = 0;    // Buzzer OFF
+        }
+        
         // Display main screen
         lcd_cmd(LINE1);
         lcd_disp(TEXT1);
@@ -186,7 +194,7 @@ void main(void)
         }
         
         // CRITICAL: Ensure all indicators are OFF when no problems exist
-        if (!PR1 && !PR2 && LB) {  // Added LB check - only clear if battery is also OK
+        if (!PR1 && !PR2 && !LB) {  // Fixed: !LB means battery is OK (LB=0 when battery low)
             CFLR = 0;   // Fire LED OFF
             CFTLR = 0;  // Fault LED OFF
             HOT = 0;    // Hooter OFF
@@ -272,8 +280,8 @@ void main(void)
             }
         }
         
-        // Low battery check - Only when actually low, not continuous
-        if(!LB) {
+        // Low battery check - Only show when LB is actually ON (battery low)
+        if(LB) {  // Fixed: LB=1 means battery is low
             // Battery is actually low
             CFTLR = 1;  // Turn on fault LED for low battery
             if(!LISO) {
