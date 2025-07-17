@@ -147,20 +147,22 @@ void main(void)
         
         // Check Zone 1 inputs (only if not isolated)
         if(ZONE1) {
-            if((P0 & 0x07) == 0x07) {
-                SLC1 = 0;
+            // Check for healthy condition - all inputs should be HIGH (1) in normal state
+            if(FIRE1 && OPEN1 && SHORT1) {
+                // Zone 1 is healthy
                 PR1 = 0;
+                SLC1 = 0;
             } else {
+                // Zone 1 has problems
                 PR1 = 1;
-            }
-            
-            if (PR1) {
                 BL = 1;
                 prz1();
                 if(RI) receive();
             }
         } else {
-            // Zone is isolated - show healthy if no other problems
+            // Zone is isolated - no problem detection
+            PR1 = 0;
+            // Show healthy message if no other problems
             if(!PR2) {
                 lcd_cmd(LINE2);
                 lcd_disp(ISO1H);
@@ -171,20 +173,22 @@ void main(void)
 
         // Check Zone 2 inputs (only if not isolated)
         if(ZONE2) {
-            if((P0 & 0x38) == 0x38) {
-                SLC2 = 0;
+            // Check for healthy condition - all inputs should be HIGH (1) in normal state
+            if(FIRE2 && OPEN2 && SHORT2) {
+                // Zone 2 is healthy
                 PR2 = 0;
+                SLC2 = 0;
             } else {
+                // Zone 2 has problems
                 PR2 = 1;
-            }
-
-            if (PR2) {
                 BL = 1;
                 prz2();
                 if(RI) receive();
             }
         } else {
-            // Zone is isolated - show healthy if no other problems
+            // Zone is isolated - no problem detection
+            PR2 = 0;
+            // Show healthy message if no other problems
             if(!PR1) {
                 lcd_cmd(LINE2);
                 lcd_disp(ISO2H);
@@ -356,18 +360,23 @@ void prz1(void)
         HOT = 0;    // Hooter OFF
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
+        } else {
+            BUZ = 0; // Buzzer OFF if silenced
         }
     } else if(!FIRE1) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
         CFLR = 1;   // Fire LED ON
         // Only turn fault LED OFF if no other zone has faults
-        if(!(!OPEN2 || !SHORT2)) {
+        if(FIRE2 && OPEN2 && SHORT2) { // Zone 2 healthy
             CFTLR = 0;
         }
         if(!SLC1) {
             BUZ = 1;  // Buzzer ON if not silenced
             HOT = 1;  // Hooter ON if not silenced
+        } else {
+            BUZ = 0;  // Buzzer OFF if silenced
+            HOT = 0;  // Hooter OFF if silenced
         }
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
@@ -377,18 +386,23 @@ void prz1(void)
         HOT = 0;    // Hooter OFF
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
+        } else {
+            BUZ = 0; // Buzzer OFF if silenced
         }
     } else {
-        // Zone 1 is healthy
+        // Zone 1 is healthy - this should not be called if zone is healthy
+        // But if called, clear PR1 and silence flags
         PR1 = 0;
         SLC1 = 0;
-        // Only turn off alarms if both zones are healthy
-        if(!PR2 && ((P0 & 0x38) == 0x38)) { // Zone 2 also healthy
+        
+        // Only turn off all alarms if both zones are healthy
+        if(FIRE2 && OPEN2 && SHORT2) { // Zone 2 also healthy
             CFTLR = 0;
             CFLR = 0;
             HOT = 0;
             BUZ = 0;
         }
+        
         if(ZONE1) { // If zone is not isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO1H);
@@ -414,18 +428,23 @@ void prz2(void)
         HOT = 0;    // Hooter OFF
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
+        } else {
+            BUZ = 0; // Buzzer OFF if silenced
         }
     } else if(!FIRE2) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
         CFLR = 1;   // Fire LED ON
         // Only turn fault LED OFF if no other zone has faults
-        if(!(!OPEN1 || !SHORT1)) {
+        if(FIRE1 && OPEN1 && SHORT1) { // Zone 1 healthy
             CFTLR = 0;
         }
         if(!SLC2) {
             BUZ = 1;  // Buzzer ON if not silenced
             HOT = 1;  // Hooter ON if not silenced
+        } else {
+            BUZ = 0;  // Buzzer OFF if silenced
+            HOT = 0;  // Hooter OFF if silenced
         }
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
@@ -435,18 +454,23 @@ void prz2(void)
         HOT = 0;    // Hooter OFF
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
+        } else {
+            BUZ = 0; // Buzzer OFF if silenced
         }
     } else {
-        // Zone 2 is healthy
+        // Zone 2 is healthy - this should not be called if zone is healthy
+        // But if called, clear PR2 and silence flags
         PR2 = 0;
         SLC2 = 0;
-        // Only turn off alarms if both zones are healthy
-        if(!PR1 && ((P0 & 0x07) == 0x07)) { // Zone 1 also healthy
+        
+        // Only turn off all alarms if both zones are healthy
+        if(FIRE1 && OPEN1 && SHORT1) { // Zone 1 also healthy
             CFTLR = 0;
             CFLR = 0;
             HOT = 0;
             BUZ = 0;
         }
+        
         if(ZONE2) { // If zone is not isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO2H);
