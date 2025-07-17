@@ -33,8 +33,11 @@ __bit LISO = 0;        // Low battery silence
 __bit PR1 = 0;         // Zone 1 Problem
 __bit PR2 = 0;         // Zone 2 Problem
 
-unsigned char BLT1;  // Backlight timer
-unsigned char RAP;   // Repeat counter
+unsigned char BLT1;     // Backlight timer (5 minutes = 300 seconds)
+unsigned int BL_TIMER;  // Backlight countdown timer
+unsigned char RAP;      // Repeat counter
+
+#define BL_TIMEOUT 300  // 5 minutes timeout for backlight in normal condition
 
 // LCD Commands and Text Strings
 __code unsigned char INIT_COMMANDS[] = {0x20, 0x28, 0x0C, 0x01, 0x06, 0x80, 0};
@@ -107,10 +110,28 @@ void main(void)
             receive();
         }
         
-        // ENSURE INDICATORS START OFF EACH CYCLE (Primary Time)
+        // Backlight management for normal condition (no operations)
+        if (!PR1 && !PR2 && !LB && !LAMP && EVQ) { // Normal condition
+            if(BL_TIMER > 0) {
+                BL_TIMER--;
+                BL = 1; // Keep backlight ON for 5 minutes
+            } else {
+                BL = 0; // Turn OFF after 5 minutes
+            }
+        } else {
+            // Operation condition - keep backlight ON continuously
+            BL = 1;
+            BL_TIMER = BL_TIMEOUT; // Reset timer when returning to normal
+        }
+        
+        // LED Control Logic:
+        // Fire LED: OFF during fire/evacuate, ON otherwise when there are problems
+        // Fault LED: ON for open/short/low battery, OFF otherwise
+        
+        // Default LED states for normal condition
         if (!PR1 && !PR2 && !LB) {
-            CFLR = 0;   // Fire LED OFF
-            CFTLR = 0;  // Fault LED OFF
+            CFLR = 0;   // Fire LED OFF (no problems)
+            CFTLR = 0;  // Fault LED OFF (no problems)
             HOT = 0;    // Hooter OFF
             BUZ = 0;    // Buzzer OFF
         }
@@ -148,7 +169,6 @@ void main(void)
             } else {
                 // Zone 1 has problems
                 PR1 = 1;
-                BL = 1;
                 prz1();
                 if(RI) receive();
             }
@@ -179,7 +199,6 @@ void main(void)
             } else {
                 // Zone 2 has problems
                 PR2 = 1;
-                BL = 1;
                 prz2();
                 if(RI) receive();
             }
@@ -193,14 +212,6 @@ void main(void)
             if(RI) receive();
         }
         
-        // CRITICAL: Ensure all indicators are OFF when no problems exist
-        if (!PR1 && !PR2 && !LB) {  // Fixed: !LB means battery is OK (LB=0 when battery low)
-            CFLR = 0;   // Fire LED OFF
-            CFTLR = 0;  // Fault LED OFF
-            HOT = 0;    // Hooter OFF
-            BUZ = 0;    // Buzzer OFF
-        }
-        
         // Silence button check
         if(!SIL) {
             silence_alarms();
@@ -210,8 +221,7 @@ void main(void)
         if(RI) receive();
         
         if(!LAMP) { // Lamp test button pressed (active low)
-            // Lamp test sequence
-            BL = 1;
+            // Lamp test sequence - backlight handled by main timer
             lcd_cmd(LINE1);
             lcd_disp(TLAMP);
             lcd_cmd(LINE2);
@@ -240,10 +250,10 @@ void main(void)
         
         // Evacuate test
         if(!EVQ) {
-            BL = 1;
             BUZ = 1;
             HOT = 1;
-            CFLR = 1;
+            CFLR = 0;   // Fire LED OFF during evacuate
+            CFTLR = 0;  // Fault LED OFF during evacuate
             lcd_cmd(LINE1);
             lcd_disp(TEVQ);
             lcd_cmd(LINE2);
@@ -260,6 +270,7 @@ void main(void)
             BUZ = 0;
             HOT = 0;
             CFLR = 0;
+            CFTLR = 0;
         }
         
         delay();
@@ -272,18 +283,13 @@ void main(void)
             lcd_disp(TEXT3);
         }
         
-        // Backlight timer
-        if(BLT1 > 0) {
-            BLT1--;
-            if(BLT1 == 0) {
-                BL = 0;
-            }
-        }
+
         
         // Low battery check - Only show when LB is actually ON (battery low)
         if(LB) {  // Fixed: LB=1 means battery is low
             // Battery is actually low
-            CFTLR = 1;  // Turn on fault LED for low battery
+            CFTLR = 1;  // Fault LED ON for low battery
+            CFLR = 0;   // Fire LED OFF (this is not fire)
             if(!LISO) {
                 BUZ = 1;
                 if(!SIL) {
@@ -293,7 +299,6 @@ void main(void)
                 }
             }
             
-            BL = 1;
             lcd_cmd(LINE1);
             lcd_disp(LOWB);
             lcd_cmd(LINE2);
@@ -328,7 +333,7 @@ void init_system(void)
     CFTLR = 0;  // Fault LED OFF  
     HOT = 0;    // Hooter OFF
     BUZ = 0;    // Buzzer OFF
-    BL = 0;     // Backlight OFF initially
+    BL = 1;     // Backlight ON initially (normal condition starts with BL ON)
     
     // Clear flags
     LISO = 0;
@@ -340,6 +345,7 @@ void init_system(void)
     PR2 = 0;
     
     BLT1 = 30;
+    BL_TIMER = BL_TIMEOUT; // Start 5-minute countdown for normal condition
     RAP = 0;
     
     // Initialize UART
@@ -360,8 +366,8 @@ void prz1(void)
     if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        CFTLR = 1;  // Fault LED ON
-        CFLR = 0;   // Fire LED OFF
+        CFTLR = 1;  // Fault LED ON (short circuit)
+        CFLR = 0;   // Fire LED OFF (not fire condition)
         HOT = 0;    // Hooter OFF
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
@@ -371,11 +377,8 @@ void prz1(void)
     } else if(!FIRE1) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 1;   // Fire LED ON
-        // Only turn fault LED OFF if no other zone has faults
-        if(FIRE2 && OPEN2 && SHORT2) { // Zone 2 healthy
-            CFTLR = 0;
-        }
+        CFLR = 0;   // Fire LED OFF during fire condition
+        CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC1) {
             BUZ = 1;  // Buzzer ON if not silenced
             HOT = 1;  // Hooter ON if not silenced
@@ -386,8 +389,8 @@ void prz1(void)
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        CFTLR = 1;  // Fault LED ON
-        CFLR = 0;   // Fire LED OFF
+        CFTLR = 1;  // Fault LED ON (open circuit)
+        CFLR = 0;   // Fire LED OFF (not fire condition)
         HOT = 0;    // Hooter OFF
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
@@ -428,8 +431,8 @@ void prz2(void)
     if(!SHORT2) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        CFTLR = 1;  // Fault LED ON
-        CFLR = 0;   // Fire LED OFF
+        CFTLR = 1;  // Fault LED ON (short circuit)
+        CFLR = 0;   // Fire LED OFF (not fire condition)
         HOT = 0;    // Hooter OFF
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
@@ -439,11 +442,8 @@ void prz2(void)
     } else if(!FIRE2) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 1;   // Fire LED ON
-        // Only turn fault LED OFF if no other zone has faults
-        if(FIRE1 && OPEN1 && SHORT1) { // Zone 1 healthy
-            CFTLR = 0;
-        }
+        CFLR = 0;   // Fire LED OFF during fire condition
+        CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC2) {
             BUZ = 1;  // Buzzer ON if not silenced
             HOT = 1;  // Hooter ON if not silenced
@@ -454,8 +454,8 @@ void prz2(void)
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        CFTLR = 1;  // Fault LED ON
-        CFLR = 0;   // Fire LED OFF
+        CFTLR = 1;  // Fault LED ON (open circuit)
+        CFLR = 0;   // Fire LED OFF (not fire condition)
         HOT = 0;    // Hooter OFF
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
