@@ -125,16 +125,17 @@ void main(void)
         }
         
         // LED Control Logic:
-        // Fire LED: OFF during fire/evacuate, ON otherwise when there are problems
+        // Fire LED: ON during fire/evacuate, OFF otherwise
         // Fault LED: ON for open/short/low battery, OFF otherwise
         
-        // Default LED states for normal condition
+        // Default LED states for normal condition (only when no problems at all)
         if (!PR1 && !PR2 && !LB) {
             CFLR = 0;   // Fire LED OFF (no problems)
             CFTLR = 0;  // Fault LED OFF (no problems)
             HOT = 0;    // Hooter OFF
             BUZ = 0;    // Buzzer OFF
         }
+        // Note: When there are problems (PR1 || PR2), specific functions (prz1/prz2) will control LEDs
         
         // Display main screen
         lcd_cmd(LINE1);
@@ -252,7 +253,7 @@ void main(void)
         if(!EVQ) {
             BUZ = 1;
             HOT = 1;
-            CFLR = 0;   // Fire LED OFF during evacuate
+            CFLR = 1;   // Fire LED ON during evacuate
             CFTLR = 0;  // Fault LED OFF during evacuate
             lcd_cmd(LINE1);
             lcd_disp(TEVQ);
@@ -289,7 +290,7 @@ void main(void)
         if(LB) {  // Fixed: LB=1 means battery is low
             // Battery is actually low
             CFTLR = 1;  // Fault LED ON for low battery
-            CFLR = 0;   // Fire LED OFF (this is not fire)
+            CFLR = 0;   // Fire LED OFF (not fire condition)
             if(!LISO) {
                 BUZ = 1;
                 if(!SIL) {
@@ -377,7 +378,7 @@ void prz1(void)
     } else if(!FIRE1) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 0;   // Fire LED OFF during fire condition
+        CFLR = 1;   // Fire LED ON during fire condition
         CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC1) {
             BUZ = 1;  // Buzzer ON if not silenced
@@ -442,7 +443,7 @@ void prz2(void)
     } else if(!FIRE2) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 0;   // Fire LED OFF during fire condition
+        CFLR = 1;   // Fire LED ON during fire condition
         CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC2) {
             BUZ = 1;  // Buzzer ON if not silenced
