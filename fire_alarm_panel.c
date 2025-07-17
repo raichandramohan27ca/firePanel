@@ -186,7 +186,7 @@ void main(void)
         }
         
         // CRITICAL: Ensure all indicators are OFF when no problems exist
-        if (!PR1 && !PR2) {
+        if (!PR1 && !PR2 && LB) {  // Added LB check - only clear if battery is also OK
             CFLR = 0;   // Fire LED OFF
             CFTLR = 0;  // Fault LED OFF
             HOT = 0;    // Hooter OFF
@@ -272,9 +272,10 @@ void main(void)
             }
         }
         
-        // Low battery check - ALWAYS check during primary time
+        // Low battery check - Only when actually low, not continuous
         if(!LB) {
-            CFTLR = 1;
+            // Battery is actually low
+            CFTLR = 1;  // Turn on fault LED for low battery
             if(!LISO) {
                 BUZ = 1;
                 if(!SIL) {
@@ -295,12 +296,13 @@ void main(void)
             if(LISO) {
                 BUZ = 0; // Keep buzzer off if silenced
             }
+            
+            // Continue to show until battery recovers or other problems need attention
+            continue;
         } else {
+            // Battery is OK - clear low battery specific flags
             LISO = 0;
-            // Clear low battery fault if battery is OK and no other problems
-            if(!PR1 && !PR2) {
-                CFTLR = 0;
-            }
+            // Note: Don't clear CFTLR here - let main logic handle it
         }
     }
 }
