@@ -404,14 +404,6 @@ void prz1(void)
         PR1 = 0;
         SLC1 = 0;
         
-        // Only turn off all alarms if both zones are healthy
-        if(FIRE2 && OPEN2 && SHORT2) { // Zone 2 also healthy
-            CFTLR = 0;
-            CFLR = 0;
-            HOT = 0;
-            BUZ = 0;
-        }
-        
         if(ZONE1) { // If zone is not isolated
             lcd_cmd(LINE2);
             lcd_disp(ISO1H);
@@ -468,14 +460,6 @@ void prz2(void)
         // But if called, clear PR2 and silence flags
         PR2 = 0;
         SLC2 = 0;
-        
-        // Only turn off all alarms if both zones are healthy
-        if(FIRE1 && OPEN1 && SHORT1) { // Zone 1 also healthy
-            CFTLR = 0;
-            CFLR = 0;
-            HOT = 0;
-            BUZ = 0;
-        }
         
         if(ZONE2) { // If zone is not isolated
             lcd_cmd(LINE2);
