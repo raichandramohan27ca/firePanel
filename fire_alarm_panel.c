@@ -156,11 +156,16 @@ void main(void)
             
             // Check Zone 1 inputs (only when isolated/active)
             if(FIRE1 && OPEN1 && SHORT1) {
-                // Zone 1 is healthy
+                // Zone 1 is healthy - no problems, don't call prz1
                 PR1 = 0;
                 SLC1 = 0;
+                // Set normal LEDs for healthy isolated zone
+                CFLR = 1;   // Fire LED OFF (inverse logic)
+                CFTLR = 0;  // Fault LED OFF (no problems)
+                HOT = 1;    // Hooter OFF (inverse logic)
+                BUZ = 0;    // Buzzer OFF
             } else {
-                // Zone 1 has problems
+                // Zone 1 has problems - call prz1 to handle alarms
                 PR1 = 1;
                 prz1();
                 if(RI) receive();
@@ -186,11 +191,16 @@ void main(void)
             
             // Check Zone 2 inputs (only when isolated/active)
             if(FIRE2 && OPEN2 && SHORT2) {
-                // Zone 2 is healthy
+                // Zone 2 is healthy - no problems, don't call prz2
                 PR2 = 0;
                 SLC2 = 0;
+                // Set normal LEDs for healthy isolated zone
+                CFLR = 1;   // Fire LED OFF (inverse logic)
+                CFTLR = 0;  // Fault LED OFF (no problems)
+                HOT = 1;    // Hooter OFF (inverse logic)
+                BUZ = 0;    // Buzzer OFF
             } else {
-                // Zone 2 has problems
+                // Zone 2 has problems - call prz2 to handle alarms
                 PR2 = 1;
                 prz2();
                 if(RI) receive();
