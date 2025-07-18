@@ -127,15 +127,7 @@ void main(void)
         // LED Control Logic:
         // Fire LED: ON during fire/evacuate, OFF otherwise
         // Fault LED: ON for open/short/low battery, OFF otherwise
-        
-        // Default LED states for normal condition (only when no problems at all)
-        if (!PR1 && !PR2 && !LB) {
-            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-            CFTLR = 0;  // Fault LED OFF (no problems)
-            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-            BUZ = 0;    // Buzzer OFF
-        }
-        // Note: When there are problems (PR1 || PR2), specific functions (prz1/prz2) will control LEDs
+        // Note: LED control is now handled in specific sections, not continuously in main loop
         
         // Display main screen
         lcd_cmd(LINE1);
@@ -207,6 +199,12 @@ void main(void)
         
         // If both zones are healthy (OFF), show normal display
         if(!ZONE1 && !ZONE2) {
+            // Set normal state LEDs when both zones are healthy
+            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
+            CFTLR = 0;  // Fault LED OFF (no problems)
+            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+            BUZ = 0;    // Buzzer OFF
+            
             lcd_cmd(LINE2);
             lcd_disp(TEXT3);
             delay1();
@@ -277,7 +275,13 @@ void main(void)
         delay();
         
         // Normal display when no alarms
-        if(!PR1 && !PR2) {
+        if(!PR1 && !PR2 && !LB) {
+            // Set normal state LEDs when no problems
+            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
+            CFTLR = 0;  // Fault LED OFF (no problems)  
+            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+            BUZ = 0;    // Buzzer OFF
+            
             lcd_cmd(LINE1);
             lcd_disp(TEXT1);
             lcd_cmd(LINE2);
