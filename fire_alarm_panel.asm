@@ -642,15 +642,15 @@ _main:
 	jb	_PR1,00117$
 	jb	_PR2,00117$
 	jb	_LB,00117$
-;	fire_alarm_panel.c:133: CFLR = 0;   // Fire LED OFF (no problems)
+;	fire_alarm_panel.c:133: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	fire_alarm_panel.c:134: CFTLR = 0;  // Fault LED OFF (no problems)
 ;	assignBit
 	clr	_CFTLR
-;	fire_alarm_panel.c:135: HOT = 0;    // Hooter OFF
+;	fire_alarm_panel.c:135: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:136: BUZ = 0;    // Buzzer OFF
 ;	assignBit
 	clr	_BUZ
@@ -838,24 +838,24 @@ _main:
 	lcall	_delay1
 ;	fire_alarm_panel.c:231: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:234: CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+;	fire_alarm_panel.c:234: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
 ;	assignBit
-	setb	_CFLR
+	clr	_CFLR
 ;	assignBit
 	setb	_CFTLR
 ;	assignBit
-	setb	_HOT
+	clr	_HOT
 ;	assignBit
 	setb	_BUZ
 ;	fire_alarm_panel.c:235: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:236: CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
+;	fire_alarm_panel.c:236: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	assignBit
 	clr	_CFTLR
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	assignBit
 	clr	_BUZ
 ;	fire_alarm_panel.c:238: lcd_cmd(LINE2);
@@ -868,24 +868,24 @@ _main:
 	lcall	_lcd_disp
 ;	fire_alarm_panel.c:240: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:243: CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+;	fire_alarm_panel.c:243: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
 ;	assignBit
-	setb	_CFLR
+	clr	_CFLR
 ;	assignBit
 	setb	_CFTLR
 ;	assignBit
-	setb	_HOT
+	clr	_HOT
 ;	assignBit
 	setb	_BUZ
 ;	fire_alarm_panel.c:244: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:245: CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
+;	fire_alarm_panel.c:245: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	assignBit
 	clr	_CFTLR
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	assignBit
 	clr	_BUZ
 ;	fire_alarm_panel.c:248: while(!LAMP);
@@ -900,12 +900,12 @@ _main:
 ;	fire_alarm_panel.c:254: BUZ = 1;
 ;	assignBit
 	setb	_BUZ
-;	fire_alarm_panel.c:255: HOT = 1;
+;	fire_alarm_panel.c:255: HOT = 0;    // Hooter ON during evacuate (inverse logic - pin LOW = Hooter ON)
 ;	assignBit
-	setb	_HOT
-;	fire_alarm_panel.c:256: CFLR = 1;   // Fire LED ON during evacuate
+	clr	_HOT
+;	fire_alarm_panel.c:256: CFLR = 0;   // Fire LED ON during evacuate (inverse logic - pin LOW = LED ON)
 ;	assignBit
-	setb	_CFLR
+	clr	_CFLR
 ;	fire_alarm_panel.c:257: CFTLR = 0;  // Fault LED OFF during evacuate
 ;	assignBit
 	clr	_CFTLR
@@ -940,12 +940,12 @@ _main:
 ;	fire_alarm_panel.c:271: BUZ = 0;
 ;	assignBit
 	clr	_BUZ
-;	fire_alarm_panel.c:272: HOT = 0;
+;	fire_alarm_panel.c:272: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
-;	fire_alarm_panel.c:273: CFLR = 0;
+	setb	_HOT
+;	fire_alarm_panel.c:273: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	fire_alarm_panel.c:274: CFTLR = 0;
 ;	assignBit
 	clr	_CFTLR
@@ -977,9 +977,9 @@ _main:
 ;	fire_alarm_panel.c:292: CFTLR = 1;  // Fault LED ON for low battery
 ;	assignBit
 	setb	_CFTLR
-;	fire_alarm_panel.c:293: CFLR = 0;   // Fire LED OFF (not fire condition)
+;	fire_alarm_panel.c:293: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	fire_alarm_panel.c:294: if(!LISO) {
 	jb	_LISO,00180$
 ;	fire_alarm_panel.c:295: BUZ = 1;
@@ -1045,15 +1045,15 @@ _init_system:
 	mov	_P2,#0xff
 ;	fire_alarm_panel.c:330: P3 = 0xFF;
 	mov	_P3,#0xff
-;	fire_alarm_panel.c:333: CFLR = 0;   // Fire LED OFF
+;	fire_alarm_panel.c:333: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
 ;	assignBit
-	clr	_CFLR
+	setb	_CFLR
 ;	fire_alarm_panel.c:334: CFTLR = 0;  // Fault LED OFF  
 ;	assignBit
 	clr	_CFTLR
-;	fire_alarm_panel.c:335: HOT = 0;    // Hooter OFF
+;	fire_alarm_panel.c:335: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:336: BUZ = 0;    // Buzzer OFF
 ;	assignBit
 	clr	_BUZ
@@ -1131,12 +1131,12 @@ _prz1:
 ;	fire_alarm_panel.c:370: CFTLR = 1;  // Fault LED ON (short circuit)
 ;	assignBit
 	setb	_CFTLR
-;	fire_alarm_panel.c:371: CFLR = 0;   // Fire LED OFF (not fire condition)
+;	fire_alarm_panel.c:371: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
 ;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:372: HOT = 0;    // Hooter OFF
+	setb	_CFLR
+;	fire_alarm_panel.c:372: HOT = 1;    // Hooter OFF (inverse logic)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:373: if(!SLC1) {
 	jb	_SLC1,00104$
 ;	fire_alarm_panel.c:374: BUZ = 1; // Buzzer ON if not silenced
@@ -1159,9 +1159,9 @@ _prz1:
 	mov	dptr,#_FIRE
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:381: CFLR = 1;   // Fire LED ON during fire condition
+;	fire_alarm_panel.c:381: CFLR = 0;   // Fire LED ON during fire condition (inverse logic - pin LOW = LED ON)
 ;	assignBit
-	setb	_CFLR
+	clr	_CFLR
 ;	fire_alarm_panel.c:382: CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
 ;	assignBit
 	clr	_CFTLR
@@ -1170,17 +1170,17 @@ _prz1:
 ;	fire_alarm_panel.c:384: BUZ = 1;  // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
-;	fire_alarm_panel.c:385: HOT = 1;  // Hooter ON if not silenced
+;	fire_alarm_panel.c:385: HOT = 0;  // Hooter ON if not silenced (inverse logic - pin LOW = Hooter ON)
 ;	assignBit
-	setb	_HOT
+	clr	_HOT
 	sjmp	00122$
 00107$:
 ;	fire_alarm_panel.c:387: BUZ = 0;  // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
-;	fire_alarm_panel.c:388: HOT = 0;  // Hooter OFF if silenced
+;	fire_alarm_panel.c:388: HOT = 1;  // Hooter OFF if silenced (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 	sjmp	00122$
 00118$:
 ;	fire_alarm_panel.c:390: } else if(!OPEN1) {
@@ -1196,12 +1196,12 @@ _prz1:
 ;	fire_alarm_panel.c:393: CFTLR = 1;  // Fault LED ON (open circuit)
 ;	assignBit
 	setb	_CFTLR
-;	fire_alarm_panel.c:394: CFLR = 0;   // Fire LED OFF (not fire condition)
+;	fire_alarm_panel.c:394: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
 ;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:395: HOT = 0;    // Hooter OFF
+	setb	_CFLR
+;	fire_alarm_panel.c:395: HOT = 1;    // Hooter OFF (inverse logic)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:396: if(!SLC1) {
 	jb	_SLC1,00110$
 ;	fire_alarm_panel.c:397: BUZ = 1; // Buzzer ON if not silenced
@@ -1266,12 +1266,12 @@ _prz2:
 ;	fire_alarm_panel.c:427: CFTLR = 1;  // Fault LED ON (short circuit)
 ;	assignBit
 	setb	_CFTLR
-;	fire_alarm_panel.c:428: CFLR = 0;   // Fire LED OFF (not fire condition)
+;	fire_alarm_panel.c:428: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
 ;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:429: HOT = 0;    // Hooter OFF
+	setb	_CFLR
+;	fire_alarm_panel.c:429: HOT = 1;    // Hooter OFF (inverse logic)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:430: if(!SLC2) {
 	jb	_SLC2,00104$
 ;	fire_alarm_panel.c:431: BUZ = 1; // Buzzer ON if not silenced
@@ -1294,9 +1294,9 @@ _prz2:
 	mov	dptr,#_FIRE
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:438: CFLR = 1;   // Fire LED ON during fire condition
+;	fire_alarm_panel.c:438: CFLR = 0;   // Fire LED ON during fire condition (inverse logic - pin LOW = LED ON)
 ;	assignBit
-	setb	_CFLR
+	clr	_CFLR
 ;	fire_alarm_panel.c:439: CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
 ;	assignBit
 	clr	_CFTLR
@@ -1305,17 +1305,17 @@ _prz2:
 ;	fire_alarm_panel.c:441: BUZ = 1;  // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
-;	fire_alarm_panel.c:442: HOT = 1;  // Hooter ON if not silenced
+;	fire_alarm_panel.c:442: HOT = 0;  // Hooter ON if not silenced (inverse logic - pin LOW = Hooter ON)
 ;	assignBit
-	setb	_HOT
+	clr	_HOT
 	sjmp	00122$
 00107$:
 ;	fire_alarm_panel.c:444: BUZ = 0;  // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
-;	fire_alarm_panel.c:445: HOT = 0;  // Hooter OFF if silenced
+;	fire_alarm_panel.c:445: HOT = 1;  // Hooter OFF if silenced (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 	sjmp	00122$
 00118$:
 ;	fire_alarm_panel.c:447: } else if(!OPEN2) {
@@ -1331,12 +1331,12 @@ _prz2:
 ;	fire_alarm_panel.c:450: CFTLR = 1;  // Fault LED ON (open circuit)
 ;	assignBit
 	setb	_CFTLR
-;	fire_alarm_panel.c:451: CFLR = 0;   // Fire LED OFF (not fire condition)
+;	fire_alarm_panel.c:451: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
 ;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:452: HOT = 0;    // Hooter OFF
+	setb	_CFLR
+;	fire_alarm_panel.c:452: HOT = 1;    // Hooter OFF (inverse logic)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:453: if(!SLC2) {
 	jb	_SLC2,00110$
 ;	fire_alarm_panel.c:454: BUZ = 1; // Buzzer ON if not silenced
@@ -1582,9 +1582,9 @@ _silence_alarms:
 ;	fire_alarm_panel.c:556: BUZ = 0;
 ;	assignBit
 	clr	_BUZ
-;	fire_alarm_panel.c:557: HOT = 0;
+;	fire_alarm_panel.c:557: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
-	clr	_HOT
+	setb	_HOT
 ;	fire_alarm_panel.c:558: }
 	ret
 ;------------------------------------------------------------

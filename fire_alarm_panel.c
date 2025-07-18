@@ -130,9 +130,9 @@ void main(void)
         
         // Default LED states for normal condition (only when no problems at all)
         if (!PR1 && !PR2 && !LB) {
-            CFLR = 0;   // Fire LED OFF (no problems)
+            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
             CFTLR = 0;  // Fault LED OFF (no problems)
-            HOT = 0;    // Hooter OFF
+            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
             BUZ = 0;    // Buzzer OFF
         }
         // Note: When there are problems (PR1 || PR2), specific functions (prz1/prz2) will control LEDs
@@ -231,18 +231,18 @@ void main(void)
             delay1();
             
             // Test all indicators
-            CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+            CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
             delay1();
-            CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
+            CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
             
             lcd_cmd(LINE2);
             lcd_disp(TZONE2);
             delay1();
             
             // Test all indicators again
-            CFLR = 1; CFTLR = 1; HOT = 1; BUZ = 1;
+            CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
             delay1();
-            CFLR = 0; CFTLR = 0; HOT = 0; BUZ = 0;
+            CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
             
             // Wait for button release
             while(!LAMP);
@@ -252,8 +252,8 @@ void main(void)
         // Evacuate test
         if(!EVQ) {
             BUZ = 1;
-            HOT = 1;
-            CFLR = 1;   // Fire LED ON during evacuate
+            HOT = 0;    // Hooter ON during evacuate (inverse logic - pin LOW = Hooter ON)
+            CFLR = 0;   // Fire LED ON during evacuate (inverse logic - pin LOW = LED ON)
             CFTLR = 0;  // Fault LED OFF during evacuate
             lcd_cmd(LINE1);
             lcd_disp(TEVQ);
@@ -269,8 +269,8 @@ void main(void)
             
             // Turn off evacuate alarms
             BUZ = 0;
-            HOT = 0;
-            CFLR = 0;
+            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
             CFTLR = 0;
         }
         
@@ -290,7 +290,7 @@ void main(void)
         if(LB) {  // Fixed: LB=1 means battery is low
             // Battery is actually low
             CFTLR = 1;  // Fault LED ON for low battery
-            CFLR = 0;   // Fire LED OFF (not fire condition)
+            CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
             if(!LISO) {
                 BUZ = 1;
                 if(!SIL) {
@@ -330,9 +330,9 @@ void init_system(void)
     P3 = 0xFF;
     
     // Explicitly turn OFF all indicators
-    CFLR = 0;   // Fire LED OFF
+    CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
     CFTLR = 0;  // Fault LED OFF  
-    HOT = 0;    // Hooter OFF
+    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
     BUZ = 0;    // Buzzer OFF
     BL = 1;     // Backlight ON initially (normal condition starts with BL ON)
     
@@ -364,12 +364,12 @@ void prz1(void)
     }
 
     // Check Zone 1 status - inputs are active low (0 = alarm condition)
-    if(!SHORT1) {
+            if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;  // Fault LED ON (short circuit)
-        CFLR = 0;   // Fire LED OFF (not fire condition)
-        HOT = 0;    // Hooter OFF
+        CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
+        HOT = 1;    // Hooter OFF (inverse logic)
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
         } else {
@@ -378,21 +378,21 @@ void prz1(void)
     } else if(!FIRE1) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 1;   // Fire LED ON during fire condition
+        CFLR = 0;   // Fire LED ON during fire condition (inverse logic - pin LOW = LED ON)
         CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC1) {
             BUZ = 1;  // Buzzer ON if not silenced
-            HOT = 1;  // Hooter ON if not silenced
+            HOT = 0;  // Hooter ON if not silenced (inverse logic - pin LOW = Hooter ON)
         } else {
             BUZ = 0;  // Buzzer OFF if silenced
-            HOT = 0;  // Hooter OFF if silenced
+            HOT = 1;  // Hooter OFF if silenced (inverse logic - pin HIGH = Hooter OFF)
         }
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;  // Fault LED ON (open circuit)
-        CFLR = 0;   // Fire LED OFF (not fire condition)
-        HOT = 0;    // Hooter OFF
+        CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
+        HOT = 1;    // Hooter OFF (inverse logic)
         if(!SLC1) {
             BUZ = 1; // Buzzer ON if not silenced
         } else {
@@ -425,8 +425,8 @@ void prz2(void)
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
         CFTLR = 1;  // Fault LED ON (short circuit)
-        CFLR = 0;   // Fire LED OFF (not fire condition)
-        HOT = 0;    // Hooter OFF
+        CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
+        HOT = 1;    // Hooter OFF (inverse logic)
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
         } else {
@@ -435,21 +435,21 @@ void prz2(void)
     } else if(!FIRE2) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        CFLR = 1;   // Fire LED ON during fire condition
+        CFLR = 0;   // Fire LED ON during fire condition (inverse logic - pin LOW = LED ON)
         CFTLR = 0;  // Fault LED OFF (this is fire, not fault)
         if(!SLC2) {
             BUZ = 1;  // Buzzer ON if not silenced
-            HOT = 1;  // Hooter ON if not silenced
+            HOT = 0;  // Hooter ON if not silenced (inverse logic - pin LOW = Hooter ON)
         } else {
             BUZ = 0;  // Buzzer OFF if silenced
-            HOT = 0;  // Hooter OFF if silenced
+            HOT = 1;  // Hooter OFF if silenced (inverse logic - pin HIGH = Hooter OFF)
         }
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
         CFTLR = 1;  // Fault LED ON (open circuit)
-        CFLR = 0;   // Fire LED OFF (not fire condition)
-        HOT = 0;    // Hooter OFF
+        CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
+        HOT = 1;    // Hooter OFF (inverse logic)
         if(!SLC2) {
             BUZ = 1; // Buzzer ON if not silenced
         } else {
@@ -554,7 +554,7 @@ void silence_alarms(void)
     SLC2 = 1;
     LISO = 1;
     BUZ = 0;
-    HOT = 0;
+    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 }
 
 void spliter(unsigned char data)
