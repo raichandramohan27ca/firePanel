@@ -393,28 +393,28 @@ Symbol Table
     __sdcc_gsinit_startup                                          ****** GX
   F __sdcc_program_startup                                         000049 GR
   7 __start__stack                                                 000000 GR
- 18 _delay                                                         000715 GR
- 18 _delay1                                                        000702 GR
- 18 _delay2                                                        0006F5 GR
- 18 _init_system                                                   00041D GR
- 18 _lcd_cmd                                                       000634 GR
- 18 _lcd_data                                                      000677 GR
- 18 _lcd_disp                                                      000688 GR
- 18 _lcd_disp1                                                     0006BD GR
+ 18 _delay                                                         000712 GR
+ 18 _delay1                                                        0006FF GR
+ 18 _delay2                                                        0006F2 GR
+ 18 _init_system                                                   00041A GR
+ 18 _lcd_cmd                                                       000631 GR
+ 18 _lcd_data                                                      000674 GR
+ 18 _lcd_disp                                                      000685 GR
+ 18 _lcd_disp1                                                     0006BA GR
  18 _main                                                          000000 GR
- 18 _move                                                          000602 GR
- 18 _move1                                                         000619 GR
- 18 _prz1                                                          000463 GR
- 18 _prz2                                                          0004D9 GR
- 18 _receive                                                       00054F GR
- 18 _send_data                                                     0005E4 GR
- 18 _set_indicators                                                00071E GR
+ 18 _move                                                          0005FF GR
+ 18 _move1                                                         000616 GR
+ 18 _prz1                                                          000460 GR
+ 18 _prz2                                                          0004D6 GR
+ 18 _receive                                                       00054C GR
+ 18 _send_data                                                     0005E1 GR
+ 18 _set_indicators                                                00071B GR
   5 _set_indicators_PARM_2                                         000008 GR
   5 _set_indicators_PARM_3                                         000009 GR
   5 _set_indicators_PARM_4                                         00000A GR
- 18 _silence_alarms                                                0005ED GR
- 18 _spliter                                                       0005F4 GR
- 18 _update_indicators                                             000743 GR
+ 18 _silence_alarms                                                0005EA GR
+ 18 _spliter                                                       0005F1 GR
+ 18 _update_indicators                                             000740 GR
     a                                                           =  0000E0 L
     a.0                                                         =  0000E0 L
     a.1                                                         =  0000E1 L
@@ -661,7 +661,7 @@ Area Table
   15 GSINIT5                                    size      0   flags   20
   16 GSINIT                                     size      E   flags   20
   17 GSFINAL                                    size      3   flags   20
-  18 CSEG                                       size    750   flags   20
+  18 CSEG                                       size    74D   flags   20
   19 CONST                                      size    12E   flags   20
   1A XINIT                                      size      0   flags   20
   1B CABS                                       size      0   flags   28

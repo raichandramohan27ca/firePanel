@@ -135,9 +135,11 @@ void main(void)
         // Fault LED: ON for open/short/low battery, OFF otherwise
         // Note: LED control is now handled in specific sections, not continuously in main loop
         
-        // Display main screen
-        lcd_cmd(LINE1);
-        lcd_disp(TEXT1);
+        // Display main screen ONLY when no problems exist
+        if(!PR1 && !PR2 && !LB) {
+            lcd_cmd(LINE1);
+            lcd_disp(TEXT1);
+        }
         
         if(RI) {
             receive();
@@ -157,22 +159,21 @@ void main(void)
         } else {
             // Zone 1 ON = ISOLATE (perform operations)
             Z1 = 1; // Mark as isolated
-            lcd_cmd(LINE2);
-            lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
-            delay1();
-            if(RI) receive();
             
             // Check Zone 1 inputs (only when isolated/active)
             if(FIRE1 && OPEN1 && SHORT1) {
-                // Zone 1 is healthy - no problems, don't call prz1
+                // Zone 1 is healthy - no problems, show isolate message
                 PR1 = 0;
                 SLC1 = 0;
+                lcd_cmd(LINE2);
+                lcd_disp(ISO1); // Show "ZONE-01 ISOLATE" only when healthy
+                delay1();
             } else {
-                // Zone 1 has problems - call prz1 to handle alarms
+                // Zone 1 has problems - call prz1 to handle alarms (don't show isolate message)
                 PR1 = 1;
                 prz1();
-                if(RI) receive();
             }
+            if(RI) receive();
         }
         
         // Check Zone 2 status
@@ -189,22 +190,21 @@ void main(void)
         } else {
             // Zone 2 ON = ISOLATE (perform operations)
             Z2 = 1; // Mark as isolated
-            lcd_cmd(LINE2);
-            lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
-            delay1();
-            if(RI) receive();
             
             // Check Zone 2 inputs (only when isolated/active)
             if(FIRE2 && OPEN2 && SHORT2) {
-                // Zone 2 is healthy - no problems, don't call prz2
+                // Zone 2 is healthy - no problems, show isolate message
                 PR2 = 0;
                 SLC2 = 0;
+                lcd_cmd(LINE2);
+                lcd_disp(ISO2); // Show "ZONE-02 ISOLATE" only when healthy
+                delay1();
             } else {
-                // Zone 2 has problems - call prz2 to handle alarms
+                // Zone 2 has problems - call prz2 to handle alarms (don't show isolate message)
                 PR2 = 1;
                 prz2();
-                if(RI) receive();
             }
+            if(RI) receive();
         }
         
         // If both zones are healthy (OFF), show normal display

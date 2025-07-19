@@ -583,8 +583,8 @@ _main:
 ;	fire_alarm_panel.c:100: while(R0 < 15) {
 	mov	r7,#0x00
 00101$:
-	cjne	r7,#0x0f,00627$
-00627$:
+	cjne	r7,#0x0f,00633$
+00633$:
 	jnc	00103$
 ;	fire_alarm_panel.c:101: lcd_cmd(INIT_COMMANDS);
 	mov	dptr,#_INIT_COMMANDS
@@ -636,9 +636,9 @@ _main:
 ;	fire_alarm_panel.c:122: BL_TIMER--;
 	dec	_BL_TIMER
 	mov	a,#0xff
-	cjne	a,_BL_TIMER,00636$
+	cjne	a,_BL_TIMER,00642$
 	dec	(_BL_TIMER + 1)
-00636$:
+00642$:
 ;	fire_alarm_panel.c:123: BL = 1; // Keep backlight ON for 5 minutes
 ;	assignBit
 	setb	_BL
@@ -656,150 +656,149 @@ _main:
 	mov	_BL_TIMER,#0x2c
 	mov	(_BL_TIMER + 1),#0x01
 00111$:
-;	fire_alarm_panel.c:139: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:139: if(!PR1 && !PR2 && !LB) {
+	jb	_PR1,00117$
+	jb	_PR2,00117$
+	jb	_LB,00117$
+;	fire_alarm_panel.c:140: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:140: lcd_disp(TEXT1);
+;	fire_alarm_panel.c:141: lcd_disp(TEXT1);
 	mov	dptr,#_TEXT1
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:142: if(RI) {
-	jnb	_RI,00117$
-;	fire_alarm_panel.c:143: receive();
-	lcall	_receive
 00117$:
-;	fire_alarm_panel.c:147: if(!ZONE1) {
-	jb	_ZONE1,00130$
-;	fire_alarm_panel.c:149: Z1 = 0; // Mark as healthy/not isolated
+;	fire_alarm_panel.c:144: if(RI) {
+	jnb	_RI,00121$
+;	fire_alarm_panel.c:145: receive();
+	lcall	_receive
+00121$:
+;	fire_alarm_panel.c:149: if(!ZONE1) {
+	jb	_ZONE1,00132$
+;	fire_alarm_panel.c:151: Z1 = 0; // Mark as healthy/not isolated
 ;	assignBit
 	clr	_Z1
-;	fire_alarm_panel.c:150: PR1 = 0; // No problems
+;	fire_alarm_panel.c:152: PR1 = 0; // No problems
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:151: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:153: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:152: lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
+;	fire_alarm_panel.c:154: lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
 	mov	dptr,#_ISO1H
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:154: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+;	fire_alarm_panel.c:156: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
 	mov	_set_indicators_PARM_2,#0x00
 	mov	_set_indicators_PARM_3,#0x01
 	mov	_set_indicators_PARM_4,#0x00
 	mov	dpl, #0x01
 	lcall	_set_indicators
-;	fire_alarm_panel.c:155: delay1();
+;	fire_alarm_panel.c:157: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:156: if(RI) receive();
-	jnb	_RI,00131$
+;	fire_alarm_panel.c:158: if(RI) receive();
+	jnb	_RI,00133$
 	lcall	_receive
-	sjmp	00131$
-00130$:
-;	fire_alarm_panel.c:159: Z1 = 1; // Mark as isolated
+	sjmp	00133$
+00132$:
+;	fire_alarm_panel.c:161: Z1 = 1; // Mark as isolated
 ;	assignBit
 	setb	_Z1
-;	fire_alarm_panel.c:160: lcd_cmd(LINE2);
-	mov	dptr,#_LINE2
-	mov	b, #0x80
-	lcall	_lcd_cmd
-;	fire_alarm_panel.c:161: lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
-	mov	dptr,#_ISO1
-	mov	b, #0x80
-	lcall	_lcd_disp
-;	fire_alarm_panel.c:162: delay1();
-	lcall	_delay1
-;	fire_alarm_panel.c:163: if(RI) receive();
-	jnb	_RI,00121$
-	lcall	_receive
-00121$:
-;	fire_alarm_panel.c:166: if(FIRE1 && OPEN1 && SHORT1) {
+;	fire_alarm_panel.c:164: if(FIRE1 && OPEN1 && SHORT1) {
 	jnb	_FIRE1,00125$
 	jnb	_OPEN1,00125$
 	jnb	_SHORT1,00125$
-;	fire_alarm_panel.c:168: PR1 = 0;
+;	fire_alarm_panel.c:166: PR1 = 0;
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:169: SLC1 = 0;
+;	fire_alarm_panel.c:167: SLC1 = 0;
 ;	assignBit
 	clr	_SLC1
-	sjmp	00131$
-00125$:
-;	fire_alarm_panel.c:172: PR1 = 1;
-;	assignBit
-	setb	_PR1
-;	fire_alarm_panel.c:173: prz1();
-	lcall	_prz1
-;	fire_alarm_panel.c:174: if(RI) receive();
-	jnb	_RI,00131$
-	lcall	_receive
-00131$:
-;	fire_alarm_panel.c:179: if(!ZONE2) {
-	jb	_ZONE2,00144$
-;	fire_alarm_panel.c:181: Z2 = 0; // Mark as healthy/not isolated
-;	assignBit
-	clr	_Z2
-;	fire_alarm_panel.c:182: PR2 = 0; // No problems
-;	assignBit
-	clr	_PR2
-;	fire_alarm_panel.c:183: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:168: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:184: lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
+;	fire_alarm_panel.c:169: lcd_disp(ISO1); // Show "ZONE-01 ISOLATE" only when healthy
+	mov	dptr,#_ISO1
+	mov	b, #0x80
+	lcall	_lcd_disp
+;	fire_alarm_panel.c:170: delay1();
+	lcall	_delay1
+	sjmp	00126$
+00125$:
+;	fire_alarm_panel.c:173: PR1 = 1;
+;	assignBit
+	setb	_PR1
+;	fire_alarm_panel.c:174: prz1();
+	lcall	_prz1
+00126$:
+;	fire_alarm_panel.c:176: if(RI) receive();
+	jnb	_RI,00133$
+	lcall	_receive
+00133$:
+;	fire_alarm_panel.c:180: if(!ZONE2) {
+	jb	_ZONE2,00144$
+;	fire_alarm_panel.c:182: Z2 = 0; // Mark as healthy/not isolated
+;	assignBit
+	clr	_Z2
+;	fire_alarm_panel.c:183: PR2 = 0; // No problems
+;	assignBit
+	clr	_PR2
+;	fire_alarm_panel.c:184: lcd_cmd(LINE2);
+	mov	dptr,#_LINE2
+	mov	b, #0x80
+	lcall	_lcd_cmd
+;	fire_alarm_panel.c:185: lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
 	mov	dptr,#_ISO2H
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:186: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+;	fire_alarm_panel.c:187: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
 	mov	_set_indicators_PARM_2,#0x00
 	mov	_set_indicators_PARM_3,#0x01
 	mov	_set_indicators_PARM_4,#0x00
 	mov	dpl, #0x01
 	lcall	_set_indicators
-;	fire_alarm_panel.c:187: delay1();
+;	fire_alarm_panel.c:188: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:188: if(RI) receive();
+;	fire_alarm_panel.c:189: if(RI) receive();
 	jnb	_RI,00145$
 	lcall	_receive
 	sjmp	00145$
 00144$:
-;	fire_alarm_panel.c:191: Z2 = 1; // Mark as isolated
+;	fire_alarm_panel.c:192: Z2 = 1; // Mark as isolated
 ;	assignBit
 	setb	_Z2
-;	fire_alarm_panel.c:192: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:195: if(FIRE2 && OPEN2 && SHORT2) {
+	jnb	_FIRE2,00137$
+	jnb	_OPEN2,00137$
+	jnb	_SHORT2,00137$
+;	fire_alarm_panel.c:197: PR2 = 0;
+;	assignBit
+	clr	_PR2
+;	fire_alarm_panel.c:198: SLC2 = 0;
+;	assignBit
+	clr	_SLC2
+;	fire_alarm_panel.c:199: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:193: lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
+;	fire_alarm_panel.c:200: lcd_disp(ISO2); // Show "ZONE-02 ISOLATE" only when healthy
 	mov	dptr,#_ISO2
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:194: delay1();
+;	fire_alarm_panel.c:201: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:195: if(RI) receive();
-	jnb	_RI,00135$
-	lcall	_receive
-00135$:
-;	fire_alarm_panel.c:198: if(FIRE2 && OPEN2 && SHORT2) {
-	jnb	_FIRE2,00139$
-	jnb	_OPEN2,00139$
-	jnb	_SHORT2,00139$
-;	fire_alarm_panel.c:200: PR2 = 0;
-;	assignBit
-	clr	_PR2
-;	fire_alarm_panel.c:201: SLC2 = 0;
-;	assignBit
-	clr	_SLC2
-	sjmp	00145$
-00139$:
+	sjmp	00138$
+00137$:
 ;	fire_alarm_panel.c:204: PR2 = 1;
 ;	assignBit
 	setb	_PR2
 ;	fire_alarm_panel.c:205: prz2();
 	lcall	_prz2
-;	fire_alarm_panel.c:206: if(RI) receive();
+00138$:
+;	fire_alarm_panel.c:207: if(RI) receive();
 	jnb	_RI,00145$
 	lcall	_receive
 00145$:
@@ -836,9 +835,9 @@ _main:
 	lcall	_receive
 00154$:
 ;	fire_alarm_panel.c:228: if(!LAMP) { // Lamp test button pressed (active low)
-	jnb	_LAMP,00657$
+	jnb	_LAMP,00664$
 	ljmp	00161$
-00657$:
+00664$:
 ;	fire_alarm_panel.c:230: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
