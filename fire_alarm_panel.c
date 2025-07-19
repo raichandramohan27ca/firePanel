@@ -37,8 +37,11 @@ unsigned char BLT1;     // Backlight timer (5 minutes = 300 seconds)
 unsigned int BL_TIMER;  // Backlight countdown timer
 unsigned char RAP;      // Repeat counter
 unsigned char P1_INDICATORS; // Shadow register for indicator bits P1.4-P1.7
+unsigned char BUZZER_COUNTER; // Counter for buzzer repetition pattern
 
 #define BL_TIMEOUT 300  // 5 minutes timeout for backlight in normal condition
+#define BUZZER_ON_TIME 50   // Buzzer ON time in loop cycles
+#define BUZZER_OFF_TIME 30  // Buzzer OFF time in loop cycles
 
 // LCD Commands and Text Strings
 __code unsigned char INIT_COMMANDS[] = {0x20, 0x28, 0x0C, 0x01, 0x06, 0x80, 0};
@@ -281,35 +284,49 @@ void main(void)
             set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
         }
         
-        // Centralized LED Control - Handle all conditions
+        // Centralized LED Control - Handle all conditions with buzzer repetition
         if(!PR1 && !PR2 && !LB) {
             // Normal condition - all clear
             set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+            BUZZER_COUNTER = 0; // Reset buzzer counter
         } else {
-            // Problem conditions - determine which LEDs and alarms to activate
+            // Update buzzer counter for repetition pattern
+            BUZZER_COUNTER++;
+            if(BUZZER_COUNTER > (BUZZER_ON_TIME + BUZZER_OFF_TIME)) {
+                BUZZER_COUNTER = 0; // Reset counter
+            }
+            
+            // Determine buzzer state based on counter (ON-OFF repeatedly)
+            unsigned char buzzer_state = (BUZZER_COUNTER < BUZZER_ON_TIME) ? 1 : 0;
             
             // Check for fire conditions (fire inputs are active low)
             if((PR1 && !FIRE1) || (PR2 && !FIRE2)) {
                 // Fire condition detected
                 if((!SLC1 && PR1 && !FIRE1) || (!SLC2 && PR2 && !FIRE2)) {
-                    // Fire alarm not silenced
-                    set_indicators(0, 1, 0, 0); // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
+                    // Fire alarm not silenced: Hooter ON, Buzzer ON (repeating), Fire LED ON
+                    set_indicators(0, buzzer_state, 0, 0); // HOT=ON, BUZ=repeating, CFLR=ON, CFTLR=OFF
                 } else {
-                    // Fire alarm silenced
+                    // Fire alarm silenced: All audible OFF, Fire LED still ON
                     set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF(silenced), CFLR=ON, CFTLR=OFF
                 }
             }
             // Check for fault conditions (short or open)
             else if((PR1 && (!SHORT1 || !OPEN1)) || (PR2 && (!SHORT2 || !OPEN2))) {
-                // Fault condition (short or open) - no hooter/buzzer for faults
-                set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
+                // Open/Short condition: Buzzer ON (repeating), Fault LED ON
+                if((!SLC1 && PR1) || (!SLC2 && PR2)) {
+                    // Fault alarm not silenced
+                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=ON
+                } else {
+                    // Fault alarm silenced
+                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+                }
             }
             
-            // Low battery condition
+            // Low battery condition (separate from above conditions)
             if(LB) {
                 if(!LISO) {
-                    // Low battery alarm not silenced
-                    set_indicators(1, 1, 1, 1); // HOT=OFF, BUZ=ON, CFLR=OFF, CFTLR=ON
+                    // Low battery alarm not silenced: Buzzer ON (repeating), Fault LED ON
+                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=ON
                 } else {
                     // Low battery alarm silenced
                     set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
@@ -384,6 +401,7 @@ void init_system(void)
     BLT1 = 30;
     BL_TIMER = BL_TIMEOUT; // Start 5-minute countdown for normal condition
     RAP = 0;
+    BUZZER_COUNTER = 0; // Initialize buzzer counter
 }
 
 void prz1(void)
