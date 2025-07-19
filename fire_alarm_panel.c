@@ -271,8 +271,8 @@ void main(void)
         
         delay();
         
-        // Normal display when no alarms
-        if(!PR1 && !PR2 && !LB) {
+        // Normal display when no alarms - ONLY when no problems exist
+        if(!PR1 && !PR2 && !LB && !ZONE1 && !ZONE2) {
             lcd_cmd(LINE1);
             lcd_disp(TEXT1);
             lcd_cmd(LINE2);
@@ -286,25 +286,34 @@ void main(void)
             // Normal condition - all clear
             set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
         } else {
-            // Problem conditions - determine which LEDs to turn on
-            if(PR1 || PR2) {
-                // Zone problems exist - check what type
-                if((!FIRE1 && PR1) || (!FIRE2 && PR2)) {
-                    // Fire condition
-                    if(!SLC1 && !SLC2) {
-                        set_indicators(0, 1, 0, 0); // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
-                    } else {
-                        set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF, CFLR=ON, CFTLR=OFF
-                    }
+            // Problem conditions - determine which LEDs and alarms to activate
+            
+            // Check for fire conditions (fire inputs are active low)
+            if((PR1 && !FIRE1) || (PR2 && !FIRE2)) {
+                // Fire condition detected
+                if((!SLC1 && PR1 && !FIRE1) || (!SLC2 && PR2 && !FIRE2)) {
+                    // Fire alarm not silenced
+                    set_indicators(0, 1, 0, 0); // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
                 } else {
-                    // Fault condition (short or open)
-                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
+                    // Fire alarm silenced
+                    set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF(silenced), CFLR=ON, CFTLR=OFF
                 }
             }
-            
-            if(LB) {
-                // Low battery condition
+            // Check for fault conditions (short or open)
+            else if((PR1 && (!SHORT1 || !OPEN1)) || (PR2 && (!SHORT2 || !OPEN2))) {
+                // Fault condition (short or open) - no hooter/buzzer for faults
                 set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
+            }
+            
+            // Low battery condition
+            if(LB) {
+                if(!LISO) {
+                    // Low battery alarm not silenced
+                    set_indicators(1, 1, 1, 1); // HOT=OFF, BUZ=ON, CFLR=OFF, CFTLR=ON
+                } else {
+                    // Low battery alarm silenced
+                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+                }
             }
         }
         
@@ -385,33 +394,18 @@ void prz1(void)
     }
 
     // Check Zone 1 status - inputs are active low (0 = alarm condition)
-            if(!SHORT1) {
+    if(!SHORT1) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        // LED control removed - handled centrally
-        if(!SLC1) {
-            BUZ = 1; // Buzzer ON if not silenced
-        } else {
-            BUZ = 0; // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else if(!FIRE1) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        // LED control removed - handled centrally
-        if(!SLC1) {
-            BUZ = 1;  // Buzzer ON if not silenced
-        } else {
-            BUZ = 0;  // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else if(!OPEN1) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        // LED control removed - handled centrally
-        if(!SLC1) {
-            BUZ = 1; // Buzzer ON if not silenced
-        } else {
-            BUZ = 0; // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else {
         // Zone 1 is healthy - this should not be called if zone is healthy
         // But if called, clear PR1 and silence flags
@@ -438,30 +432,15 @@ void prz2(void)
     if(!SHORT2) {
         lcd_cmd(LINE2);
         lcd_disp(SHORT);
-        // LED control removed - handled centrally
-        if(!SLC2) {
-            BUZ = 1; // Buzzer ON if not silenced
-        } else {
-            BUZ = 0; // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else if(!FIRE2) {
         lcd_cmd(LINE2);
         lcd_disp(FIRE);
-        // LED control removed - handled centrally
-        if(!SLC2) {
-            BUZ = 1;  // Buzzer ON if not silenced
-        } else {
-            BUZ = 0;  // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else if(!OPEN2) {
         lcd_cmd(LINE2);
         lcd_disp(OPEN);
-        // LED control removed - handled centrally
-        if(!SLC2) {
-            BUZ = 1; // Buzzer ON if not silenced
-        } else {
-            BUZ = 0; // Buzzer OFF if silenced
-        }
+        // Buzzer control removed - handled centrally
     } else {
         // Zone 2 is healthy - this should not be called if zone is healthy
         // But if called, clear PR2 and silence flags
@@ -560,10 +539,7 @@ void silence_alarms(void)
     SLC1 = 1;
     SLC2 = 1;
     LISO = 1;
-    // Don't directly control indicators here - let main logic handle LED states
-    // Just turn off audible alarms
-    BUZ = 0;
-    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+    // Don't directly control indicators here - let centralized system handle all control
 }
 
 void spliter(unsigned char data)
