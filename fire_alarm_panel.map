@@ -80,9 +80,9 @@ C:   000000B6  s_CSEG
 C:   000000DF  l_SSEG                          
 C:   00000100  l_IRAM                          
 C:   0000012E  l_CONST                         
-C:   000007A6  l_CSEG                          
-C:   0000085C  s_CONST                         
-C:   0000098A  s_XINIT                         
+C:   00000778  l_CSEG                          
+C:   0000082E  s_CONST                         
+C:   0000095C  s_XINIT                         
 
 ASxxxx Linker V03.00/V05.40 + sdld,  page 3.
 Hexadecimal  [32-Bits]
@@ -385,60 +385,60 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-CSEG                                000000B6    000007A6 =        1958. bytes (REL,CON,CODE)
+CSEG                                000000B6    00000778 =        1912. bytes (REL,CON,CODE)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
 C:   000000B6  _main                              fire_alarm_panel
-C:   00000508  _init_system                       fire_alarm_panel
-C:   0000054F  _prz1                              fire_alarm_panel
-C:   000005C5  _prz2                              fire_alarm_panel
-C:   0000063B  _receive                           fire_alarm_panel
-C:   000006D0  _send_data                         fire_alarm_panel
-C:   000006D9  _silence_alarms                    fire_alarm_panel
-C:   000006E0  _spliter                           fire_alarm_panel
-C:   000006EE  _move                              fire_alarm_panel
-C:   00000705  _move1                             fire_alarm_panel
-C:   00000720  _lcd_cmd                           fire_alarm_panel
-C:   00000763  _lcd_data                          fire_alarm_panel
-C:   00000774  _lcd_disp                          fire_alarm_panel
-C:   000007A9  _lcd_disp1                         fire_alarm_panel
-C:   000007E1  _delay2                            fire_alarm_panel
-C:   000007EE  _delay1                            fire_alarm_panel
-C:   00000801  _delay                             fire_alarm_panel
-C:   0000080A  _set_indicators                    fire_alarm_panel
-C:   0000082F  _update_indicators                 fire_alarm_panel
-C:   0000083C  __gptrget                          _gptrget
-C:   00000858  ___sdcc_external_startup           _startup
+C:   000004DA  _init_system                       fire_alarm_panel
+C:   00000521  _prz1                              fire_alarm_panel
+C:   00000597  _prz2                              fire_alarm_panel
+C:   0000060D  _receive                           fire_alarm_panel
+C:   000006A2  _send_data                         fire_alarm_panel
+C:   000006AB  _silence_alarms                    fire_alarm_panel
+C:   000006B2  _spliter                           fire_alarm_panel
+C:   000006C0  _move                              fire_alarm_panel
+C:   000006D7  _move1                             fire_alarm_panel
+C:   000006F2  _lcd_cmd                           fire_alarm_panel
+C:   00000735  _lcd_data                          fire_alarm_panel
+C:   00000746  _lcd_disp                          fire_alarm_panel
+C:   0000077B  _lcd_disp1                         fire_alarm_panel
+C:   000007B3  _delay2                            fire_alarm_panel
+C:   000007C0  _delay1                            fire_alarm_panel
+C:   000007D3  _delay                             fire_alarm_panel
+C:   000007DC  _set_indicators                    fire_alarm_panel
+C:   00000801  _update_indicators                 fire_alarm_panel
+C:   0000080E  __gptrget                          _gptrget
+C:   0000082A  ___sdcc_external_startup           _startup
 ASxxxx Linker V03.00/V05.40 + sdld,  page 18.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-CONST                               0000085C    0000012E =         302. bytes (REL,CON,CODE)
+CONST                               0000082E    0000012E =         302. bytes (REL,CON,CODE)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-C:   0000085C  _INIT_COMMANDS                     fire_alarm_panel
-C:   00000863  _LINE1                             fire_alarm_panel
-C:   00000867  _LINE2                             fire_alarm_panel
-C:   00000869  _TEXT1                             fire_alarm_panel
-C:   0000087A  _TEXT2                             fire_alarm_panel
-C:   0000088B  _TEXT3                             fire_alarm_panel
-C:   0000089C  _TZONE1                            fire_alarm_panel
-C:   000008AD  _TZONE2                            fire_alarm_panel
-C:   000008BE  _FIRE                              fire_alarm_panel
-C:   000008CF  _SHORT                             fire_alarm_panel
-C:   000008E0  _OPEN                              fire_alarm_panel
-C:   000008F1  _TEXT4                             fire_alarm_panel
-C:   00000902  _TLAMP                             fire_alarm_panel
-C:   00000913  _TEVQ                              fire_alarm_panel
-C:   00000924  _ISO1                              fire_alarm_panel
-C:   00000935  _ISO2                              fire_alarm_panel
-C:   00000946  _ISO1H                             fire_alarm_panel
-C:   00000957  _ISO2H                             fire_alarm_panel
-C:   00000968  _LOWB                              fire_alarm_panel
-C:   00000979  _LOWM                              fire_alarm_panel
+C:   0000082E  _INIT_COMMANDS                     fire_alarm_panel
+C:   00000835  _LINE1                             fire_alarm_panel
+C:   00000839  _LINE2                             fire_alarm_panel
+C:   0000083B  _TEXT1                             fire_alarm_panel
+C:   0000084C  _TEXT2                             fire_alarm_panel
+C:   0000085D  _TEXT3                             fire_alarm_panel
+C:   0000086E  _TZONE1                            fire_alarm_panel
+C:   0000087F  _TZONE2                            fire_alarm_panel
+C:   00000890  _FIRE                              fire_alarm_panel
+C:   000008A1  _SHORT                             fire_alarm_panel
+C:   000008B2  _OPEN                              fire_alarm_panel
+C:   000008C3  _TEXT4                             fire_alarm_panel
+C:   000008D4  _TLAMP                             fire_alarm_panel
+C:   000008E5  _TEVQ                              fire_alarm_panel
+C:   000008F6  _ISO1                              fire_alarm_panel
+C:   00000907  _ISO2                              fire_alarm_panel
+C:   00000918  _ISO1H                             fire_alarm_panel
+C:   00000929  _ISO2H                             fire_alarm_panel
+C:   0000093A  _LOWB                              fire_alarm_panel
+C:   0000094B  _LOWM                              fire_alarm_panel
 
 ASxxxx Linker V03.00/V05.40 + sdld,  page 19.
 

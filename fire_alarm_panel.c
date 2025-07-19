@@ -346,10 +346,17 @@ void main(void)
                 // Fire condition detected
                 if((!SLC1 && PR1 && !FIRE1) || (!SLC2 && PR2 && !FIRE2)) {
                     // Fire alarm not silenced: Hooter ON, Buzzer repeating, Fire LED continuous ON
-                    set_indicators(0, buzzer_state, 0, 0); // HOT=ON, BUZ=repeating, CFLR=continuous ON, CFTLR=OFF
+                    // Set LEDs continuous, only buzzer follows pattern
+                    HOT = 0;    // Hooter ON (inverse logic)
+                    BUZ = buzzer_state; // Buzzer follows pattern
+                    CFLR = 0;   // Fire LED continuous ON (inverse logic)
+                    CFTLR = 0;  // Fault LED OFF
                 } else {
                     // Fire alarm silenced: All audible OFF, Fire LED still continuous ON
-                    set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF(silenced), CFLR=continuous ON, CFTLR=OFF
+                    HOT = 1;    // Hooter OFF (inverse logic)
+                    BUZ = 0;    // Buzzer OFF
+                    CFLR = 0;   // Fire LED continuous ON (inverse logic)
+                    CFTLR = 0;  // Fault LED OFF
                 }
             }
             // Check for fault conditions (short or open)
@@ -357,21 +364,33 @@ void main(void)
                 // Open/Short condition: Buzzer repeating, Fault LED continuous ON
                 if((!SLC1 && PR1) || (!SLC2 && PR2)) {
                     // Fault alarm not silenced: Buzzer repeating, Fault LED continuous ON
-                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=continuous ON
+                    HOT = 1;    // Hooter OFF (inverse logic)
+                    BUZ = buzzer_state; // Buzzer follows pattern
+                    CFLR = 1;   // Fire LED OFF (inverse logic)
+                    CFTLR = 1;  // Fault LED continuous ON
                 } else {
                     // Fault alarm silenced: All audible OFF, Fault LED still continuous ON
-                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=continuous ON
+                    HOT = 1;    // Hooter OFF (inverse logic)
+                    BUZ = 0;    // Buzzer OFF
+                    CFLR = 1;   // Fire LED OFF (inverse logic)
+                    CFTLR = 1;  // Fault LED continuous ON
                 }
             }
             
             // Low battery condition (separate from above conditions)
             if(LB) {
                 if(!LISO) {
-                    // Low battery alarm not silenced: Buzzer ON (repeating), Fault LED ON
-                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=ON
+                    // Low battery alarm not silenced: Buzzer repeating, Fault LED continuous ON
+                    HOT = 1;    // Hooter OFF (inverse logic)
+                    BUZ = buzzer_state; // Buzzer follows pattern
+                    CFLR = 1;   // Fire LED OFF (inverse logic)
+                    CFTLR = 1;  // Fault LED continuous ON
                 } else {
                     // Low battery alarm silenced
-                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+                    HOT = 1;    // Hooter OFF (inverse logic)
+                    BUZ = 0;    // Buzzer OFF
+                    CFLR = 1;   // Fire LED OFF (inverse logic)
+                    CFTLR = 1;  // Fault LED continuous ON
                 }
             }
         }
