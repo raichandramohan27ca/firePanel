@@ -1,6 +1,22 @@
 #include <8052.h>    // SDCC 8051 register definitions
 #include <string.h>
 
+// F1:X = FIRE1 pin state (1=HIGH, 0=LOW)
+// S1:Y = SHORT1 pin state (1=HIGH, 0=LOW)
+// Z1:Z = ZONE1 pin state (1=HIGH, 0=LOW)
+// Test Procedure:
+// Program this debug version to your 8051
+// Observe the LCD - it should show current pin states
+// Test each condition:
+// Pull FIRE1 (P0.0) to LOW → F1 should change from 1 to 0
+// Pull SHORT1 (P0.2) to LOW → S1 should change from 1 to 0
+// Change ZONE1 (P2.4) → Z1 should change between 1 and 0
+// Expected Results:
+// Normal state: F1:1 S1:1 Z1:0 (if zone switch is in healthy position)
+// Fire condition: F1:0 S1:1 Z1:0 (FIRE1 pulled LOW)
+// Short condition: F1:1 S1:0 Z1:0 (SHORT1 pulled LOW)
+// Zone isolated: F1:1 S1:1 Z1:1 (zone switch in isolate position)
+
 // Port and Pin Definitions using SDCC syntax
 __sbit __at (0xA4) ZONE1;    // P2.4 - Zone 1 isolate
 __sbit __at (0xA5) ZONE2;    // P2.5 - Zone 2 isolate  
@@ -37,11 +53,11 @@ unsigned char BLT1;     // Backlight timer (5 minutes = 300 seconds)
 unsigned int BL_TIMER;  // Backlight countdown timer
 unsigned char RAP;      // Repeat counter
 unsigned char P1_INDICATORS; // Shadow register for indicator bits P1.4-P1.7
-unsigned char BUZZER_COUNTER; // Counter for buzzer repetition pattern
+unsigned int BUZZER_COUNTER; // Counter for buzzer repetition pattern (needs int for 5-sec timing)
 
 #define BL_TIMEOUT 300  // 5 minutes timeout for backlight in normal condition
-#define BUZZER_ON_TIME 50   // Buzzer ON time in loop cycles
-#define BUZZER_OFF_TIME 30  // Buzzer OFF time in loop cycles
+#define BUZZER_ON_TIME 500   // Buzzer ON time in loop cycles (5 seconds)
+#define BUZZER_OFF_TIME 500  // Buzzer OFF time in loop cycles (5 seconds)
 
 // LCD Commands and Text Strings
 __code unsigned char INIT_COMMANDS[] = {0x20, 0x28, 0x0C, 0x01, 0x06, 0x80, 0};
@@ -141,12 +157,13 @@ void main(void)
             lcd_disp(TEXT1);
         }
         
-        // DEBUG: Always show pin states for testing (comment out after testing)
-        // Enable this for debugging pin inputs
+        // DEBUG: Pin state display disabled - remove comments to enable for testing
+        /*
         lcd_cmd(LINE1);
         lcd_data('F'); lcd_data('1'); lcd_data(':'); lcd_data(FIRE1 ? '1' : '0');
         lcd_data(' '); lcd_data('S'); lcd_data('1'); lcd_data(':'); lcd_data(SHORT1 ? '1' : '0');
         lcd_data(' '); lcd_data('Z'); lcd_data('1'); lcd_data(':'); lcd_data(ZONE1 ? '1' : '0');
+        */
         
         if(RI) {
             receive();
@@ -328,22 +345,22 @@ void main(void)
             if((PR1 && !FIRE1) || (PR2 && !FIRE2)) {
                 // Fire condition detected
                 if((!SLC1 && PR1 && !FIRE1) || (!SLC2 && PR2 && !FIRE2)) {
-                    // Fire alarm not silenced: Hooter ON, Buzzer ON (repeating), Fire LED ON
-                    set_indicators(0, buzzer_state, 0, 0); // HOT=ON, BUZ=repeating, CFLR=ON, CFTLR=OFF
+                    // Fire alarm not silenced: Hooter ON, Buzzer repeating, Fire LED continuous ON
+                    set_indicators(0, buzzer_state, 0, 0); // HOT=ON, BUZ=repeating, CFLR=continuous ON, CFTLR=OFF
                 } else {
-                    // Fire alarm silenced: All audible OFF, Fire LED still ON
-                    set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF(silenced), CFLR=ON, CFTLR=OFF
+                    // Fire alarm silenced: All audible OFF, Fire LED still continuous ON
+                    set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF(silenced), CFLR=continuous ON, CFTLR=OFF
                 }
             }
             // Check for fault conditions (short or open)
             else if((PR1 && (!SHORT1 || !OPEN1)) || (PR2 && (!SHORT2 || !OPEN2))) {
-                // Open/Short condition: Buzzer ON (repeating), Fault LED ON
+                // Open/Short condition: Buzzer repeating, Fault LED continuous ON
                 if((!SLC1 && PR1) || (!SLC2 && PR2)) {
-                    // Fault alarm not silenced
-                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=ON
+                    // Fault alarm not silenced: Buzzer repeating, Fault LED continuous ON
+                    set_indicators(1, buzzer_state, 1, 1); // HOT=OFF, BUZ=repeating, CFLR=OFF, CFTLR=continuous ON
                 } else {
-                    // Fault alarm silenced
-                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+                    // Fault alarm silenced: All audible OFF, Fault LED still continuous ON
+                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=continuous ON
                 }
             }
             
