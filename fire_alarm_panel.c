@@ -141,26 +141,42 @@ void main(void)
             lcd_disp(TEXT1);
         }
         
+        // DEBUG: Always show pin states for testing (comment out after testing)
+        // Enable this for debugging pin inputs
+        lcd_cmd(LINE1);
+        lcd_data('F'); lcd_data('1'); lcd_data(':'); lcd_data(FIRE1 ? '1' : '0');
+        lcd_data(' '); lcd_data('S'); lcd_data('1'); lcd_data(':'); lcd_data(SHORT1 ? '1' : '0');
+        lcd_data(' '); lcd_data('Z'); lcd_data('1'); lcd_data(':'); lcd_data(ZONE1 ? '1' : '0');
+        
         if(RI) {
             receive();
         }
         
-        // Check Zone 1 status
+        // Check Zone 1 status - ALWAYS monitor fire/short conditions
         if(!ZONE1) {
-            // Zone 1 OFF = HEALTHY (no operations)
+            // Zone 1 OFF = HEALTHY (no operations) - but still monitor for alarms
             Z1 = 0; // Mark as healthy/not isolated
-            PR1 = 0; // No problems
-            lcd_cmd(LINE2);
-            lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
-            // Ensure indicators remain in correct state after LCD operations
-            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
-            delay1();
+            
+            // Check Zone 1 inputs even when not isolated (safety requirement)
+            if(FIRE1 && OPEN1 && SHORT1) {
+                // Zone 1 is healthy - no problems
+                PR1 = 0;
+                SLC1 = 0;
+                lcd_cmd(LINE2);
+                lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
+                set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+                delay1();
+            } else {
+                // Zone 1 has problems - handle alarms even when not isolated
+                PR1 = 1;
+                prz1();
+            }
             if(RI) receive();
         } else {
             // Zone 1 ON = ISOLATE (perform operations)
             Z1 = 1; // Mark as isolated
             
-            // Check Zone 1 inputs (only when isolated/active)
+            // Check Zone 1 inputs (when isolated/active)
             if(FIRE1 && OPEN1 && SHORT1) {
                 // Zone 1 is healthy - no problems, show isolate message
                 PR1 = 0;
@@ -176,22 +192,31 @@ void main(void)
             if(RI) receive();
         }
         
-        // Check Zone 2 status
+        // Check Zone 2 status - ALWAYS monitor fire/short conditions
         if(!ZONE2) {
-            // Zone 2 OFF = HEALTHY (no operations)
+            // Zone 2 OFF = HEALTHY (no operations) - but still monitor for alarms
             Z2 = 0; // Mark as healthy/not isolated
-            PR2 = 0; // No problems
-            lcd_cmd(LINE2);
-            lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
-            // Ensure indicators remain in correct state after LCD operations
-            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
-            delay1();
+            
+            // Check Zone 2 inputs even when not isolated (safety requirement)
+            if(FIRE2 && OPEN2 && SHORT2) {
+                // Zone 2 is healthy - no problems
+                PR2 = 0;
+                SLC2 = 0;
+                lcd_cmd(LINE2);
+                lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
+                set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+                delay1();
+            } else {
+                // Zone 2 has problems - handle alarms even when not isolated
+                PR2 = 1;
+                prz2();
+            }
             if(RI) receive();
         } else {
             // Zone 2 ON = ISOLATE (perform operations)
             Z2 = 1; // Mark as isolated
             
-            // Check Zone 2 inputs (only when isolated/active)
+            // Check Zone 2 inputs (when isolated/active)
             if(FIRE2 && OPEN2 && SHORT2) {
                 // Zone 2 is healthy - no problems, show isolate message
                 PR2 = 0;
