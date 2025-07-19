@@ -572,9 +572,9 @@
       00000A 90r00r00         [24]  572 	mov	dptr,#_INIT_COMMANDS
       00000D 75 F0 80         [24]  573 	mov	b, #0x80
       000010 C0 07            [24]  574 	push	ar7
-      000012 12r05r30         [24]  575 	lcall	_lcd_cmd
+      000012 12r05r38         [24]  575 	lcall	_lcd_cmd
                                     576 ;	fire_alarm_panel.c:96: delay();
-      000015 12r06r11         [24]  577 	lcall	_delay
+      000015 12r06r19         [24]  577 	lcall	_delay
       000018 D0 07            [24]  578 	pop	ar7
                                     579 ;	fire_alarm_panel.c:97: R0++;
       00001A 0F               [12]  580 	inc	r7
@@ -583,21 +583,21 @@
                                     583 ;	fire_alarm_panel.c:101: lcd_cmd(LINE1);
       00001D 90r00r07         [24]  584 	mov	dptr,#_LINE1
       000020 75 F0 80         [24]  585 	mov	b, #0x80
-      000023 12r05r30         [24]  586 	lcall	_lcd_cmd
+      000023 12r05r38         [24]  586 	lcall	_lcd_cmd
                                     587 ;	fire_alarm_panel.c:102: lcd_disp(TEXT2);
       000026 90r00r1E         [24]  588 	mov	dptr,#_TEXT2
       000029 75 F0 80         [24]  589 	mov	b, #0x80
-      00002C 12r05r84         [24]  590 	lcall	_lcd_disp
+      00002C 12r05r8C         [24]  590 	lcall	_lcd_disp
                                     591 ;	fire_alarm_panel.c:103: delay();
-      00002F 12r06r11         [24]  592 	lcall	_delay
+      00002F 12r06r19         [24]  592 	lcall	_delay
                                     593 ;	fire_alarm_panel.c:104: lcd_cmd(LINE2);
       000032 90r00r0B         [24]  594 	mov	dptr,#_LINE2
       000035 75 F0 80         [24]  595 	mov	b, #0x80
-      000038 12r05r30         [24]  596 	lcall	_lcd_cmd
+      000038 12r05r38         [24]  596 	lcall	_lcd_cmd
                                     597 ;	fire_alarm_panel.c:105: lcd_disp1(TEXT1);
       00003B 90r00r0D         [24]  598 	mov	dptr,#_TEXT1
       00003E 75 F0 80         [24]  599 	mov	b, #0x80
-      000041 12r05rB9         [24]  600 	lcall	_lcd_disp1
+      000041 12r05rC1         [24]  600 	lcall	_lcd_disp1
                                     601 ;	fire_alarm_panel.c:107: while(1) {
       000044                        602 00204$:
                                     603 ;	fire_alarm_panel.c:109: if(RI) {
@@ -641,11 +641,11 @@
                                     641 ;	fire_alarm_panel.c:133: lcd_cmd(LINE1);
       000078 90r00r07         [24]  642 	mov	dptr,#_LINE1
       00007B 75 F0 80         [24]  643 	mov	b, #0x80
-      00007E 12r05r30         [24]  644 	lcall	_lcd_cmd
+      00007E 12r05r38         [24]  644 	lcall	_lcd_cmd
                                     645 ;	fire_alarm_panel.c:134: lcd_disp(TEXT1);
       000081 90r00r0D         [24]  646 	mov	dptr,#_TEXT1
       000084 75 F0 80         [24]  647 	mov	b, #0x80
-      000087 12r05r84         [24]  648 	lcall	_lcd_disp
+      000087 12r05r8C         [24]  648 	lcall	_lcd_disp
                                     649 ;	fire_alarm_panel.c:136: if(RI) {
       00008A 30 98 03         [24]  650 	jnb	_RI,00117$
                                     651 ;	fire_alarm_panel.c:137: receive();
@@ -662,13 +662,13 @@
                                     662 ;	fire_alarm_panel.c:145: lcd_cmd(LINE2);
       000097 90r00r0B         [24]  663 	mov	dptr,#_LINE2
       00009A 75 F0 80         [24]  664 	mov	b, #0x80
-      00009D 12r05r30         [24]  665 	lcall	_lcd_cmd
+      00009D 12r05r38         [24]  665 	lcall	_lcd_cmd
                                     666 ;	fire_alarm_panel.c:146: lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
       0000A0 90r00rEA         [24]  667 	mov	dptr,#_ISO1H
       0000A3 75 F0 80         [24]  668 	mov	b, #0x80
-      0000A6 12r05r84         [24]  669 	lcall	_lcd_disp
+      0000A6 12r05r8C         [24]  669 	lcall	_lcd_disp
                                     670 ;	fire_alarm_panel.c:147: delay1();
-      0000A9 12r05rFE         [24]  671 	lcall	_delay1
+      0000A9 12r06r06         [24]  671 	lcall	_delay1
                                     672 ;	fire_alarm_panel.c:148: if(RI) receive();
       0000AC 30 98 3C         [24]  673 	jnb	_RI,00131$
       0000AF 12r04r4D         [24]  674 	lcall	_receive
@@ -680,13 +680,13 @@
                                     680 ;	fire_alarm_panel.c:152: lcd_cmd(LINE2);
       0000B6 90r00r0B         [24]  681 	mov	dptr,#_LINE2
       0000B9 75 F0 80         [24]  682 	mov	b, #0x80
-      0000BC 12r05r30         [24]  683 	lcall	_lcd_cmd
+      0000BC 12r05r38         [24]  683 	lcall	_lcd_cmd
                                     684 ;	fire_alarm_panel.c:153: lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
       0000BF 90r00rC8         [24]  685 	mov	dptr,#_ISO1
       0000C2 75 F0 80         [24]  686 	mov	b, #0x80
-      0000C5 12r05r84         [24]  687 	lcall	_lcd_disp
+      0000C5 12r05r8C         [24]  687 	lcall	_lcd_disp
                                     688 ;	fire_alarm_panel.c:154: delay1();
-      0000C8 12r05rFE         [24]  689 	lcall	_delay1
+      0000C8 12r06r06         [24]  689 	lcall	_delay1
                                     690 ;	fire_alarm_panel.c:155: if(RI) receive();
       0000CB 30 98 03         [24]  691 	jnb	_RI,00121$
       0000CE 12r04r4D         [24]  692 	lcall	_receive
@@ -723,13 +723,13 @@
                                     723 ;	fire_alarm_panel.c:175: lcd_cmd(LINE2);
       0000F2 90r00r0B         [24]  724 	mov	dptr,#_LINE2
       0000F5 75 F0 80         [24]  725 	mov	b, #0x80
-      0000F8 12r05r30         [24]  726 	lcall	_lcd_cmd
+      0000F8 12r05r38         [24]  726 	lcall	_lcd_cmd
                                     727 ;	fire_alarm_panel.c:176: lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
       0000FB 90r00rFB         [24]  728 	mov	dptr,#_ISO2H
       0000FE 75 F0 80         [24]  729 	mov	b, #0x80
-      000101 12r05r84         [24]  730 	lcall	_lcd_disp
+      000101 12r05r8C         [24]  730 	lcall	_lcd_disp
                                     731 ;	fire_alarm_panel.c:177: delay1();
-      000104 12r05rFE         [24]  732 	lcall	_delay1
+      000104 12r06r06         [24]  732 	lcall	_delay1
                                     733 ;	fire_alarm_panel.c:178: if(RI) receive();
       000107 30 98 3C         [24]  734 	jnb	_RI,00145$
       00010A 12r04r4D         [24]  735 	lcall	_receive
@@ -741,13 +741,13 @@
                                     741 ;	fire_alarm_panel.c:182: lcd_cmd(LINE2);
       000111 90r00r0B         [24]  742 	mov	dptr,#_LINE2
       000114 75 F0 80         [24]  743 	mov	b, #0x80
-      000117 12r05r30         [24]  744 	lcall	_lcd_cmd
+      000117 12r05r38         [24]  744 	lcall	_lcd_cmd
                                     745 ;	fire_alarm_panel.c:183: lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
       00011A 90r00rD9         [24]  746 	mov	dptr,#_ISO2
       00011D 75 F0 80         [24]  747 	mov	b, #0x80
-      000120 12r05r84         [24]  748 	lcall	_lcd_disp
+      000120 12r05r8C         [24]  748 	lcall	_lcd_disp
                                     749 ;	fire_alarm_panel.c:184: delay1();
-      000123 12r05rFE         [24]  750 	lcall	_delay1
+      000123 12r06r06         [24]  750 	lcall	_delay1
                                     751 ;	fire_alarm_panel.c:185: if(RI) receive();
       000126 30 98 03         [24]  752 	jnb	_RI,00135$
       000129 12r04r4D         [24]  753 	lcall	_receive
@@ -779,13 +779,13 @@
                                     779 ;	fire_alarm_panel.c:202: lcd_cmd(LINE2);
       00014C 90r00r0B         [24]  780 	mov	dptr,#_LINE2
       00014F 75 F0 80         [24]  781 	mov	b, #0x80
-      000152 12r05r30         [24]  782 	lcall	_lcd_cmd
+      000152 12r05r38         [24]  782 	lcall	_lcd_cmd
                                     783 ;	fire_alarm_panel.c:203: lcd_disp(TEXT3);
       000155 90r00r2F         [24]  784 	mov	dptr,#_TEXT3
       000158 75 F0 80         [24]  785 	mov	b, #0x80
-      00015B 12r05r84         [24]  786 	lcall	_lcd_disp
+      00015B 12r05r8C         [24]  786 	lcall	_lcd_disp
                                     787 ;	fire_alarm_panel.c:204: delay1();
-      00015E 12r05rFE         [24]  788 	lcall	_delay1
+      00015E 12r06r06         [24]  788 	lcall	_delay1
                                     789 ;	fire_alarm_panel.c:205: if(RI) receive();
       000161 30 98 03         [24]  790 	jnb	_RI,00149$
       000164 12r04r4D         [24]  791 	lcall	_receive
@@ -804,23 +804,23 @@
                                     804 ;	fire_alarm_panel.c:218: lcd_cmd(LINE1);
       000176 90r00r07         [24]  805 	mov	dptr,#_LINE1
       000179 75 F0 80         [24]  806 	mov	b, #0x80
-      00017C 12r05r30         [24]  807 	lcall	_lcd_cmd
+      00017C 12r05r38         [24]  807 	lcall	_lcd_cmd
                                     808 ;	fire_alarm_panel.c:219: lcd_disp(TLAMP);
       00017F 90r00rA6         [24]  809 	mov	dptr,#_TLAMP
       000182 75 F0 80         [24]  810 	mov	b, #0x80
-      000185 12r05r84         [24]  811 	lcall	_lcd_disp
+      000185 12r05r8C         [24]  811 	lcall	_lcd_disp
                                     812 ;	fire_alarm_panel.c:220: lcd_cmd(LINE2);
       000188 90r00r0B         [24]  813 	mov	dptr,#_LINE2
       00018B 75 F0 80         [24]  814 	mov	b, #0x80
-      00018E 12r05r30         [24]  815 	lcall	_lcd_cmd
+      00018E 12r05r38         [24]  815 	lcall	_lcd_cmd
                                     816 ;	fire_alarm_panel.c:221: lcd_disp(TZONE1);
       000191 90r00r40         [24]  817 	mov	dptr,#_TZONE1
       000194 75 F0 80         [24]  818 	mov	b, #0x80
-      000197 12r05r84         [24]  819 	lcall	_lcd_disp
+      000197 12r05r8C         [24]  819 	lcall	_lcd_disp
                                     820 ;	fire_alarm_panel.c:222: delay1();
-      00019A 12r05rFE         [24]  821 	lcall	_delay1
+      00019A 12r06r06         [24]  821 	lcall	_delay1
                                     822 ;	fire_alarm_panel.c:223: delay1();
-      00019D 12r05rFE         [24]  823 	lcall	_delay1
+      00019D 12r06r06         [24]  823 	lcall	_delay1
                                     824 ;	fire_alarm_panel.c:226: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
                                     825 ;	assignBit
       0001A0 C2 96            [12]  826 	clr	_CFLR
@@ -831,7 +831,7 @@
                                     831 ;	assignBit
       0001A6 D2 95            [12]  832 	setb	_BUZ
                                     833 ;	fire_alarm_panel.c:227: delay1();
-      0001A8 12r05rFE         [24]  834 	lcall	_delay1
+      0001A8 12r06r06         [24]  834 	lcall	_delay1
                                     835 ;	fire_alarm_panel.c:228: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
                                     836 ;	assignBit
       0001AB D2 96            [12]  837 	setb	_CFLR
@@ -844,13 +844,13 @@
                                     844 ;	fire_alarm_panel.c:230: lcd_cmd(LINE2);
       0001B3 90r00r0B         [24]  845 	mov	dptr,#_LINE2
       0001B6 75 F0 80         [24]  846 	mov	b, #0x80
-      0001B9 12r05r30         [24]  847 	lcall	_lcd_cmd
+      0001B9 12r05r38         [24]  847 	lcall	_lcd_cmd
                                     848 ;	fire_alarm_panel.c:231: lcd_disp(TZONE2);
       0001BC 90r00r51         [24]  849 	mov	dptr,#_TZONE2
       0001BF 75 F0 80         [24]  850 	mov	b, #0x80
-      0001C2 12r05r84         [24]  851 	lcall	_lcd_disp
+      0001C2 12r05r8C         [24]  851 	lcall	_lcd_disp
                                     852 ;	fire_alarm_panel.c:232: delay1();
-      0001C5 12r05rFE         [24]  853 	lcall	_delay1
+      0001C5 12r06r06         [24]  853 	lcall	_delay1
                                     854 ;	fire_alarm_panel.c:235: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
                                     855 ;	assignBit
       0001C8 C2 96            [12]  856 	clr	_CFLR
@@ -861,7 +861,7 @@
                                     861 ;	assignBit
       0001CE D2 95            [12]  862 	setb	_BUZ
                                     863 ;	fire_alarm_panel.c:236: delay1();
-      0001D0 12r05rFE         [24]  864 	lcall	_delay1
+      0001D0 12r06r06         [24]  864 	lcall	_delay1
                                     865 ;	fire_alarm_panel.c:237: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
                                     866 ;	assignBit
       0001D3 D2 96            [12]  867 	setb	_CFLR
@@ -895,25 +895,25 @@
                                     895 ;	fire_alarm_panel.c:250: lcd_cmd(LINE1);
       0001EF 90r00r07         [24]  896 	mov	dptr,#_LINE1
       0001F2 75 F0 80         [24]  897 	mov	b, #0x80
-      0001F5 12r05r30         [24]  898 	lcall	_lcd_cmd
+      0001F5 12r05r38         [24]  898 	lcall	_lcd_cmd
                                     899 ;	fire_alarm_panel.c:251: lcd_disp(TEVQ);
       0001F8 90r00rB7         [24]  900 	mov	dptr,#_TEVQ
       0001FB 75 F0 80         [24]  901 	mov	b, #0x80
-      0001FE 12r05r84         [24]  902 	lcall	_lcd_disp
+      0001FE 12r05r8C         [24]  902 	lcall	_lcd_disp
                                     903 ;	fire_alarm_panel.c:252: lcd_cmd(LINE2);
       000201 90r00r0B         [24]  904 	mov	dptr,#_LINE2
       000204 75 F0 80         [24]  905 	mov	b, #0x80
-      000207 12r05r30         [24]  906 	lcall	_lcd_cmd
+      000207 12r05r38         [24]  906 	lcall	_lcd_cmd
                                     907 ;	fire_alarm_panel.c:253: lcd_disp(TEXT4);
       00020A 90r00r95         [24]  908 	mov	dptr,#_TEXT4
       00020D 75 F0 80         [24]  909 	mov	b, #0x80
-      000210 12r05r84         [24]  910 	lcall	_lcd_disp
+      000210 12r05r8C         [24]  910 	lcall	_lcd_disp
                                     911 ;	fire_alarm_panel.c:256: while(!EVQ && !RI) {
       000213                        912 00163$:
       000213 20 A1 08         [24]  913 	jb	_EVQ,00165$
       000216 20 98 05         [24]  914 	jb	_RI,00165$
                                     915 ;	fire_alarm_panel.c:257: delay1();
-      000219 12r05rFE         [24]  916 	lcall	_delay1
+      000219 12r06r06         [24]  916 	lcall	_delay1
       00021C 80 F5            [24]  917 	sjmp	00163$
       00021E                        918 00165$:
                                     919 ;	fire_alarm_panel.c:260: if(RI) receive();
@@ -934,7 +934,7 @@
       00022A C2 97            [12]  934 	clr	_CFTLR
       00022C                        935 00169$:
                                     936 ;	fire_alarm_panel.c:269: delay();
-      00022C 12r06r11         [24]  937 	lcall	_delay
+      00022C 12r06r19         [24]  937 	lcall	_delay
                                     938 ;	fire_alarm_panel.c:272: if(!PR1 && !PR2 && !LB) {
       00022F 20*05 2A         [24]  939 	jb	_PR1,00171$
       000232 20*06 27         [24]  940 	jb	_PR2,00171$
@@ -942,19 +942,19 @@
                                     942 ;	fire_alarm_panel.c:273: lcd_cmd(LINE1);
       000238 90r00r07         [24]  943 	mov	dptr,#_LINE1
       00023B 75 F0 80         [24]  944 	mov	b, #0x80
-      00023E 12r05r30         [24]  945 	lcall	_lcd_cmd
+      00023E 12r05r38         [24]  945 	lcall	_lcd_cmd
                                     946 ;	fire_alarm_panel.c:274: lcd_disp(TEXT1);
       000241 90r00r0D         [24]  947 	mov	dptr,#_TEXT1
       000244 75 F0 80         [24]  948 	mov	b, #0x80
-      000247 12r05r84         [24]  949 	lcall	_lcd_disp
+      000247 12r05r8C         [24]  949 	lcall	_lcd_disp
                                     950 ;	fire_alarm_panel.c:275: lcd_cmd(LINE2);
       00024A 90r00r0B         [24]  951 	mov	dptr,#_LINE2
       00024D 75 F0 80         [24]  952 	mov	b, #0x80
-      000250 12r05r30         [24]  953 	lcall	_lcd_cmd
+      000250 12r05r38         [24]  953 	lcall	_lcd_cmd
                                     954 ;	fire_alarm_panel.c:276: lcd_disp(TEXT3);
       000253 90r00r2F         [24]  955 	mov	dptr,#_TEXT3
       000256 75 F0 80         [24]  956 	mov	b, #0x80
-      000259 12r05r84         [24]  957 	lcall	_lcd_disp
+      000259 12r05r8C         [24]  957 	lcall	_lcd_disp
       00025C                        958 00171$:
                                     959 ;	fire_alarm_panel.c:280: if(!PR1 && !PR2 && !LB) {
       00025C 20*05 10         [24]  960 	jb	_PR1,00190$
@@ -1051,23 +1051,23 @@
                                    1051 ;	fire_alarm_panel.c:331: lcd_cmd(LINE1);
       0002B5 90r00r07         [24] 1052 	mov	dptr,#_LINE1
       0002B8 75 F0 80         [24] 1053 	mov	b, #0x80
-      0002BB 12r05r30         [24] 1054 	lcall	_lcd_cmd
+      0002BB 12r05r38         [24] 1054 	lcall	_lcd_cmd
                                    1055 ;	fire_alarm_panel.c:332: lcd_disp(LOWB);
       0002BE 90r01r0C         [24] 1056 	mov	dptr,#_LOWB
       0002C1 75 F0 80         [24] 1057 	mov	b, #0x80
-      0002C4 12r05r84         [24] 1058 	lcall	_lcd_disp
+      0002C4 12r05r8C         [24] 1058 	lcall	_lcd_disp
                                    1059 ;	fire_alarm_panel.c:333: lcd_cmd(LINE2);
       0002C7 90r00r0B         [24] 1060 	mov	dptr,#_LINE2
       0002CA 75 F0 80         [24] 1061 	mov	b, #0x80
-      0002CD 12r05r30         [24] 1062 	lcall	_lcd_cmd
+      0002CD 12r05r38         [24] 1062 	lcall	_lcd_cmd
                                    1063 ;	fire_alarm_panel.c:334: lcd_disp(LOWM);
       0002D0 90r01r1D         [24] 1064 	mov	dptr,#_LOWM
       0002D3 75 F0 80         [24] 1065 	mov	b, #0x80
-      0002D6 12r05r84         [24] 1066 	lcall	_lcd_disp
+      0002D6 12r05r8C         [24] 1066 	lcall	_lcd_disp
                                    1067 ;	fire_alarm_panel.c:335: delay1();
-      0002D9 12r05rFE         [24] 1068 	lcall	_delay1
+      0002D9 12r06r06         [24] 1068 	lcall	_delay1
                                    1069 ;	fire_alarm_panel.c:336: delay1();
-      0002DC 12r05rFE         [24] 1070 	lcall	_delay1
+      0002DC 12r06r06         [24] 1070 	lcall	_delay1
                                    1071 ;	fire_alarm_panel.c:338: if(LISO) {
       0002DF 20*04 03         [24] 1072 	jb	_LISO,00594$
       0002E2 02r00r44         [24] 1073 	ljmp	00204$
@@ -1166,22 +1166,22 @@
                                    1166 ;	fire_alarm_panel.c:390: lcd_cmd(LINE1);
       00032E 90r00r07         [24] 1167 	mov	dptr,#_LINE1
       000331 75 F0 80         [24] 1168 	mov	b, #0x80
-      000334 12r05r30         [24] 1169 	lcall	_lcd_cmd
+      000334 12r05r38         [24] 1169 	lcall	_lcd_cmd
                                    1170 ;	fire_alarm_panel.c:391: lcd_disp(TZONE1);
       000337 90r00r40         [24] 1171 	mov	dptr,#_TZONE1
       00033A 75 F0 80         [24] 1172 	mov	b, #0x80
-      00033D 12r05r84         [24] 1173 	lcall	_lcd_disp
+      00033D 12r05r8C         [24] 1173 	lcall	_lcd_disp
       000340                       1174 00102$:
                                    1175 ;	fire_alarm_panel.c:395: if(!SHORT1) {
       000340 20 82 1D         [24] 1176 	jb	_SHORT1,00121$
                                    1177 ;	fire_alarm_panel.c:396: lcd_cmd(LINE2);
       000343 90r00r0B         [24] 1178 	mov	dptr,#_LINE2
       000346 75 F0 80         [24] 1179 	mov	b, #0x80
-      000349 12r05r30         [24] 1180 	lcall	_lcd_cmd
+      000349 12r05r38         [24] 1180 	lcall	_lcd_cmd
                                    1181 ;	fire_alarm_panel.c:397: lcd_disp(SHORT);
       00034C 90r00r73         [24] 1182 	mov	dptr,#_SHORT
       00034F 75 F0 80         [24] 1183 	mov	b, #0x80
-      000352 12r05r84         [24] 1184 	lcall	_lcd_disp
+      000352 12r05r8C         [24] 1184 	lcall	_lcd_disp
                                    1185 ;	fire_alarm_panel.c:399: if(!SLC1) {
       000355 20*02 04         [24] 1186 	jb	_SLC1,00104$
                                    1187 ;	fire_alarm_panel.c:400: BUZ = 1; // Buzzer ON if not silenced
@@ -1199,11 +1199,11 @@
                                    1199 ;	fire_alarm_panel.c:405: lcd_cmd(LINE2);
       000363 90r00r0B         [24] 1200 	mov	dptr,#_LINE2
       000366 75 F0 80         [24] 1201 	mov	b, #0x80
-      000369 12r05r30         [24] 1202 	lcall	_lcd_cmd
+      000369 12r05r38         [24] 1202 	lcall	_lcd_cmd
                                    1203 ;	fire_alarm_panel.c:406: lcd_disp(FIRE);
       00036C 90r00r62         [24] 1204 	mov	dptr,#_FIRE
       00036F 75 F0 80         [24] 1205 	mov	b, #0x80
-      000372 12r05r84         [24] 1206 	lcall	_lcd_disp
+      000372 12r05r8C         [24] 1206 	lcall	_lcd_disp
                                    1207 ;	fire_alarm_panel.c:408: if(!SLC1) {
       000375 20*02 04         [24] 1208 	jb	_SLC1,00107$
                                    1209 ;	fire_alarm_panel.c:409: BUZ = 1;  // Buzzer ON if not silenced
@@ -1221,11 +1221,11 @@
                                    1221 ;	fire_alarm_panel.c:414: lcd_cmd(LINE2);
       000383 90r00r0B         [24] 1222 	mov	dptr,#_LINE2
       000386 75 F0 80         [24] 1223 	mov	b, #0x80
-      000389 12r05r30         [24] 1224 	lcall	_lcd_cmd
+      000389 12r05r38         [24] 1224 	lcall	_lcd_cmd
                                    1225 ;	fire_alarm_panel.c:415: lcd_disp(OPEN);
       00038C 90r00r84         [24] 1226 	mov	dptr,#_OPEN
       00038F 75 F0 80         [24] 1227 	mov	b, #0x80
-      000392 12r05r84         [24] 1228 	lcall	_lcd_disp
+      000392 12r05r8C         [24] 1228 	lcall	_lcd_disp
                                    1229 ;	fire_alarm_panel.c:417: if(!SLC1) {
       000395 20*02 04         [24] 1230 	jb	_SLC1,00110$
                                    1231 ;	fire_alarm_panel.c:418: BUZ = 1; // Buzzer ON if not silenced
@@ -1249,15 +1249,15 @@
                                    1249 ;	fire_alarm_panel.c:429: lcd_cmd(LINE2);
       0003A7 90r00r0B         [24] 1250 	mov	dptr,#_LINE2
       0003AA 75 F0 80         [24] 1251 	mov	b, #0x80
-      0003AD 12r05r30         [24] 1252 	lcall	_lcd_cmd
+      0003AD 12r05r38         [24] 1252 	lcall	_lcd_cmd
                                    1253 ;	fire_alarm_panel.c:430: lcd_disp(ISO1H);
       0003B0 90r00rEA         [24] 1254 	mov	dptr,#_ISO1H
       0003B3 75 F0 80         [24] 1255 	mov	b, #0x80
-      0003B6 12r05r84         [24] 1256 	lcall	_lcd_disp
+      0003B6 12r05r8C         [24] 1256 	lcall	_lcd_disp
       0003B9                       1257 00122$:
                                    1258 ;	fire_alarm_panel.c:434: delay1();
                                    1259 ;	fire_alarm_panel.c:435: }
-      0003B9 02r05rFE         [24] 1260 	ljmp	_delay1
+      0003B9 02r06r06         [24] 1260 	ljmp	_delay1
                                    1261 ;------------------------------------------------------------
                                    1262 ;Allocation info for local variables in function 'prz2'
                                    1263 ;------------------------------------------------------------
@@ -1271,22 +1271,22 @@
                                    1271 ;	fire_alarm_panel.c:440: lcd_cmd(LINE1);
       0003BF 90r00r07         [24] 1272 	mov	dptr,#_LINE1
       0003C2 75 F0 80         [24] 1273 	mov	b, #0x80
-      0003C5 12r05r30         [24] 1274 	lcall	_lcd_cmd
+      0003C5 12r05r38         [24] 1274 	lcall	_lcd_cmd
                                    1275 ;	fire_alarm_panel.c:441: lcd_disp(TZONE2);
       0003C8 90r00r51         [24] 1276 	mov	dptr,#_TZONE2
       0003CB 75 F0 80         [24] 1277 	mov	b, #0x80
-      0003CE 12r05r84         [24] 1278 	lcall	_lcd_disp
+      0003CE 12r05r8C         [24] 1278 	lcall	_lcd_disp
       0003D1                       1279 00102$:
                                    1280 ;	fire_alarm_panel.c:445: if(!SHORT2) {
       0003D1 20 85 1D         [24] 1281 	jb	_SHORT2,00121$
                                    1282 ;	fire_alarm_panel.c:446: lcd_cmd(LINE2);
       0003D4 90r00r0B         [24] 1283 	mov	dptr,#_LINE2
       0003D7 75 F0 80         [24] 1284 	mov	b, #0x80
-      0003DA 12r05r30         [24] 1285 	lcall	_lcd_cmd
+      0003DA 12r05r38         [24] 1285 	lcall	_lcd_cmd
                                    1286 ;	fire_alarm_panel.c:447: lcd_disp(SHORT);
       0003DD 90r00r73         [24] 1287 	mov	dptr,#_SHORT
       0003E0 75 F0 80         [24] 1288 	mov	b, #0x80
-      0003E3 12r05r84         [24] 1289 	lcall	_lcd_disp
+      0003E3 12r05r8C         [24] 1289 	lcall	_lcd_disp
                                    1290 ;	fire_alarm_panel.c:449: if(!SLC2) {
       0003E6 20*03 04         [24] 1291 	jb	_SLC2,00104$
                                    1292 ;	fire_alarm_panel.c:450: BUZ = 1; // Buzzer ON if not silenced
@@ -1304,11 +1304,11 @@
                                    1304 ;	fire_alarm_panel.c:455: lcd_cmd(LINE2);
       0003F4 90r00r0B         [24] 1305 	mov	dptr,#_LINE2
       0003F7 75 F0 80         [24] 1306 	mov	b, #0x80
-      0003FA 12r05r30         [24] 1307 	lcall	_lcd_cmd
+      0003FA 12r05r38         [24] 1307 	lcall	_lcd_cmd
                                    1308 ;	fire_alarm_panel.c:456: lcd_disp(FIRE);
       0003FD 90r00r62         [24] 1309 	mov	dptr,#_FIRE
       000400 75 F0 80         [24] 1310 	mov	b, #0x80
-      000403 12r05r84         [24] 1311 	lcall	_lcd_disp
+      000403 12r05r8C         [24] 1311 	lcall	_lcd_disp
                                    1312 ;	fire_alarm_panel.c:458: if(!SLC2) {
       000406 20*03 04         [24] 1313 	jb	_SLC2,00107$
                                    1314 ;	fire_alarm_panel.c:459: BUZ = 1;  // Buzzer ON if not silenced
@@ -1326,11 +1326,11 @@
                                    1326 ;	fire_alarm_panel.c:464: lcd_cmd(LINE2);
       000414 90r00r0B         [24] 1327 	mov	dptr,#_LINE2
       000417 75 F0 80         [24] 1328 	mov	b, #0x80
-      00041A 12r05r30         [24] 1329 	lcall	_lcd_cmd
+      00041A 12r05r38         [24] 1329 	lcall	_lcd_cmd
                                    1330 ;	fire_alarm_panel.c:465: lcd_disp(OPEN);
       00041D 90r00r84         [24] 1331 	mov	dptr,#_OPEN
       000420 75 F0 80         [24] 1332 	mov	b, #0x80
-      000423 12r05r84         [24] 1333 	lcall	_lcd_disp
+      000423 12r05r8C         [24] 1333 	lcall	_lcd_disp
                                    1334 ;	fire_alarm_panel.c:467: if(!SLC2) {
       000426 20*03 04         [24] 1335 	jb	_SLC2,00110$
                                    1336 ;	fire_alarm_panel.c:468: BUZ = 1; // Buzzer ON if not silenced
@@ -1354,15 +1354,15 @@
                                    1354 ;	fire_alarm_panel.c:479: lcd_cmd(LINE2);
       000438 90r00r0B         [24] 1355 	mov	dptr,#_LINE2
       00043B 75 F0 80         [24] 1356 	mov	b, #0x80
-      00043E 12r05r30         [24] 1357 	lcall	_lcd_cmd
+      00043E 12r05r38         [24] 1357 	lcall	_lcd_cmd
                                    1358 ;	fire_alarm_panel.c:480: lcd_disp(ISO2H);
       000441 90r00rFB         [24] 1359 	mov	dptr,#_ISO2H
       000444 75 F0 80         [24] 1360 	mov	b, #0x80
-      000447 12r05r84         [24] 1361 	lcall	_lcd_disp
+      000447 12r05r8C         [24] 1361 	lcall	_lcd_disp
       00044A                       1362 00122$:
                                    1363 ;	fire_alarm_panel.c:484: delay1();
                                    1364 ;	fire_alarm_panel.c:485: }
-      00044A 02r05rFE         [24] 1365 	ljmp	_delay1
+      00044A 02r06r06         [24] 1365 	ljmp	_delay1
                                    1366 ;------------------------------------------------------------
                                    1367 ;Allocation info for local variables in function 'receive'
                                    1368 ;------------------------------------------------------------
@@ -1614,462 +1614,468 @@
                                    1614 ;	-----------------------------------------
       000504                       1615 _move:
       000504 AF 82            [24] 1616 	mov	r7, dpl
-                                   1617 ;	fire_alarm_panel.c:582: P1 = (P1 & 0xF0) | data;
+                                   1617 ;	fire_alarm_panel.c:582: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
       000506 E5 90            [12] 1618 	mov	a,_P1
       000508 54 F0            [12] 1619 	anl	a,#0xf0
-      00050A 4F               [12] 1620 	orl	a,r7
-      00050B F5 90            [12] 1621 	mov	_P1,a
-                                   1622 ;	fire_alarm_panel.c:583: EN = 1;
-                                   1623 ;	assignBit
-      00050D D2 87            [12] 1624 	setb	_EN
-                                   1625 ;	fire_alarm_panel.c:584: delay();
-      00050F 12r06r11         [24] 1626 	lcall	_delay
-                                   1627 ;	fire_alarm_panel.c:585: EN = 0;
-                                   1628 ;	assignBit
-      000512 C2 87            [12] 1629 	clr	_EN
-                                   1630 ;	fire_alarm_panel.c:586: delay();
-                                   1631 ;	fire_alarm_panel.c:587: }
-      000514 02r06r11         [24] 1632 	ljmp	_delay
-                                   1633 ;------------------------------------------------------------
-                                   1634 ;Allocation info for local variables in function 'move1'
-                                   1635 ;------------------------------------------------------------
-                                   1636 ;data          Allocated to registers r7 
-                                   1637 ;------------------------------------------------------------
-                                   1638 ;	fire_alarm_panel.c:589: void move1(unsigned char data)
-                                   1639 ;	-----------------------------------------
-                                   1640 ;	 function move1
-                                   1641 ;	-----------------------------------------
-      000517                       1642 _move1:
-      000517 AF 82            [24] 1643 	mov	r7, dpl
-                                   1644 ;	fire_alarm_panel.c:591: P1 = (P1 & 0xF0) | data;
-      000519 E5 90            [12] 1645 	mov	a,_P1
-      00051B 54 F0            [12] 1646 	anl	a,#0xf0
-      00051D 4F               [12] 1647 	orl	a,r7
-      00051E F5 90            [12] 1648 	mov	_P1,a
-                                   1649 ;	fire_alarm_panel.c:592: EN = 1;
-                                   1650 ;	assignBit
-      000520 D2 87            [12] 1651 	setb	_EN
-                                   1652 ;	fire_alarm_panel.c:596: __endasm;
-      000522 00               [12] 1653 	nop
-                                   1654 ;	fire_alarm_panel.c:597: EN = 0;
-                                   1655 ;	assignBit
-      000523 C2 87            [12] 1656 	clr	_EN
-                                   1657 ;	fire_alarm_panel.c:607: __endasm;
-      000525 00               [12] 1658 	nop
-      000526 00               [12] 1659 	nop
-      000527 00               [12] 1660 	nop
-      000528 00               [12] 1661 	nop
-      000529 00               [12] 1662 	nop
-      00052A 00               [12] 1663 	nop
-      00052B 00               [12] 1664 	nop
-      00052C 00               [12] 1665 	nop
-                                   1666 ;	fire_alarm_panel.c:608: EN = 1;
-                                   1667 ;	assignBit
-      00052D D2 87            [12] 1668 	setb	_EN
-                                   1669 ;	fire_alarm_panel.c:609: }
-      00052F 22               [24] 1670 	ret
-                                   1671 ;------------------------------------------------------------
-                                   1672 ;Allocation info for local variables in function 'lcd_cmd'
-                                   1673 ;------------------------------------------------------------
-                                   1674 ;cmd_ptr       Allocated to registers r5 r6 r7 
-                                   1675 ;cmd           Allocated to registers r3 
-                                   1676 ;i             Allocated to registers r4 
+      00050A FE               [12] 1620 	mov	r6,a
+      00050B 74 0F            [12] 1621 	mov	a,#0x0f
+      00050D 5F               [12] 1622 	anl	a,r7
+      00050E 4E               [12] 1623 	orl	a,r6
+      00050F F5 90            [12] 1624 	mov	_P1,a
+                                   1625 ;	fire_alarm_panel.c:583: EN = 1;
+                                   1626 ;	assignBit
+      000511 D2 87            [12] 1627 	setb	_EN
+                                   1628 ;	fire_alarm_panel.c:584: delay();
+      000513 12r06r19         [24] 1629 	lcall	_delay
+                                   1630 ;	fire_alarm_panel.c:585: EN = 0;
+                                   1631 ;	assignBit
+      000516 C2 87            [12] 1632 	clr	_EN
+                                   1633 ;	fire_alarm_panel.c:586: delay();
+                                   1634 ;	fire_alarm_panel.c:587: }
+      000518 02r06r19         [24] 1635 	ljmp	_delay
+                                   1636 ;------------------------------------------------------------
+                                   1637 ;Allocation info for local variables in function 'move1'
+                                   1638 ;------------------------------------------------------------
+                                   1639 ;data          Allocated to registers r7 
+                                   1640 ;------------------------------------------------------------
+                                   1641 ;	fire_alarm_panel.c:589: void move1(unsigned char data)
+                                   1642 ;	-----------------------------------------
+                                   1643 ;	 function move1
+                                   1644 ;	-----------------------------------------
+      00051B                       1645 _move1:
+      00051B AF 82            [24] 1646 	mov	r7, dpl
+                                   1647 ;	fire_alarm_panel.c:591: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
+      00051D E5 90            [12] 1648 	mov	a,_P1
+      00051F 54 F0            [12] 1649 	anl	a,#0xf0
+      000521 FE               [12] 1650 	mov	r6,a
+      000522 74 0F            [12] 1651 	mov	a,#0x0f
+      000524 5F               [12] 1652 	anl	a,r7
+      000525 4E               [12] 1653 	orl	a,r6
+      000526 F5 90            [12] 1654 	mov	_P1,a
+                                   1655 ;	fire_alarm_panel.c:592: EN = 1;
+                                   1656 ;	assignBit
+      000528 D2 87            [12] 1657 	setb	_EN
+                                   1658 ;	fire_alarm_panel.c:596: __endasm;
+      00052A 00               [12] 1659 	nop
+                                   1660 ;	fire_alarm_panel.c:597: EN = 0;
+                                   1661 ;	assignBit
+      00052B C2 87            [12] 1662 	clr	_EN
+                                   1663 ;	fire_alarm_panel.c:607: __endasm;
+      00052D 00               [12] 1664 	nop
+      00052E 00               [12] 1665 	nop
+      00052F 00               [12] 1666 	nop
+      000530 00               [12] 1667 	nop
+      000531 00               [12] 1668 	nop
+      000532 00               [12] 1669 	nop
+      000533 00               [12] 1670 	nop
+      000534 00               [12] 1671 	nop
+                                   1672 ;	fire_alarm_panel.c:608: EN = 1;
+                                   1673 ;	assignBit
+      000535 D2 87            [12] 1674 	setb	_EN
+                                   1675 ;	fire_alarm_panel.c:609: }
+      000537 22               [24] 1676 	ret
                                    1677 ;------------------------------------------------------------
-                                   1678 ;	fire_alarm_panel.c:611: void lcd_cmd(unsigned char *cmd_ptr)
-                                   1679 ;	-----------------------------------------
-                                   1680 ;	 function lcd_cmd
-                                   1681 ;	-----------------------------------------
-      000530                       1682 _lcd_cmd:
-      000530 AD 82            [24] 1683 	mov	r5, dpl
-      000532 AE 83            [24] 1684 	mov	r6, dph
-      000534 AF F0            [24] 1685 	mov	r7, b
-                                   1686 ;	fire_alarm_panel.c:616: while((cmd = cmd_ptr[i]) != 0) {
-      000536 7C 00            [12] 1687 	mov	r4,#0x00
-      000538                       1688 00101$:
-      000538 EC               [12] 1689 	mov	a,r4
-      000539 2D               [12] 1690 	add	a, r5
-      00053A F9               [12] 1691 	mov	r1,a
-      00053B E4               [12] 1692 	clr	a
-      00053C 3E               [12] 1693 	addc	a, r6
-      00053D FA               [12] 1694 	mov	r2,a
-      00053E 8F 03            [24] 1695 	mov	ar3,r7
-      000540 89 82            [24] 1696 	mov	dpl,r1
-      000542 8A 83            [24] 1697 	mov	dph,r2
-      000544 8B F0            [24] 1698 	mov	b,r3
-      000546 12r00r00         [24] 1699 	lcall	__gptrget
-      000549 FB               [12] 1700 	mov	r3,a
-      00054A 60 26            [24] 1701 	jz	00104$
-                                   1702 ;	fire_alarm_panel.c:617: i++;
-      00054C 0C               [12] 1703 	inc	r4
-                                   1704 ;	fire_alarm_panel.c:618: RS = 0;
-                                   1705 ;	assignBit
-      00054D C2 86            [12] 1706 	clr	_RS
-                                   1707 ;	fire_alarm_panel.c:619: spliter(cmd);
-      00054F 8B 82            [24] 1708 	mov	dpl, r3
-      000551 C0 07            [24] 1709 	push	ar7
-      000553 C0 06            [24] 1710 	push	ar6
-      000555 C0 05            [24] 1711 	push	ar5
-      000557 C0 04            [24] 1712 	push	ar4
-      000559 12r04rF6         [24] 1713 	lcall	_spliter
-                                   1714 ;	fire_alarm_panel.c:620: move(U);
-      00055C 85*04 82         [24] 1715 	mov	dpl, _U
-      00055F 12r05r04         [24] 1716 	lcall	_move
-                                   1717 ;	fire_alarm_panel.c:621: move(L);
-      000562 85*05 82         [24] 1718 	mov	dpl, _L
-      000565 12r05r04         [24] 1719 	lcall	_move
-      000568 D0 04            [24] 1720 	pop	ar4
-      00056A D0 05            [24] 1721 	pop	ar5
-      00056C D0 06            [24] 1722 	pop	ar6
-      00056E D0 07            [24] 1723 	pop	ar7
-      000570 80 C6            [24] 1724 	sjmp	00101$
-      000572                       1725 00104$:
-                                   1726 ;	fire_alarm_panel.c:623: }
-      000572 22               [24] 1727 	ret
-                                   1728 ;------------------------------------------------------------
-                                   1729 ;Allocation info for local variables in function 'lcd_data'
-                                   1730 ;------------------------------------------------------------
-                                   1731 ;data          Allocated to registers 
-                                   1732 ;------------------------------------------------------------
-                                   1733 ;	fire_alarm_panel.c:625: void lcd_data(unsigned char data)
-                                   1734 ;	-----------------------------------------
-                                   1735 ;	 function lcd_data
-                                   1736 ;	-----------------------------------------
-      000573                       1737 _lcd_data:
-                                   1738 ;	fire_alarm_panel.c:627: RS = 1;
-                                   1739 ;	assignBit
-      000573 D2 86            [12] 1740 	setb	_RS
-                                   1741 ;	fire_alarm_panel.c:628: spliter(data);
-      000575 12r04rF6         [24] 1742 	lcall	_spliter
-                                   1743 ;	fire_alarm_panel.c:629: move1(U);
-      000578 85*04 82         [24] 1744 	mov	dpl, _U
-      00057B 12r05r17         [24] 1745 	lcall	_move1
-                                   1746 ;	fire_alarm_panel.c:630: move1(L);
-      00057E 85*05 82         [24] 1747 	mov	dpl, _L
-                                   1748 ;	fire_alarm_panel.c:631: }
-      000581 02r05r17         [24] 1749 	ljmp	_move1
-                                   1750 ;------------------------------------------------------------
-                                   1751 ;Allocation info for local variables in function 'lcd_disp'
-                                   1752 ;------------------------------------------------------------
-                                   1753 ;text_ptr      Allocated to registers r5 r6 r7 
-                                   1754 ;ch            Allocated to registers r3 
-                                   1755 ;i             Allocated to registers r4 
+                                   1678 ;Allocation info for local variables in function 'lcd_cmd'
+                                   1679 ;------------------------------------------------------------
+                                   1680 ;cmd_ptr       Allocated to registers r5 r6 r7 
+                                   1681 ;cmd           Allocated to registers r3 
+                                   1682 ;i             Allocated to registers r4 
+                                   1683 ;------------------------------------------------------------
+                                   1684 ;	fire_alarm_panel.c:611: void lcd_cmd(unsigned char *cmd_ptr)
+                                   1685 ;	-----------------------------------------
+                                   1686 ;	 function lcd_cmd
+                                   1687 ;	-----------------------------------------
+      000538                       1688 _lcd_cmd:
+      000538 AD 82            [24] 1689 	mov	r5, dpl
+      00053A AE 83            [24] 1690 	mov	r6, dph
+      00053C AF F0            [24] 1691 	mov	r7, b
+                                   1692 ;	fire_alarm_panel.c:616: while((cmd = cmd_ptr[i]) != 0) {
+      00053E 7C 00            [12] 1693 	mov	r4,#0x00
+      000540                       1694 00101$:
+      000540 EC               [12] 1695 	mov	a,r4
+      000541 2D               [12] 1696 	add	a, r5
+      000542 F9               [12] 1697 	mov	r1,a
+      000543 E4               [12] 1698 	clr	a
+      000544 3E               [12] 1699 	addc	a, r6
+      000545 FA               [12] 1700 	mov	r2,a
+      000546 8F 03            [24] 1701 	mov	ar3,r7
+      000548 89 82            [24] 1702 	mov	dpl,r1
+      00054A 8A 83            [24] 1703 	mov	dph,r2
+      00054C 8B F0            [24] 1704 	mov	b,r3
+      00054E 12r00r00         [24] 1705 	lcall	__gptrget
+      000551 FB               [12] 1706 	mov	r3,a
+      000552 60 26            [24] 1707 	jz	00104$
+                                   1708 ;	fire_alarm_panel.c:617: i++;
+      000554 0C               [12] 1709 	inc	r4
+                                   1710 ;	fire_alarm_panel.c:618: RS = 0;
+                                   1711 ;	assignBit
+      000555 C2 86            [12] 1712 	clr	_RS
+                                   1713 ;	fire_alarm_panel.c:619: spliter(cmd);
+      000557 8B 82            [24] 1714 	mov	dpl, r3
+      000559 C0 07            [24] 1715 	push	ar7
+      00055B C0 06            [24] 1716 	push	ar6
+      00055D C0 05            [24] 1717 	push	ar5
+      00055F C0 04            [24] 1718 	push	ar4
+      000561 12r04rF6         [24] 1719 	lcall	_spliter
+                                   1720 ;	fire_alarm_panel.c:620: move(U);
+      000564 85*04 82         [24] 1721 	mov	dpl, _U
+      000567 12r05r04         [24] 1722 	lcall	_move
+                                   1723 ;	fire_alarm_panel.c:621: move(L);
+      00056A 85*05 82         [24] 1724 	mov	dpl, _L
+      00056D 12r05r04         [24] 1725 	lcall	_move
+      000570 D0 04            [24] 1726 	pop	ar4
+      000572 D0 05            [24] 1727 	pop	ar5
+      000574 D0 06            [24] 1728 	pop	ar6
+      000576 D0 07            [24] 1729 	pop	ar7
+      000578 80 C6            [24] 1730 	sjmp	00101$
+      00057A                       1731 00104$:
+                                   1732 ;	fire_alarm_panel.c:623: }
+      00057A 22               [24] 1733 	ret
+                                   1734 ;------------------------------------------------------------
+                                   1735 ;Allocation info for local variables in function 'lcd_data'
+                                   1736 ;------------------------------------------------------------
+                                   1737 ;data          Allocated to registers 
+                                   1738 ;------------------------------------------------------------
+                                   1739 ;	fire_alarm_panel.c:625: void lcd_data(unsigned char data)
+                                   1740 ;	-----------------------------------------
+                                   1741 ;	 function lcd_data
+                                   1742 ;	-----------------------------------------
+      00057B                       1743 _lcd_data:
+                                   1744 ;	fire_alarm_panel.c:627: RS = 1;
+                                   1745 ;	assignBit
+      00057B D2 86            [12] 1746 	setb	_RS
+                                   1747 ;	fire_alarm_panel.c:628: spliter(data);
+      00057D 12r04rF6         [24] 1748 	lcall	_spliter
+                                   1749 ;	fire_alarm_panel.c:629: move1(U);
+      000580 85*04 82         [24] 1750 	mov	dpl, _U
+      000583 12r05r1B         [24] 1751 	lcall	_move1
+                                   1752 ;	fire_alarm_panel.c:630: move1(L);
+      000586 85*05 82         [24] 1753 	mov	dpl, _L
+                                   1754 ;	fire_alarm_panel.c:631: }
+      000589 02r05r1B         [24] 1755 	ljmp	_move1
                                    1756 ;------------------------------------------------------------
-                                   1757 ;	fire_alarm_panel.c:633: void lcd_disp(unsigned char *text_ptr)
-                                   1758 ;	-----------------------------------------
-                                   1759 ;	 function lcd_disp
-                                   1760 ;	-----------------------------------------
-      000584                       1761 _lcd_disp:
-      000584 AD 82            [24] 1762 	mov	r5, dpl
-      000586 AE 83            [24] 1763 	mov	r6, dph
-      000588 AF F0            [24] 1764 	mov	r7, b
-                                   1765 ;	fire_alarm_panel.c:638: while((ch = text_ptr[i]) != 0) {
-      00058A 7C 00            [12] 1766 	mov	r4,#0x00
-      00058C                       1767 00101$:
-      00058C EC               [12] 1768 	mov	a,r4
-      00058D 2D               [12] 1769 	add	a, r5
-      00058E F9               [12] 1770 	mov	r1,a
-      00058F E4               [12] 1771 	clr	a
-      000590 3E               [12] 1772 	addc	a, r6
-      000591 FA               [12] 1773 	mov	r2,a
-      000592 8F 03            [24] 1774 	mov	ar3,r7
-      000594 89 82            [24] 1775 	mov	dpl,r1
-      000596 8A 83            [24] 1776 	mov	dph,r2
-      000598 8B F0            [24] 1777 	mov	b,r3
-      00059A 12r00r00         [24] 1778 	lcall	__gptrget
-      00059D FB               [12] 1779 	mov	r3,a
-      00059E 60 18            [24] 1780 	jz	00104$
-                                   1781 ;	fire_alarm_panel.c:639: i++;
-      0005A0 0C               [12] 1782 	inc	r4
-                                   1783 ;	fire_alarm_panel.c:640: lcd_data(ch);
-      0005A1 8B 82            [24] 1784 	mov	dpl, r3
-      0005A3 C0 07            [24] 1785 	push	ar7
-      0005A5 C0 06            [24] 1786 	push	ar6
-      0005A7 C0 05            [24] 1787 	push	ar5
-      0005A9 C0 04            [24] 1788 	push	ar4
-      0005AB 12r05r73         [24] 1789 	lcall	_lcd_data
-      0005AE D0 04            [24] 1790 	pop	ar4
-      0005B0 D0 05            [24] 1791 	pop	ar5
-      0005B2 D0 06            [24] 1792 	pop	ar6
-      0005B4 D0 07            [24] 1793 	pop	ar7
-      0005B6 80 D4            [24] 1794 	sjmp	00101$
-      0005B8                       1795 00104$:
-                                   1796 ;	fire_alarm_panel.c:642: }
-      0005B8 22               [24] 1797 	ret
-                                   1798 ;------------------------------------------------------------
-                                   1799 ;Allocation info for local variables in function 'lcd_disp1'
-                                   1800 ;------------------------------------------------------------
-                                   1801 ;text_ptr      Allocated to registers r5 r6 r7 
-                                   1802 ;ch            Allocated to registers r3 
-                                   1803 ;i             Allocated to registers r4 
+                                   1757 ;Allocation info for local variables in function 'lcd_disp'
+                                   1758 ;------------------------------------------------------------
+                                   1759 ;text_ptr      Allocated to registers r5 r6 r7 
+                                   1760 ;ch            Allocated to registers r3 
+                                   1761 ;i             Allocated to registers r4 
+                                   1762 ;------------------------------------------------------------
+                                   1763 ;	fire_alarm_panel.c:633: void lcd_disp(unsigned char *text_ptr)
+                                   1764 ;	-----------------------------------------
+                                   1765 ;	 function lcd_disp
+                                   1766 ;	-----------------------------------------
+      00058C                       1767 _lcd_disp:
+      00058C AD 82            [24] 1768 	mov	r5, dpl
+      00058E AE 83            [24] 1769 	mov	r6, dph
+      000590 AF F0            [24] 1770 	mov	r7, b
+                                   1771 ;	fire_alarm_panel.c:638: while((ch = text_ptr[i]) != 0) {
+      000592 7C 00            [12] 1772 	mov	r4,#0x00
+      000594                       1773 00101$:
+      000594 EC               [12] 1774 	mov	a,r4
+      000595 2D               [12] 1775 	add	a, r5
+      000596 F9               [12] 1776 	mov	r1,a
+      000597 E4               [12] 1777 	clr	a
+      000598 3E               [12] 1778 	addc	a, r6
+      000599 FA               [12] 1779 	mov	r2,a
+      00059A 8F 03            [24] 1780 	mov	ar3,r7
+      00059C 89 82            [24] 1781 	mov	dpl,r1
+      00059E 8A 83            [24] 1782 	mov	dph,r2
+      0005A0 8B F0            [24] 1783 	mov	b,r3
+      0005A2 12r00r00         [24] 1784 	lcall	__gptrget
+      0005A5 FB               [12] 1785 	mov	r3,a
+      0005A6 60 18            [24] 1786 	jz	00104$
+                                   1787 ;	fire_alarm_panel.c:639: i++;
+      0005A8 0C               [12] 1788 	inc	r4
+                                   1789 ;	fire_alarm_panel.c:640: lcd_data(ch);
+      0005A9 8B 82            [24] 1790 	mov	dpl, r3
+      0005AB C0 07            [24] 1791 	push	ar7
+      0005AD C0 06            [24] 1792 	push	ar6
+      0005AF C0 05            [24] 1793 	push	ar5
+      0005B1 C0 04            [24] 1794 	push	ar4
+      0005B3 12r05r7B         [24] 1795 	lcall	_lcd_data
+      0005B6 D0 04            [24] 1796 	pop	ar4
+      0005B8 D0 05            [24] 1797 	pop	ar5
+      0005BA D0 06            [24] 1798 	pop	ar6
+      0005BC D0 07            [24] 1799 	pop	ar7
+      0005BE 80 D4            [24] 1800 	sjmp	00101$
+      0005C0                       1801 00104$:
+                                   1802 ;	fire_alarm_panel.c:642: }
+      0005C0 22               [24] 1803 	ret
                                    1804 ;------------------------------------------------------------
-                                   1805 ;	fire_alarm_panel.c:644: void lcd_disp1(unsigned char *text_ptr)
-                                   1806 ;	-----------------------------------------
-                                   1807 ;	 function lcd_disp1
-                                   1808 ;	-----------------------------------------
-      0005B9                       1809 _lcd_disp1:
-      0005B9 AD 82            [24] 1810 	mov	r5, dpl
-      0005BB AE 83            [24] 1811 	mov	r6, dph
-      0005BD AF F0            [24] 1812 	mov	r7, b
-                                   1813 ;	fire_alarm_panel.c:649: while((ch = text_ptr[i]) != 0) {
-      0005BF 7C 00            [12] 1814 	mov	r4,#0x00
-      0005C1                       1815 00101$:
-      0005C1 EC               [12] 1816 	mov	a,r4
-      0005C2 2D               [12] 1817 	add	a, r5
-      0005C3 F9               [12] 1818 	mov	r1,a
-      0005C4 E4               [12] 1819 	clr	a
-      0005C5 3E               [12] 1820 	addc	a, r6
-      0005C6 FA               [12] 1821 	mov	r2,a
-      0005C7 8F 03            [24] 1822 	mov	ar3,r7
-      0005C9 89 82            [24] 1823 	mov	dpl,r1
-      0005CB 8A 83            [24] 1824 	mov	dph,r2
-      0005CD 8B F0            [24] 1825 	mov	b,r3
-      0005CF 12r00r00         [24] 1826 	lcall	__gptrget
-      0005D2 FB               [12] 1827 	mov	r3,a
-      0005D3 60 1B            [24] 1828 	jz	00104$
-                                   1829 ;	fire_alarm_panel.c:650: i++;
-      0005D5 0C               [12] 1830 	inc	r4
-                                   1831 ;	fire_alarm_panel.c:651: lcd_data(ch);
-      0005D6 8B 82            [24] 1832 	mov	dpl, r3
-      0005D8 C0 07            [24] 1833 	push	ar7
-      0005DA C0 06            [24] 1834 	push	ar6
-      0005DC C0 05            [24] 1835 	push	ar5
-      0005DE C0 04            [24] 1836 	push	ar4
-      0005E0 12r05r73         [24] 1837 	lcall	_lcd_data
-                                   1838 ;	fire_alarm_panel.c:652: delay2();
-      0005E3 12r05rF1         [24] 1839 	lcall	_delay2
-      0005E6 D0 04            [24] 1840 	pop	ar4
-      0005E8 D0 05            [24] 1841 	pop	ar5
-      0005EA D0 06            [24] 1842 	pop	ar6
-      0005EC D0 07            [24] 1843 	pop	ar7
-      0005EE 80 D1            [24] 1844 	sjmp	00101$
-      0005F0                       1845 00104$:
-                                   1846 ;	fire_alarm_panel.c:654: }
-      0005F0 22               [24] 1847 	ret
-                                   1848 ;------------------------------------------------------------
-                                   1849 ;Allocation info for local variables in function 'delay2'
-                                   1850 ;------------------------------------------------------------
-                                   1851 ;R5            Allocated to registers r7 
-                                   1852 ;R6            Allocated to registers r5 
-                                   1853 ;R7            Allocated to registers r6 
+                                   1805 ;Allocation info for local variables in function 'lcd_disp1'
+                                   1806 ;------------------------------------------------------------
+                                   1807 ;text_ptr      Allocated to registers r5 r6 r7 
+                                   1808 ;ch            Allocated to registers r3 
+                                   1809 ;i             Allocated to registers r4 
+                                   1810 ;------------------------------------------------------------
+                                   1811 ;	fire_alarm_panel.c:644: void lcd_disp1(unsigned char *text_ptr)
+                                   1812 ;	-----------------------------------------
+                                   1813 ;	 function lcd_disp1
+                                   1814 ;	-----------------------------------------
+      0005C1                       1815 _lcd_disp1:
+      0005C1 AD 82            [24] 1816 	mov	r5, dpl
+      0005C3 AE 83            [24] 1817 	mov	r6, dph
+      0005C5 AF F0            [24] 1818 	mov	r7, b
+                                   1819 ;	fire_alarm_panel.c:649: while((ch = text_ptr[i]) != 0) {
+      0005C7 7C 00            [12] 1820 	mov	r4,#0x00
+      0005C9                       1821 00101$:
+      0005C9 EC               [12] 1822 	mov	a,r4
+      0005CA 2D               [12] 1823 	add	a, r5
+      0005CB F9               [12] 1824 	mov	r1,a
+      0005CC E4               [12] 1825 	clr	a
+      0005CD 3E               [12] 1826 	addc	a, r6
+      0005CE FA               [12] 1827 	mov	r2,a
+      0005CF 8F 03            [24] 1828 	mov	ar3,r7
+      0005D1 89 82            [24] 1829 	mov	dpl,r1
+      0005D3 8A 83            [24] 1830 	mov	dph,r2
+      0005D5 8B F0            [24] 1831 	mov	b,r3
+      0005D7 12r00r00         [24] 1832 	lcall	__gptrget
+      0005DA FB               [12] 1833 	mov	r3,a
+      0005DB 60 1B            [24] 1834 	jz	00104$
+                                   1835 ;	fire_alarm_panel.c:650: i++;
+      0005DD 0C               [12] 1836 	inc	r4
+                                   1837 ;	fire_alarm_panel.c:651: lcd_data(ch);
+      0005DE 8B 82            [24] 1838 	mov	dpl, r3
+      0005E0 C0 07            [24] 1839 	push	ar7
+      0005E2 C0 06            [24] 1840 	push	ar6
+      0005E4 C0 05            [24] 1841 	push	ar5
+      0005E6 C0 04            [24] 1842 	push	ar4
+      0005E8 12r05r7B         [24] 1843 	lcall	_lcd_data
+                                   1844 ;	fire_alarm_panel.c:652: delay2();
+      0005EB 12r05rF9         [24] 1845 	lcall	_delay2
+      0005EE D0 04            [24] 1846 	pop	ar4
+      0005F0 D0 05            [24] 1847 	pop	ar5
+      0005F2 D0 06            [24] 1848 	pop	ar6
+      0005F4 D0 07            [24] 1849 	pop	ar7
+      0005F6 80 D1            [24] 1850 	sjmp	00101$
+      0005F8                       1851 00104$:
+                                   1852 ;	fire_alarm_panel.c:654: }
+      0005F8 22               [24] 1853 	ret
                                    1854 ;------------------------------------------------------------
-                                   1855 ;	fire_alarm_panel.c:656: void delay2(void)
-                                   1856 ;	-----------------------------------------
-                                   1857 ;	 function delay2
-                                   1858 ;	-----------------------------------------
-      0005F1                       1859 _delay2:
-                                   1860 ;	fire_alarm_panel.c:660: for(R5 = 1; R5 > 0; R5--) {
-      0005F1 7F 01            [12] 1861 	mov	r7,#0x01
-                                   1862 ;	fire_alarm_panel.c:661: for(R7 = 255; R7 > 0; R7--) {
-      0005F3                       1863 00121$:
-      0005F3 7E FF            [12] 1864 	mov	r6,#0xff
-                                   1865 ;	fire_alarm_panel.c:662: for(R6 = 255; R6 > 0; R6--);
-      0005F5                       1866 00119$:
-      0005F5 7D FF            [12] 1867 	mov	r5,#0xff
-      0005F7                       1868 00105$:
-      0005F7 DD FE            [24] 1869 	djnz	r5,00105$
-                                   1870 ;	fire_alarm_panel.c:661: for(R7 = 255; R7 > 0; R7--) {
-      0005F9 DE FA            [24] 1871 	djnz	r6,00119$
-                                   1872 ;	fire_alarm_panel.c:660: for(R5 = 1; R5 > 0; R5--) {
-      0005FB DF F6            [24] 1873 	djnz	r7,00121$
-                                   1874 ;	fire_alarm_panel.c:665: }
-      0005FD 22               [24] 1875 	ret
-                                   1876 ;------------------------------------------------------------
-                                   1877 ;Allocation info for local variables in function 'delay1'
-                                   1878 ;------------------------------------------------------------
-                                   1879 ;R5            Allocated to registers r7 
-                                   1880 ;R6            Allocated to registers r5 
-                                   1881 ;R7            Allocated to registers r6 
+                                   1855 ;Allocation info for local variables in function 'delay2'
+                                   1856 ;------------------------------------------------------------
+                                   1857 ;R5            Allocated to registers r7 
+                                   1858 ;R6            Allocated to registers r5 
+                                   1859 ;R7            Allocated to registers r6 
+                                   1860 ;------------------------------------------------------------
+                                   1861 ;	fire_alarm_panel.c:656: void delay2(void)
+                                   1862 ;	-----------------------------------------
+                                   1863 ;	 function delay2
+                                   1864 ;	-----------------------------------------
+      0005F9                       1865 _delay2:
+                                   1866 ;	fire_alarm_panel.c:660: for(R5 = 1; R5 > 0; R5--) {
+      0005F9 7F 01            [12] 1867 	mov	r7,#0x01
+                                   1868 ;	fire_alarm_panel.c:661: for(R7 = 255; R7 > 0; R7--) {
+      0005FB                       1869 00121$:
+      0005FB 7E FF            [12] 1870 	mov	r6,#0xff
+                                   1871 ;	fire_alarm_panel.c:662: for(R6 = 255; R6 > 0; R6--);
+      0005FD                       1872 00119$:
+      0005FD 7D FF            [12] 1873 	mov	r5,#0xff
+      0005FF                       1874 00105$:
+      0005FF DD FE            [24] 1875 	djnz	r5,00105$
+                                   1876 ;	fire_alarm_panel.c:661: for(R7 = 255; R7 > 0; R7--) {
+      000601 DE FA            [24] 1877 	djnz	r6,00119$
+                                   1878 ;	fire_alarm_panel.c:660: for(R5 = 1; R5 > 0; R5--) {
+      000603 DF F6            [24] 1879 	djnz	r7,00121$
+                                   1880 ;	fire_alarm_panel.c:665: }
+      000605 22               [24] 1881 	ret
                                    1882 ;------------------------------------------------------------
-                                   1883 ;	fire_alarm_panel.c:667: void delay1(void)
-                                   1884 ;	-----------------------------------------
-                                   1885 ;	 function delay1
-                                   1886 ;	-----------------------------------------
-      0005FE                       1887 _delay1:
-                                   1888 ;	fire_alarm_panel.c:671: for(R5 = 8; R5 > 0; R5--) {
-      0005FE 7F 08            [12] 1889 	mov	r7,#0x08
-                                   1890 ;	fire_alarm_panel.c:672: for(R7 = 255; R7 > 0; R7--) {
-      000600                       1891 00123$:
-      000600 7E FF            [12] 1892 	mov	r6,#0xff
-                                   1893 ;	fire_alarm_panel.c:673: for(R6 = 255; R6 > 0; R6--);
-      000602                       1894 00121$:
-      000602 7D FF            [12] 1895 	mov	r5,#0xff
-      000604                       1896 00107$:
-      000604 DD FE            [24] 1897 	djnz	r5,00107$
-                                   1898 ;	fire_alarm_panel.c:672: for(R7 = 255; R7 > 0; R7--) {
-      000606 DE FA            [24] 1899 	djnz	r6,00121$
-                                   1900 ;	fire_alarm_panel.c:671: for(R5 = 8; R5 > 0; R5--) {
-      000608 DF F6            [24] 1901 	djnz	r7,00123$
-                                   1902 ;	fire_alarm_panel.c:677: if(RI) {
-      00060A 30 98 03         [24] 1903 	jnb	_RI,00112$
-                                   1904 ;	fire_alarm_panel.c:678: receive();
-                                   1905 ;	fire_alarm_panel.c:680: }
-      00060D 02r04r4D         [24] 1906 	ljmp	_receive
-      000610                       1907 00112$:
-      000610 22               [24] 1908 	ret
-                                   1909 ;------------------------------------------------------------
-                                   1910 ;Allocation info for local variables in function 'delay'
-                                   1911 ;------------------------------------------------------------
-                                   1912 ;R6            Allocated to registers r6 
-                                   1913 ;R7            Allocated to registers r7 
-                                   1914 ;------------------------------------------------------------
-                                   1915 ;	fire_alarm_panel.c:682: void delay(void)
-                                   1916 ;	-----------------------------------------
-                                   1917 ;	 function delay
-                                   1918 ;	-----------------------------------------
-      000611                       1919 _delay:
-                                   1920 ;	fire_alarm_panel.c:686: for(R7 = 7; R7 > 0; R7--) {
-      000611 7F 07            [12] 1921 	mov	r7,#0x07
-                                   1922 ;	fire_alarm_panel.c:687: for(R6 = 15; R6 > 0; R6--);
-      000613                       1923 00114$:
-      000613 7E 0F            [12] 1924 	mov	r6,#0x0f
-      000615                       1925 00104$:
-      000615 DE FE            [24] 1926 	djnz	r6,00104$
-                                   1927 ;	fire_alarm_panel.c:686: for(R7 = 7; R7 > 0; R7--) {
-      000617 DF FA            [24] 1928 	djnz	r7,00114$
-                                   1929 ;	fire_alarm_panel.c:689: } 
-      000619 22               [24] 1930 	ret
-                                   1931 	.area CSEG    (CODE)
-                                   1932 	.area CONST   (CODE)
-                                   1933 	.area CONST   (CODE)
-      000000                       1934 _INIT_COMMANDS:
-      000000 20                    1935 	.db #0x20	; 32
-      000001 28                    1936 	.db #0x28	; 40
-      000002 0C                    1937 	.db #0x0c	; 12
-      000003 01                    1938 	.db #0x01	; 1
-      000004 06                    1939 	.db #0x06	; 6
-      000005 80                    1940 	.db #0x80	; 128
-      000006 00                    1941 	.db #0x00	; 0
-                                   1942 	.area CSEG    (CODE)
-                                   1943 	.area CONST   (CODE)
-      000007                       1944 _LINE1:
-      000007 01                    1945 	.db #0x01	; 1
-      000008 06                    1946 	.db #0x06	; 6
-      000009 80                    1947 	.db #0x80	; 128
-      00000A 00                    1948 	.db #0x00	; 0
-                                   1949 	.area CSEG    (CODE)
-                                   1950 	.area CONST   (CODE)
-      00000B                       1951 _LINE2:
-      00000B C0                    1952 	.db #0xc0	; 192
-      00000C 00                    1953 	.db #0x00	; 0
-                                   1954 	.area CSEG    (CODE)
-                                   1955 	.area CONST   (CODE)
-      00000D                       1956 _TEXT1:
-      00000D 20 41 47 4E 49 20 50  1957 	.ascii " AGNI PROTECTION"
+                                   1883 ;Allocation info for local variables in function 'delay1'
+                                   1884 ;------------------------------------------------------------
+                                   1885 ;R5            Allocated to registers r7 
+                                   1886 ;R6            Allocated to registers r5 
+                                   1887 ;R7            Allocated to registers r6 
+                                   1888 ;------------------------------------------------------------
+                                   1889 ;	fire_alarm_panel.c:667: void delay1(void)
+                                   1890 ;	-----------------------------------------
+                                   1891 ;	 function delay1
+                                   1892 ;	-----------------------------------------
+      000606                       1893 _delay1:
+                                   1894 ;	fire_alarm_panel.c:671: for(R5 = 8; R5 > 0; R5--) {
+      000606 7F 08            [12] 1895 	mov	r7,#0x08
+                                   1896 ;	fire_alarm_panel.c:672: for(R7 = 255; R7 > 0; R7--) {
+      000608                       1897 00123$:
+      000608 7E FF            [12] 1898 	mov	r6,#0xff
+                                   1899 ;	fire_alarm_panel.c:673: for(R6 = 255; R6 > 0; R6--);
+      00060A                       1900 00121$:
+      00060A 7D FF            [12] 1901 	mov	r5,#0xff
+      00060C                       1902 00107$:
+      00060C DD FE            [24] 1903 	djnz	r5,00107$
+                                   1904 ;	fire_alarm_panel.c:672: for(R7 = 255; R7 > 0; R7--) {
+      00060E DE FA            [24] 1905 	djnz	r6,00121$
+                                   1906 ;	fire_alarm_panel.c:671: for(R5 = 8; R5 > 0; R5--) {
+      000610 DF F6            [24] 1907 	djnz	r7,00123$
+                                   1908 ;	fire_alarm_panel.c:677: if(RI) {
+      000612 30 98 03         [24] 1909 	jnb	_RI,00112$
+                                   1910 ;	fire_alarm_panel.c:678: receive();
+                                   1911 ;	fire_alarm_panel.c:680: }
+      000615 02r04r4D         [24] 1912 	ljmp	_receive
+      000618                       1913 00112$:
+      000618 22               [24] 1914 	ret
+                                   1915 ;------------------------------------------------------------
+                                   1916 ;Allocation info for local variables in function 'delay'
+                                   1917 ;------------------------------------------------------------
+                                   1918 ;R6            Allocated to registers r6 
+                                   1919 ;R7            Allocated to registers r7 
+                                   1920 ;------------------------------------------------------------
+                                   1921 ;	fire_alarm_panel.c:682: void delay(void)
+                                   1922 ;	-----------------------------------------
+                                   1923 ;	 function delay
+                                   1924 ;	-----------------------------------------
+      000619                       1925 _delay:
+                                   1926 ;	fire_alarm_panel.c:686: for(R7 = 7; R7 > 0; R7--) {
+      000619 7F 07            [12] 1927 	mov	r7,#0x07
+                                   1928 ;	fire_alarm_panel.c:687: for(R6 = 15; R6 > 0; R6--);
+      00061B                       1929 00114$:
+      00061B 7E 0F            [12] 1930 	mov	r6,#0x0f
+      00061D                       1931 00104$:
+      00061D DE FE            [24] 1932 	djnz	r6,00104$
+                                   1933 ;	fire_alarm_panel.c:686: for(R7 = 7; R7 > 0; R7--) {
+      00061F DF FA            [24] 1934 	djnz	r7,00114$
+                                   1935 ;	fire_alarm_panel.c:689: } 
+      000621 22               [24] 1936 	ret
+                                   1937 	.area CSEG    (CODE)
+                                   1938 	.area CONST   (CODE)
+                                   1939 	.area CONST   (CODE)
+      000000                       1940 _INIT_COMMANDS:
+      000000 20                    1941 	.db #0x20	; 32
+      000001 28                    1942 	.db #0x28	; 40
+      000002 0C                    1943 	.db #0x0c	; 12
+      000003 01                    1944 	.db #0x01	; 1
+      000004 06                    1945 	.db #0x06	; 6
+      000005 80                    1946 	.db #0x80	; 128
+      000006 00                    1947 	.db #0x00	; 0
+                                   1948 	.area CSEG    (CODE)
+                                   1949 	.area CONST   (CODE)
+      000007                       1950 _LINE1:
+      000007 01                    1951 	.db #0x01	; 1
+      000008 06                    1952 	.db #0x06	; 6
+      000009 80                    1953 	.db #0x80	; 128
+      00000A 00                    1954 	.db #0x00	; 0
+                                   1955 	.area CSEG    (CODE)
+                                   1956 	.area CONST   (CODE)
+      00000B                       1957 _LINE2:
+      00000B C0                    1958 	.db #0xc0	; 192
+      00000C 00                    1959 	.db #0x00	; 0
+                                   1960 	.area CSEG    (CODE)
+                                   1961 	.area CONST   (CODE)
+      00000D                       1962 _TEXT1:
+      00000D 20 41 47 4E 49 20 50  1963 	.ascii " AGNI PROTECTION"
              52 4F 54 45 43 54 49
              4F 4E
-      00001D 00                    1958 	.db 0x00
-                                   1959 	.area CSEG    (CODE)
-                                   1960 	.area CONST   (CODE)
-      00001E                       1961 _TEXT2:
-      00001E 20 57 45 4C 43 4F 4D  1962 	.ascii " WELCOME TO ...."
+      00001D 00                    1964 	.db 0x00
+                                   1965 	.area CSEG    (CODE)
+                                   1966 	.area CONST   (CODE)
+      00001E                       1967 _TEXT2:
+      00001E 20 57 45 4C 43 4F 4D  1968 	.ascii " WELCOME TO ...."
              45 20 54 4F 20 2E 2E
              2E 2E
-      00002E 00                    1963 	.db 0x00
-                                   1964 	.area CSEG    (CODE)
-                                   1965 	.area CONST   (CODE)
-      00002F                       1966 _TEXT3:
-      00002F 46 49 52 45 20 41 4C  1967 	.ascii "FIRE ALARM PANEL"
+      00002E 00                    1969 	.db 0x00
+                                   1970 	.area CSEG    (CODE)
+                                   1971 	.area CONST   (CODE)
+      00002F                       1972 _TEXT3:
+      00002F 46 49 52 45 20 41 4C  1973 	.ascii "FIRE ALARM PANEL"
              41 52 4D 20 50 41 4E
              45 4C
-      00003F 00                    1968 	.db 0x00
-                                   1969 	.area CSEG    (CODE)
-                                   1970 	.area CONST   (CODE)
-      000040                       1971 _TZONE1:
-      000040 20 5A 4F 4E 45 20 2D  1972 	.ascii " ZONE - 01      "
+      00003F 00                    1974 	.db 0x00
+                                   1975 	.area CSEG    (CODE)
+                                   1976 	.area CONST   (CODE)
+      000040                       1977 _TZONE1:
+      000040 20 5A 4F 4E 45 20 2D  1978 	.ascii " ZONE - 01      "
              20 30 31 20 20 20 20
              20 20
-      000050 00                    1973 	.db 0x00
-                                   1974 	.area CSEG    (CODE)
-                                   1975 	.area CONST   (CODE)
-      000051                       1976 _TZONE2:
-      000051 20 5A 4F 4E 45 20 2D  1977 	.ascii " ZONE - 02      "
+      000050 00                    1979 	.db 0x00
+                                   1980 	.area CSEG    (CODE)
+                                   1981 	.area CONST   (CODE)
+      000051                       1982 _TZONE2:
+      000051 20 5A 4F 4E 45 20 2D  1983 	.ascii " ZONE - 02      "
              20 30 32 20 20 20 20
              20 20
-      000061 00                    1978 	.db 0x00
-                                   1979 	.area CSEG    (CODE)
-                                   1980 	.area CONST   (CODE)
-      000062                       1981 _FIRE:
-      000062 20 46 49 52 45 20 44  1982 	.ascii " FIRE DETECTED  "
+      000061 00                    1984 	.db 0x00
+                                   1985 	.area CSEG    (CODE)
+                                   1986 	.area CONST   (CODE)
+      000062                       1987 _FIRE:
+      000062 20 46 49 52 45 20 44  1988 	.ascii " FIRE DETECTED  "
              45 54 45 43 54 45 44
              20 20
-      000072 00                    1983 	.db 0x00
-                                   1984 	.area CSEG    (CODE)
-                                   1985 	.area CONST   (CODE)
-      000073                       1986 _SHORT:
-      000073 20 53 48 4F 52 54 20  1987 	.ascii " SHORT DETECTED "
+      000072 00                    1989 	.db 0x00
+                                   1990 	.area CSEG    (CODE)
+                                   1991 	.area CONST   (CODE)
+      000073                       1992 _SHORT:
+      000073 20 53 48 4F 52 54 20  1993 	.ascii " SHORT DETECTED "
              44 45 54 45 43 54 45
              44 20
-      000083 00                    1988 	.db 0x00
-                                   1989 	.area CSEG    (CODE)
-                                   1990 	.area CONST   (CODE)
-      000084                       1991 _OPEN:
-      000084 20 4F 50 45 4E 20 44  1992 	.ascii " OPEN DETECTED  "
+      000083 00                    1994 	.db 0x00
+                                   1995 	.area CSEG    (CODE)
+                                   1996 	.area CONST   (CODE)
+      000084                       1997 _OPEN:
+      000084 20 4F 50 45 4E 20 44  1998 	.ascii " OPEN DETECTED  "
              45 54 45 43 54 45 44
              20 20
-      000094 00                    1993 	.db 0x00
-                                   1994 	.area CSEG    (CODE)
-                                   1995 	.area CONST   (CODE)
-      000095                       1996 _TEXT4:
-      000095 20 41 4C 4C 20 54 48  1997 	.ascii " ALL THE AREA   "
+      000094 00                    1999 	.db 0x00
+                                   2000 	.area CSEG    (CODE)
+                                   2001 	.area CONST   (CODE)
+      000095                       2002 _TEXT4:
+      000095 20 41 4C 4C 20 54 48  2003 	.ascii " ALL THE AREA   "
              45 20 41 52 45 41 20
              20 20
-      0000A5 00                    1998 	.db 0x00
-                                   1999 	.area CSEG    (CODE)
-                                   2000 	.area CONST   (CODE)
-      0000A6                       2001 _TLAMP:
-      0000A6 50 41 4E 45 4C 20 54  2002 	.ascii "PANEL TESTING ON"
+      0000A5 00                    2004 	.db 0x00
+                                   2005 	.area CSEG    (CODE)
+                                   2006 	.area CONST   (CODE)
+      0000A6                       2007 _TLAMP:
+      0000A6 50 41 4E 45 4C 20 54  2008 	.ascii "PANEL TESTING ON"
              45 53 54 49 4E 47 20
              4F 4E
-      0000B6 00                    2003 	.db 0x00
-                                   2004 	.area CSEG    (CODE)
-                                   2005 	.area CONST   (CODE)
-      0000B7                       2006 _TEVQ:
-      0000B7 20 50 4C 45 41 53 45  2007 	.ascii " PLEASE EVACUATE"
+      0000B6 00                    2009 	.db 0x00
+                                   2010 	.area CSEG    (CODE)
+                                   2011 	.area CONST   (CODE)
+      0000B7                       2012 _TEVQ:
+      0000B7 20 50 4C 45 41 53 45  2013 	.ascii " PLEASE EVACUATE"
              20 45 56 41 43 55 41
              54 45
-      0000C7 00                    2008 	.db 0x00
-                                   2009 	.area CSEG    (CODE)
-                                   2010 	.area CONST   (CODE)
-      0000C8                       2011 _ISO1:
-      0000C8 5A 4F 4E 45 2D 20 30  2012 	.ascii "ZONE- 01 ISOLATE"
+      0000C7 00                    2014 	.db 0x00
+                                   2015 	.area CSEG    (CODE)
+                                   2016 	.area CONST   (CODE)
+      0000C8                       2017 _ISO1:
+      0000C8 5A 4F 4E 45 2D 20 30  2018 	.ascii "ZONE- 01 ISOLATE"
              31 20 49 53 4F 4C 41
              54 45
-      0000D8 00                    2013 	.db 0x00
-                                   2014 	.area CSEG    (CODE)
-                                   2015 	.area CONST   (CODE)
-      0000D9                       2016 _ISO2:
-      0000D9 5A 4F 4E 45 2D 20 30  2017 	.ascii "ZONE- 02 ISOLATE"
+      0000D8 00                    2019 	.db 0x00
+                                   2020 	.area CSEG    (CODE)
+                                   2021 	.area CONST   (CODE)
+      0000D9                       2022 _ISO2:
+      0000D9 5A 4F 4E 45 2D 20 30  2023 	.ascii "ZONE- 02 ISOLATE"
              32 20 49 53 4F 4C 41
              54 45
-      0000E9 00                    2018 	.db 0x00
-                                   2019 	.area CSEG    (CODE)
-                                   2020 	.area CONST   (CODE)
-      0000EA                       2021 _ISO1H:
-      0000EA 5A 4F 4E 45 2D 20 30  2022 	.ascii "ZONE- 01 HEALTHY"
+      0000E9 00                    2024 	.db 0x00
+                                   2025 	.area CSEG    (CODE)
+                                   2026 	.area CONST   (CODE)
+      0000EA                       2027 _ISO1H:
+      0000EA 5A 4F 4E 45 2D 20 30  2028 	.ascii "ZONE- 01 HEALTHY"
              31 20 48 45 41 4C 54
              48 59
-      0000FA 00                    2023 	.db 0x00
-                                   2024 	.area CSEG    (CODE)
-                                   2025 	.area CONST   (CODE)
-      0000FB                       2026 _ISO2H:
-      0000FB 5A 4F 4E 45 2D 20 30  2027 	.ascii "ZONE- 02 HEALTHY"
+      0000FA 00                    2029 	.db 0x00
+                                   2030 	.area CSEG    (CODE)
+                                   2031 	.area CONST   (CODE)
+      0000FB                       2032 _ISO2H:
+      0000FB 5A 4F 4E 45 2D 20 30  2033 	.ascii "ZONE- 02 HEALTHY"
              32 20 48 45 41 4C 54
              48 59
-      00010B 00                    2028 	.db 0x00
-                                   2029 	.area CSEG    (CODE)
-                                   2030 	.area CONST   (CODE)
-      00010C                       2031 _LOWB:
-      00010C 20 20 42 41 54 54 45  2032 	.ascii "  BATTERY LOW   "
+      00010B 00                    2034 	.db 0x00
+                                   2035 	.area CSEG    (CODE)
+                                   2036 	.area CONST   (CODE)
+      00010C                       2037 _LOWB:
+      00010C 20 20 42 41 54 54 45  2038 	.ascii "  BATTERY LOW   "
              52 59 20 4C 4F 57 20
              20 20
-      00011C 00                    2033 	.db 0x00
-                                   2034 	.area CSEG    (CODE)
-                                   2035 	.area CONST   (CODE)
-      00011D                       2036 _LOWM:
-      00011D 20 43 48 45 43 4B 20  2037 	.ascii " CHECK AC SUPPLY"
+      00011C 00                    2039 	.db 0x00
+                                   2040 	.area CSEG    (CODE)
+                                   2041 	.area CONST   (CODE)
+      00011D                       2042 _LOWM:
+      00011D 20 43 48 45 43 4B 20  2043 	.ascii " CHECK AC SUPPLY"
              41 43 20 53 55 50 50
              4C 59
-      00012D 00                    2038 	.db 0x00
-                                   2039 	.area CSEG    (CODE)
-                                   2040 	.area XINIT   (CODE)
-                                   2041 	.area CABS    (ABS,CODE)
+      00012D 00                    2044 	.db 0x00
+                                   2045 	.area CSEG    (CODE)
+                                   2046 	.area XINIT   (CODE)
+                                   2047 	.area CABS    (ABS,CODE)

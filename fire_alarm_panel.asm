@@ -1614,10 +1614,13 @@ _spliter:
 ;	-----------------------------------------
 _move:
 	mov	r7, dpl
-;	fire_alarm_panel.c:582: P1 = (P1 & 0xF0) | data;
+;	fire_alarm_panel.c:582: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
 	mov	a,_P1
 	anl	a,#0xf0
-	orl	a,r7
+	mov	r6,a
+	mov	a,#0x0f
+	anl	a,r7
+	orl	a,r6
 	mov	_P1,a
 ;	fire_alarm_panel.c:583: EN = 1;
 ;	assignBit
@@ -1641,10 +1644,13 @@ _move:
 ;	-----------------------------------------
 _move1:
 	mov	r7, dpl
-;	fire_alarm_panel.c:591: P1 = (P1 & 0xF0) | data;
+;	fire_alarm_panel.c:591: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
 	mov	a,_P1
 	anl	a,#0xf0
-	orl	a,r7
+	mov	r6,a
+	mov	a,#0x0f
+	anl	a,r7
+	orl	a,r6
 	mov	_P1,a
 ;	fire_alarm_panel.c:592: EN = 1;
 ;	assignBit

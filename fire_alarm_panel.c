@@ -579,7 +579,7 @@ void spliter(unsigned char data)
 
 void move(unsigned char data)
 {
-    P1 = (P1 & 0xF0) | data;
+    P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
     EN = 1;
     delay();
     EN = 0;
@@ -588,7 +588,7 @@ void move(unsigned char data)
 
 void move1(unsigned char data)
 {
-    P1 = (P1 & 0xF0) | data;
+    P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
     EN = 1;
     // SDCC equivalent of _nop_()
     __asm

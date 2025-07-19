@@ -391,17 +391,17 @@ Symbol Table
     __sdcc_gsinit_startup                                          ****** GX
   F __sdcc_program_startup                                         000049 GR
   7 __start__stack                                                 000000 GR
- 18 _delay                                                         000611 GR
- 18 _delay1                                                        0005FE GR
- 18 _delay2                                                        0005F1 GR
+ 18 _delay                                                         000619 GR
+ 18 _delay1                                                        000606 GR
+ 18 _delay2                                                        0005F9 GR
  18 _init_system                                                   0002EF GR
- 18 _lcd_cmd                                                       000530 GR
- 18 _lcd_data                                                      000573 GR
- 18 _lcd_disp                                                      000584 GR
- 18 _lcd_disp1                                                     0005B9 GR
+ 18 _lcd_cmd                                                       000538 GR
+ 18 _lcd_data                                                      00057B GR
+ 18 _lcd_disp                                                      00058C GR
+ 18 _lcd_disp1                                                     0005C1 GR
  18 _main                                                          000000 GR
  18 _move                                                          000504 GR
- 18 _move1                                                         000517 GR
+ 18 _move1                                                         00051B GR
  18 _prz1                                                          00032B GR
  18 _prz2                                                          0003BC GR
  18 _receive                                                       00044D GR
@@ -653,7 +653,7 @@ Area Table
   15 GSINIT5                                    size      0   flags   20
   16 GSINIT                                     size      E   flags   20
   17 GSFINAL                                    size      3   flags   20
-  18 CSEG                                       size    61A   flags   20
+  18 CSEG                                       size    622   flags   20
   19 CONST                                      size    12E   flags   20
   1A XINIT                                      size      0   flags   20
   1B CABS                                       size      0   flags   28
