@@ -36,6 +36,7 @@ __bit PR2 = 0;         // Zone 2 Problem
 unsigned char BLT1;     // Backlight timer (5 minutes = 300 seconds)
 unsigned int BL_TIMER;  // Backlight countdown timer
 unsigned char RAP;      // Repeat counter
+unsigned char P1_INDICATORS; // Shadow register for indicator bits P1.4-P1.7
 
 #define BL_TIMEOUT 300  // 5 minutes timeout for backlight in normal condition
 
@@ -79,6 +80,8 @@ void receive(void);
 void silence_alarms(void);
 void send_data(unsigned char data);
 void init_system(void);
+void set_indicators(unsigned char hot_off, unsigned char buz_on, unsigned char cflr_off, unsigned char cftlr_on);
+void update_indicators(void);
 
 // Global variables for LCD data processing
 unsigned char U, L;
@@ -145,7 +148,7 @@ void main(void)
             lcd_cmd(LINE2);
             lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
             // Ensure indicators remain in correct state after LCD operations
-            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
+            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
             delay1();
             if(RI) receive();
         } else {
@@ -177,7 +180,7 @@ void main(void)
             lcd_cmd(LINE2);
             lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
             // Ensure indicators remain in correct state after LCD operations
-            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
+            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
             delay1();
             if(RI) receive();
         } else {
@@ -206,7 +209,7 @@ void main(void)
             lcd_cmd(LINE2);
             lcd_disp(TEXT3);
             // Ensure indicators remain in correct state after LCD operations
-            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
+            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
             delay1();
             if(RI) receive();
         }
@@ -229,18 +232,18 @@ void main(void)
             delay1();
             
             // Test all indicators
-            CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
+            set_indicators(0, 1, 0, 1);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=ON
             delay1();
-            CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
+            set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
             
             lcd_cmd(LINE2);
             lcd_disp(TZONE2);
             delay1();
             
             // Test all indicators again
-            CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
+            set_indicators(0, 1, 0, 1);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=ON
             delay1();
-            CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
+            set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
             
             // Wait for button release
             while(!LAMP);
@@ -249,10 +252,7 @@ void main(void)
         
         // Evacuate test
         if(!EVQ) {
-            BUZ = 1;
-            HOT = 0;    // Hooter ON during evacuate (inverse logic - pin LOW = Hooter ON)
-            CFLR = 0;   // Fire LED ON during evacuate (inverse logic - pin LOW = LED ON)
-            CFTLR = 0;  // Fault LED OFF during evacuate
+            set_indicators(0, 1, 0, 0);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
             lcd_cmd(LINE1);
             lcd_disp(TEVQ);
             lcd_cmd(LINE2);
@@ -266,10 +266,7 @@ void main(void)
             if(RI) receive();
             
             // Turn off evacuate alarms
-            BUZ = 0;
-            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-            CFTLR = 0;
+            set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
         }
         
         delay();
@@ -281,42 +278,33 @@ void main(void)
             lcd_cmd(LINE2);
             lcd_disp(TEXT3);
             // Ensure indicators remain in correct state after LCD operations
-            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
+            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
         }
         
         // Centralized LED Control - Handle all conditions
         if(!PR1 && !PR2 && !LB) {
             // Normal condition - all clear
-            CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-            CFTLR = 0;  // Fault LED OFF (normal logic - pin LOW = LED OFF)
-            HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-            BUZ = 0;    // Buzzer OFF
+            set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
         } else {
             // Problem conditions - determine which LEDs to turn on
             if(PR1 || PR2) {
                 // Zone problems exist - check what type
                 if((!FIRE1 && PR1) || (!FIRE2 && PR2)) {
                     // Fire condition
-                    CFLR = 0;   // Fire LED ON (inverse logic - pin LOW = LED ON)
-                    CFTLR = 0;  // Fault LED OFF (not fault condition)
                     if(!SLC1 && !SLC2) {
-                        HOT = 0;    // Hooter ON (inverse logic - pin LOW = Hooter ON)
+                        set_indicators(0, 1, 0, 0); // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
                     } else {
-                        HOT = 1;    // Hooter OFF if silenced
+                        set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF, CFLR=ON, CFTLR=OFF
                     }
                 } else {
                     // Fault condition (short or open)
-                    CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-                    CFTLR = 1;  // Fault LED ON (normal logic - pin HIGH = LED ON)
-                    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
                 }
             }
             
             if(LB) {
                 // Low battery condition
-                CFTLR = 1;  // Fault LED ON (normal logic - pin HIGH = LED ON)
-                CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-                HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+                set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
             }
         }
         
@@ -325,15 +313,15 @@ void main(void)
         // Low battery check - Only show when LB is actually ON (battery low)
         if(LB) {  // Fixed: LB=1 means battery is low
             // Battery is actually low
-            CFTLR = 1;  // Fault LED ON for low battery
-            CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
             if(!LISO) {
-                BUZ = 1;
+                set_indicators(1, 1, 1, 1); // HOT=OFF, BUZ=ON, CFLR=OFF, CFTLR=ON
                 if(!SIL) {
                     // Silence pressed for low battery
                     LISO = 1;
-                    BUZ = 0;
+                    set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
                 }
+            } else {
+                set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
             }
             
             lcd_cmd(LINE1);
@@ -342,10 +330,6 @@ void main(void)
             lcd_disp(LOWM);
             delay1();
             delay1();
-            
-            if(LISO) {
-                BUZ = 0; // Keep buzzer off if silenced
-            }
             
             // Continue to show until battery recovers or other problems need attention
             continue;
@@ -370,14 +354,13 @@ void init_system(void)
     P2 = 0xFF;  // Control inputs pulled high
     P3 = 0xFF;
     
-    // Initialize P1 carefully - first set to known state
-    P1 = 0x90;  // Set bits: P1.7=0(CFTLR OFF), P1.6=1(CFLR OFF), P1.5=0(BUZ OFF), P1.4=1(HOT OFF), P1.3-0=0(LCD)
+    // Initialize P1 LCD bits to 0
+    P1 = 0x00;
     
-    // Explicitly set each indicator pin to ensure correct state
-    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-    BUZ = 0;    // Buzzer OFF (normal logic - pin LOW = Buzzer OFF)
-    CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-    CFTLR = 0;  // Fault LED OFF (normal logic - pin LOW = LED OFF)
+    // Initialize indicators using safe method
+    // HOT=1(OFF), BUZ=0(OFF), CFLR=1(OFF), CFTLR=0(OFF)
+    set_indicators(1, 0, 1, 0);
+    
     BL = 1;     // Backlight ON initially
     
     // Clear all flags
@@ -577,6 +560,8 @@ void silence_alarms(void)
     SLC1 = 1;
     SLC2 = 1;
     LISO = 1;
+    // Don't directly control indicators here - let main logic handle LED states
+    // Just turn off audible alarms
     BUZ = 0;
     HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 }
@@ -589,7 +574,7 @@ void spliter(unsigned char data)
 
 void move(unsigned char data)
 {
-    P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
+    P1 = (P1_INDICATORS & 0xF0) | (data & 0x0F);  // Use shadow register for indicators
     EN = 1;
     delay();
     EN = 0;
@@ -598,7 +583,7 @@ void move(unsigned char data)
 
 void move1(unsigned char data)
 {
-    P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
+    P1 = (P1_INDICATORS & 0xF0) | (data & 0x0F);  // Use shadow register for indicators
     EN = 1;
     // SDCC equivalent of _nop_()
     __asm
@@ -695,4 +680,29 @@ void delay(void)
     for(R7 = 7; R7 > 0; R7--) {
         for(R6 = 15; R6 > 0; R6--);
     }
+}
+
+void set_indicators(unsigned char hot_off, unsigned char buz_on, unsigned char cflr_off, unsigned char cftlr_on)
+{
+    // Parameters represent desired functional states:
+    // hot_off: 1=Hooter OFF, 0=Hooter ON
+    // buz_on: 1=Buzzer ON, 0=Buzzer OFF  
+    // cflr_off: 1=Fire LED OFF, 0=Fire LED ON
+    // cftlr_on: 1=Fault LED ON, 0=Fault LED OFF
+    
+    // Convert to actual pin values considering hardware logic:
+    unsigned char hot_pin = hot_off;      // HOT: inverse logic (1=OFF, 0=ON)
+    unsigned char buz_pin = buz_on;       // BUZ: normal logic (1=ON, 0=OFF)  
+    unsigned char cflr_pin = cflr_off;    // CFLR: inverse logic (1=OFF, 0=ON)
+    unsigned char cftlr_pin = cftlr_on;   // CFTLR: normal logic (1=ON, 0=OFF)
+    
+    // Update shadow register with actual pin values
+    P1_INDICATORS = (hot_pin << 4) | (buz_pin << 5) | (cflr_pin << 6) | (cftlr_pin << 7);
+    update_indicators();
+}
+
+void update_indicators(void)
+{
+    // Safely update only the indicator bits (P1.4-P1.7) without affecting LCD bits (P1.0-P1.3)
+    P1 = (P1 & 0x0F) | (P1_INDICATORS & 0xF0);
 } 

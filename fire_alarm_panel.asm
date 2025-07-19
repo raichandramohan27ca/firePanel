@@ -174,8 +174,12 @@
 	.globl _SLC1
 	.globl _Z2
 	.globl _Z1
+	.globl _set_indicators_PARM_4
+	.globl _set_indicators_PARM_3
+	.globl _set_indicators_PARM_2
 	.globl _L
 	.globl _U
+	.globl _P1_INDICATORS
 	.globl _RAP
 	.globl _BL_TIMER
 	.globl _BLT1
@@ -195,6 +199,8 @@
 	.globl _delay2
 	.globl _delay1
 	.globl _delay
+	.globl _set_indicators
+	.globl _update_indicators
 ;--------------------------------------------------------
 ; special function registers
 ;--------------------------------------------------------
@@ -358,9 +364,17 @@ _BL_TIMER::
 	.ds 2
 _RAP::
 	.ds 1
+_P1_INDICATORS::
+	.ds 1
 _U::
 	.ds 1
 _L::
+	.ds 1
+_set_indicators_PARM_2:
+	.ds 1
+_set_indicators_PARM_3:
+	.ds 1
+_set_indicators_PARM_4:
 	.ds 1
 ;--------------------------------------------------------
 ; overlayable items in internal ram
@@ -547,7 +561,7 @@ __sdcc_program_startup:
 ;------------------------------------------------------------
 ;R0            Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:86: void main(void)
+;	fire_alarm_panel.c:89: void main(void)
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -560,365 +574,340 @@ _main:
 	ar2 = 0x02
 	ar1 = 0x01
 	ar0 = 0x00
-;	fire_alarm_panel.c:90: init_system();
+;	fire_alarm_panel.c:93: init_system();
 	lcall	_init_system
-;	fire_alarm_panel.c:94: while(R0 < 15) {
+;	fire_alarm_panel.c:97: while(R0 < 15) {
 	mov	r7,#0x00
 00101$:
-	cjne	r7,#0x0f,00539$
-00539$:
+	cjne	r7,#0x0f,00532$
+00532$:
 	jnc	00103$
-;	fire_alarm_panel.c:95: lcd_cmd(INIT_COMMANDS);
+;	fire_alarm_panel.c:98: lcd_cmd(INIT_COMMANDS);
 	mov	dptr,#_INIT_COMMANDS
 	mov	b, #0x80
 	push	ar7
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:96: delay();
+;	fire_alarm_panel.c:99: delay();
 	lcall	_delay
 	pop	ar7
-;	fire_alarm_panel.c:97: R0++;
+;	fire_alarm_panel.c:100: R0++;
 	inc	r7
 	sjmp	00101$
 00103$:
-;	fire_alarm_panel.c:101: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:104: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:102: lcd_disp(TEXT2);
+;	fire_alarm_panel.c:105: lcd_disp(TEXT2);
 	mov	dptr,#_TEXT2
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:103: delay();
+;	fire_alarm_panel.c:106: delay();
 	lcall	_delay
-;	fire_alarm_panel.c:104: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:107: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:105: lcd_disp1(TEXT1);
+;	fire_alarm_panel.c:108: lcd_disp1(TEXT1);
 	mov	dptr,#_TEXT1
 	mov	b, #0x80
 	lcall	_lcd_disp1
-;	fire_alarm_panel.c:107: while(1) {
-00204$:
-;	fire_alarm_panel.c:109: if(RI) {
+;	fire_alarm_panel.c:110: while(1) {
+00203$:
+;	fire_alarm_panel.c:112: if(RI) {
 	jnb	_RI,00105$
-;	fire_alarm_panel.c:110: receive();
+;	fire_alarm_panel.c:113: receive();
 	lcall	_receive
 00105$:
-;	fire_alarm_panel.c:114: if (!PR1 && !PR2 && !LB && !LAMP && EVQ) { // Normal condition
+;	fire_alarm_panel.c:117: if (!PR1 && !PR2 && !LB && !LAMP && EVQ) { // Normal condition
 	jb	_PR1,00110$
 	jb	_PR2,00110$
 	jb	_LB,00110$
 	jb	_LAMP,00110$
 	jnb	_EVQ,00110$
-;	fire_alarm_panel.c:115: if(BL_TIMER > 0) {
+;	fire_alarm_panel.c:118: if(BL_TIMER > 0) {
 	mov	a,_BL_TIMER
 	orl	a,(_BL_TIMER + 1)
 	jz	00107$
-;	fire_alarm_panel.c:116: BL_TIMER--;
+;	fire_alarm_panel.c:119: BL_TIMER--;
 	dec	_BL_TIMER
 	mov	a,#0xff
-	cjne	a,_BL_TIMER,00548$
+	cjne	a,_BL_TIMER,00541$
 	dec	(_BL_TIMER + 1)
-00548$:
-;	fire_alarm_panel.c:117: BL = 1; // Keep backlight ON for 5 minutes
+00541$:
+;	fire_alarm_panel.c:120: BL = 1; // Keep backlight ON for 5 minutes
 ;	assignBit
 	setb	_BL
 	sjmp	00111$
 00107$:
-;	fire_alarm_panel.c:119: BL = 0; // Turn OFF after 5 minutes
+;	fire_alarm_panel.c:122: BL = 0; // Turn OFF after 5 minutes
 ;	assignBit
 	clr	_BL
 	sjmp	00111$
 00110$:
-;	fire_alarm_panel.c:123: BL = 1;
+;	fire_alarm_panel.c:126: BL = 1;
 ;	assignBit
 	setb	_BL
-;	fire_alarm_panel.c:124: BL_TIMER = BL_TIMEOUT; // Reset timer when returning to normal
+;	fire_alarm_panel.c:127: BL_TIMER = BL_TIMEOUT; // Reset timer when returning to normal
 	mov	_BL_TIMER,#0x2c
 	mov	(_BL_TIMER + 1),#0x01
 00111$:
-;	fire_alarm_panel.c:133: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:136: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:134: lcd_disp(TEXT1);
+;	fire_alarm_panel.c:137: lcd_disp(TEXT1);
 	mov	dptr,#_TEXT1
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:136: if(RI) {
+;	fire_alarm_panel.c:139: if(RI) {
 	jnb	_RI,00117$
-;	fire_alarm_panel.c:137: receive();
+;	fire_alarm_panel.c:140: receive();
 	lcall	_receive
 00117$:
-;	fire_alarm_panel.c:141: if(!ZONE1) {
+;	fire_alarm_panel.c:144: if(!ZONE1) {
 	jb	_ZONE1,00130$
-;	fire_alarm_panel.c:143: Z1 = 0; // Mark as healthy/not isolated
+;	fire_alarm_panel.c:146: Z1 = 0; // Mark as healthy/not isolated
 ;	assignBit
 	clr	_Z1
-;	fire_alarm_panel.c:144: PR1 = 0; // No problems
+;	fire_alarm_panel.c:147: PR1 = 0; // No problems
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:145: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:148: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:146: lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
+;	fire_alarm_panel.c:149: lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
 	mov	dptr,#_ISO1H
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:148: HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
-;	assignBit
-	setb	_HOT
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:149: delay1();
+;	fire_alarm_panel.c:151: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:152: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:150: if(RI) receive();
+;	fire_alarm_panel.c:153: if(RI) receive();
 	jnb	_RI,00131$
 	lcall	_receive
 	sjmp	00131$
 00130$:
-;	fire_alarm_panel.c:153: Z1 = 1; // Mark as isolated
+;	fire_alarm_panel.c:156: Z1 = 1; // Mark as isolated
 ;	assignBit
 	setb	_Z1
-;	fire_alarm_panel.c:154: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:157: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:155: lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
+;	fire_alarm_panel.c:158: lcd_disp(ISO1); // Show "ZONE-01 ISOLATE"
 	mov	dptr,#_ISO1
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:156: delay1();
+;	fire_alarm_panel.c:159: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:157: if(RI) receive();
+;	fire_alarm_panel.c:160: if(RI) receive();
 	jnb	_RI,00121$
 	lcall	_receive
 00121$:
-;	fire_alarm_panel.c:160: if(FIRE1 && OPEN1 && SHORT1) {
+;	fire_alarm_panel.c:163: if(FIRE1 && OPEN1 && SHORT1) {
 	jnb	_FIRE1,00125$
 	jnb	_OPEN1,00125$
 	jnb	_SHORT1,00125$
-;	fire_alarm_panel.c:162: PR1 = 0;
+;	fire_alarm_panel.c:165: PR1 = 0;
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:163: SLC1 = 0;
+;	fire_alarm_panel.c:166: SLC1 = 0;
 ;	assignBit
 	clr	_SLC1
 	sjmp	00131$
 00125$:
-;	fire_alarm_panel.c:166: PR1 = 1;
+;	fire_alarm_panel.c:169: PR1 = 1;
 ;	assignBit
 	setb	_PR1
-;	fire_alarm_panel.c:167: prz1();
+;	fire_alarm_panel.c:170: prz1();
 	lcall	_prz1
-;	fire_alarm_panel.c:168: if(RI) receive();
+;	fire_alarm_panel.c:171: if(RI) receive();
 	jnb	_RI,00131$
 	lcall	_receive
 00131$:
-;	fire_alarm_panel.c:173: if(!ZONE2) {
+;	fire_alarm_panel.c:176: if(!ZONE2) {
 	jb	_ZONE2,00144$
-;	fire_alarm_panel.c:175: Z2 = 0; // Mark as healthy/not isolated
+;	fire_alarm_panel.c:178: Z2 = 0; // Mark as healthy/not isolated
 ;	assignBit
 	clr	_Z2
-;	fire_alarm_panel.c:176: PR2 = 0; // No problems
+;	fire_alarm_panel.c:179: PR2 = 0; // No problems
 ;	assignBit
 	clr	_PR2
-;	fire_alarm_panel.c:177: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:180: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:178: lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
+;	fire_alarm_panel.c:181: lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
 	mov	dptr,#_ISO2H
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:180: HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
-;	assignBit
-	setb	_HOT
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:181: delay1();
+;	fire_alarm_panel.c:183: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:184: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:182: if(RI) receive();
+;	fire_alarm_panel.c:185: if(RI) receive();
 	jnb	_RI,00145$
 	lcall	_receive
 	sjmp	00145$
 00144$:
-;	fire_alarm_panel.c:185: Z2 = 1; // Mark as isolated
+;	fire_alarm_panel.c:188: Z2 = 1; // Mark as isolated
 ;	assignBit
 	setb	_Z2
-;	fire_alarm_panel.c:186: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:189: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:187: lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
+;	fire_alarm_panel.c:190: lcd_disp(ISO2); // Show "ZONE-02 ISOLATE"
 	mov	dptr,#_ISO2
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:188: delay1();
+;	fire_alarm_panel.c:191: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:189: if(RI) receive();
+;	fire_alarm_panel.c:192: if(RI) receive();
 	jnb	_RI,00135$
 	lcall	_receive
 00135$:
-;	fire_alarm_panel.c:192: if(FIRE2 && OPEN2 && SHORT2) {
+;	fire_alarm_panel.c:195: if(FIRE2 && OPEN2 && SHORT2) {
 	jnb	_FIRE2,00139$
 	jnb	_OPEN2,00139$
 	jnb	_SHORT2,00139$
-;	fire_alarm_panel.c:194: PR2 = 0;
+;	fire_alarm_panel.c:197: PR2 = 0;
 ;	assignBit
 	clr	_PR2
-;	fire_alarm_panel.c:195: SLC2 = 0;
+;	fire_alarm_panel.c:198: SLC2 = 0;
 ;	assignBit
 	clr	_SLC2
 	sjmp	00145$
 00139$:
-;	fire_alarm_panel.c:198: PR2 = 1;
+;	fire_alarm_panel.c:201: PR2 = 1;
 ;	assignBit
 	setb	_PR2
-;	fire_alarm_panel.c:199: prz2();
+;	fire_alarm_panel.c:202: prz2();
 	lcall	_prz2
-;	fire_alarm_panel.c:200: if(RI) receive();
+;	fire_alarm_panel.c:203: if(RI) receive();
 	jnb	_RI,00145$
 	lcall	_receive
 00145$:
-;	fire_alarm_panel.c:205: if(!ZONE1 && !ZONE2) {
+;	fire_alarm_panel.c:208: if(!ZONE1 && !ZONE2) {
 	jb	_ZONE1,00149$
 	jb	_ZONE2,00149$
-;	fire_alarm_panel.c:206: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:209: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:207: lcd_disp(TEXT3);
+;	fire_alarm_panel.c:210: lcd_disp(TEXT3);
 	mov	dptr,#_TEXT3
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:209: HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
-;	assignBit
-	setb	_HOT
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:210: delay1();
+;	fire_alarm_panel.c:212: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:213: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:211: if(RI) receive();
+;	fire_alarm_panel.c:214: if(RI) receive();
 	jnb	_RI,00149$
 	lcall	_receive
 00149$:
-;	fire_alarm_panel.c:215: if(!SIL) {
+;	fire_alarm_panel.c:218: if(!SIL) {
 	jb	_SIL,00152$
-;	fire_alarm_panel.c:216: silence_alarms();
+;	fire_alarm_panel.c:219: silence_alarms();
 	lcall	_silence_alarms
 00152$:
-;	fire_alarm_panel.c:220: if(RI) receive();
+;	fire_alarm_panel.c:223: if(RI) receive();
 	jnb	_RI,00154$
 	lcall	_receive
 00154$:
-;	fire_alarm_panel.c:222: if(!LAMP) { // Lamp test button pressed (active low)
-	jb	_LAMP,00161$
-;	fire_alarm_panel.c:224: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:225: if(!LAMP) { // Lamp test button pressed (active low)
+	jnb	_LAMP,00562$
+	ljmp	00161$
+00562$:
+;	fire_alarm_panel.c:227: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:225: lcd_disp(TLAMP);
+;	fire_alarm_panel.c:228: lcd_disp(TLAMP);
 	mov	dptr,#_TLAMP
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:226: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:229: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:227: lcd_disp(TZONE1);
+;	fire_alarm_panel.c:230: lcd_disp(TZONE1);
 	mov	dptr,#_TZONE1
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:228: delay1();
+;	fire_alarm_panel.c:231: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:229: delay1();
+;	fire_alarm_panel.c:232: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:232: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
-;	assignBit
-	clr	_CFLR
-;	assignBit
-	setb	_CFTLR
-;	assignBit
-	clr	_HOT
-;	assignBit
-	setb	_BUZ
-;	fire_alarm_panel.c:233: delay1();
+;	fire_alarm_panel.c:235: set_indicators(0, 1, 0, 1);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x01
+	mov	_set_indicators_PARM_3,#0x00
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x00
+	lcall	_set_indicators
+;	fire_alarm_panel.c:236: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:234: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	setb	_HOT
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:236: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:237: set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:239: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:237: lcd_disp(TZONE2);
+;	fire_alarm_panel.c:240: lcd_disp(TZONE2);
 	mov	dptr,#_TZONE2
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:238: delay1();
+;	fire_alarm_panel.c:241: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:241: CFLR = 0; CFTLR = 1; HOT = 0; BUZ = 1;  // CFLR and HOT use inverse logic
-;	assignBit
-	clr	_CFLR
-;	assignBit
-	setb	_CFTLR
-;	assignBit
-	clr	_HOT
-;	assignBit
-	setb	_BUZ
-;	fire_alarm_panel.c:242: delay1();
+;	fire_alarm_panel.c:244: set_indicators(0, 1, 0, 1);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x01
+	mov	_set_indicators_PARM_3,#0x00
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x00
+	lcall	_set_indicators
+;	fire_alarm_panel.c:245: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:243: CFLR = 1; CFTLR = 0; HOT = 1; BUZ = 0;  // CFLR and HOT use inverse logic
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	setb	_HOT
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:246: while(!LAMP);
+;	fire_alarm_panel.c:246: set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:249: while(!LAMP);
 00155$:
 	jnb	_LAMP,00155$
-;	fire_alarm_panel.c:247: if(RI) receive();
+;	fire_alarm_panel.c:250: if(RI) receive();
 	jnb	_RI,00161$
 	lcall	_receive
 00161$:
-;	fire_alarm_panel.c:251: if(!EVQ) {
+;	fire_alarm_panel.c:254: if(!EVQ) {
 	jb	_EVQ,00169$
-;	fire_alarm_panel.c:252: BUZ = 1;
-;	assignBit
-	setb	_BUZ
-;	fire_alarm_panel.c:253: HOT = 0;    // Hooter ON during evacuate (inverse logic - pin LOW = Hooter ON)
-;	assignBit
-	clr	_HOT
-;	fire_alarm_panel.c:254: CFLR = 0;   // Fire LED ON during evacuate (inverse logic - pin LOW = LED ON)
-;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:255: CFTLR = 0;  // Fault LED OFF during evacuate
-;	assignBit
-	clr	_CFTLR
+;	fire_alarm_panel.c:255: set_indicators(0, 1, 0, 0);  // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x01
+	mov	_set_indicators_PARM_3,#0x00
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x00
+	lcall	_set_indicators
 ;	fire_alarm_panel.c:256: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
@@ -947,483 +936,457 @@ _main:
 	jnb	_RI,00167$
 	lcall	_receive
 00167$:
-;	fire_alarm_panel.c:269: BUZ = 0;
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:270: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-;	assignBit
-	setb	_HOT
-;	fire_alarm_panel.c:271: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:272: CFTLR = 0;
-;	assignBit
-	clr	_CFTLR
+;	fire_alarm_panel.c:269: set_indicators(1, 0, 1, 0);  // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
 00169$:
-;	fire_alarm_panel.c:275: delay();
+;	fire_alarm_panel.c:272: delay();
 	lcall	_delay
-;	fire_alarm_panel.c:278: if(!PR1 && !PR2 && !LB) {
+;	fire_alarm_panel.c:275: if(!PR1 && !PR2 && !LB) {
 	jb	_PR1,00171$
 	jb	_PR2,00171$
 	jb	_LB,00171$
-;	fire_alarm_panel.c:279: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:276: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:280: lcd_disp(TEXT1);
+;	fire_alarm_panel.c:277: lcd_disp(TEXT1);
 	mov	dptr,#_TEXT1
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:281: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:278: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:282: lcd_disp(TEXT3);
+;	fire_alarm_panel.c:279: lcd_disp(TEXT3);
 	mov	dptr,#_TEXT3
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:284: HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
-;	assignBit
-	setb	_HOT
-;	assignBit
-	setb	_CFLR
-;	assignBit
-	clr	_CFTLR
-;	assignBit
-	clr	_BUZ
+;	fire_alarm_panel.c:281: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
 00171$:
-;	fire_alarm_panel.c:288: if(!PR1 && !PR2 && !LB) {
+;	fire_alarm_panel.c:285: if(!PR1 && !PR2 && !LB) {
 	jb	_PR1,00190$
 	jb	_PR2,00190$
 	jb	_LB,00190$
-;	fire_alarm_panel.c:290: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:291: CFTLR = 0;  // Fault LED OFF (normal logic - pin LOW = LED OFF)
-;	assignBit
-	clr	_CFTLR
-;	fire_alarm_panel.c:292: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-;	assignBit
-	setb	_HOT
-;	fire_alarm_panel.c:293: BUZ = 0;    // Buzzer OFF
-;	assignBit
-	clr	_BUZ
+;	fire_alarm_panel.c:287: set_indicators(1, 0, 1, 0); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
 	sjmp	00191$
 00190$:
-;	fire_alarm_panel.c:296: if(PR1 || PR2) {
+;	fire_alarm_panel.c:290: if(PR1 || PR2) {
 	jb	_PR1,00184$
 	jnb	_PR2,00185$
 00184$:
-;	fire_alarm_panel.c:298: if((!FIRE1 && PR1) || (!FIRE2 && PR2)) {
+;	fire_alarm_panel.c:292: if((!FIRE1 && PR1) || (!FIRE2 && PR2)) {
 	jb	_FIRE1,00183$
 	jb	_PR1,00178$
 00183$:
 	jb	_FIRE2,00179$
 	jnb	_PR2,00179$
 00178$:
-;	fire_alarm_panel.c:300: CFLR = 0;   // Fire LED ON (inverse logic - pin LOW = LED ON)
-;	assignBit
-	clr	_CFLR
-;	fire_alarm_panel.c:301: CFTLR = 0;  // Fault LED OFF (not fault condition)
-;	assignBit
-	clr	_CFTLR
-;	fire_alarm_panel.c:302: if(!SLC1 && !SLC2) {
+;	fire_alarm_panel.c:294: if(!SLC1 && !SLC2) {
 	jb	_SLC1,00175$
 	jb	_SLC2,00175$
-;	fire_alarm_panel.c:303: HOT = 0;    // Hooter ON (inverse logic - pin LOW = Hooter ON)
-;	assignBit
-	clr	_HOT
+;	fire_alarm_panel.c:295: set_indicators(0, 1, 0, 0); // HOT=ON, BUZ=ON, CFLR=ON, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x01
+	mov	_set_indicators_PARM_3,#0x00
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x00
+	lcall	_set_indicators
 	sjmp	00185$
 00175$:
-;	fire_alarm_panel.c:305: HOT = 1;    // Hooter OFF if silenced
-;	assignBit
-	setb	_HOT
+;	fire_alarm_panel.c:297: set_indicators(1, 0, 0, 0); // HOT=OFF(silenced), BUZ=OFF, CFLR=ON, CFTLR=OFF
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x00
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
 	sjmp	00185$
 00179$:
-;	fire_alarm_panel.c:309: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:310: CFTLR = 1;  // Fault LED ON (normal logic - pin HIGH = LED ON)
-;	assignBit
-	setb	_CFTLR
-;	fire_alarm_panel.c:311: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-;	assignBit
-	setb	_HOT
+;	fire_alarm_panel.c:301: set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x01
+	lcall	_set_indicators
 00185$:
-;	fire_alarm_panel.c:315: if(LB) {
+;	fire_alarm_panel.c:305: if(LB) {
 	jnb	_LB,00191$
-;	fire_alarm_panel.c:317: CFTLR = 1;  // Fault LED ON (normal logic - pin HIGH = LED ON)
-;	assignBit
-	setb	_CFTLR
-;	fire_alarm_panel.c:318: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:319: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-;	assignBit
-	setb	_HOT
+;	fire_alarm_panel.c:307: set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF, CFLR=OFF, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x01
+	lcall	_set_indicators
 00191$:
-;	fire_alarm_panel.c:326: if(LB) {  // Fixed: LB=1 means battery is low
-	jnb	_LB,00201$
-;	fire_alarm_panel.c:328: CFTLR = 1;  // Fault LED ON for low battery
-;	assignBit
-	setb	_CFTLR
-;	fire_alarm_panel.c:329: CFLR = 1;   // Fire LED OFF (not fire condition - inverse logic)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:330: if(!LISO) {
+;	fire_alarm_panel.c:314: if(LB) {  // Fixed: LB=1 means battery is low
+	jnb	_LB,00200$
+;	fire_alarm_panel.c:316: if(!LISO) {
 	jb	_LISO,00197$
-;	fire_alarm_panel.c:331: BUZ = 1;
-;	assignBit
-	setb	_BUZ
-;	fire_alarm_panel.c:332: if(!SIL) {
-	jb	_SIL,00197$
-;	fire_alarm_panel.c:334: LISO = 1;
+;	fire_alarm_panel.c:317: set_indicators(1, 1, 1, 1); // HOT=OFF, BUZ=ON, CFLR=OFF, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x01
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:318: if(!SIL) {
+	jb	_SIL,00198$
+;	fire_alarm_panel.c:320: LISO = 1;
 ;	assignBit
 	setb	_LISO
-;	fire_alarm_panel.c:335: BUZ = 0;
-;	assignBit
-	clr	_BUZ
+;	fire_alarm_panel.c:321: set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x01
+	lcall	_set_indicators
+	sjmp	00198$
 00197$:
-;	fire_alarm_panel.c:339: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:324: set_indicators(1, 0, 1, 1); // HOT=OFF, BUZ=OFF(silenced), CFLR=OFF, CFTLR=ON
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x01
+	mov	dpl, #0x01
+	lcall	_set_indicators
+00198$:
+;	fire_alarm_panel.c:327: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:340: lcd_disp(LOWB);
+;	fire_alarm_panel.c:328: lcd_disp(LOWB);
 	mov	dptr,#_LOWB
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:341: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:329: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:342: lcd_disp(LOWM);
+;	fire_alarm_panel.c:330: lcd_disp(LOWM);
 	mov	dptr,#_LOWM
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:343: delay1();
+;	fire_alarm_panel.c:331: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:344: delay1();
+;	fire_alarm_panel.c:332: delay1();
 	lcall	_delay1
-;	fire_alarm_panel.c:346: if(LISO) {
-	jb	_LISO,00594$
-	ljmp	00204$
-00594$:
-;	fire_alarm_panel.c:347: BUZ = 0; // Keep buzzer off if silenced
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:351: continue;
-	ljmp	00204$
-00201$:
-;	fire_alarm_panel.c:354: LISO = 0;
+;	fire_alarm_panel.c:335: continue;
+	ljmp	00203$
+00200$:
+;	fire_alarm_panel.c:338: LISO = 0;
 ;	assignBit
 	clr	_LISO
-;	fire_alarm_panel.c:358: }
-	ljmp	00204$
+;	fire_alarm_panel.c:342: }
+	ljmp	00203$
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'init_system'
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:360: void init_system(void)
+;	fire_alarm_panel.c:344: void init_system(void)
 ;	-----------------------------------------
 ;	 function init_system
 ;	-----------------------------------------
 _init_system:
-;	fire_alarm_panel.c:363: TMOD = 0x20;
+;	fire_alarm_panel.c:347: TMOD = 0x20;
 	mov	_TMOD,#0x20
-;	fire_alarm_panel.c:364: TH1 = 253;  // -3 for 9600 baud
+;	fire_alarm_panel.c:348: TH1 = 253;  // -3 for 9600 baud
 	mov	_TH1,#0xfd
-;	fire_alarm_panel.c:365: SCON = 0x50;
+;	fire_alarm_panel.c:349: SCON = 0x50;
 	mov	_SCON,#0x50
-;	fire_alarm_panel.c:366: TR1 = 1;
+;	fire_alarm_panel.c:350: TR1 = 1;
 ;	assignBit
 	setb	_TR1
-;	fire_alarm_panel.c:369: P0 = 0xFF;  // All inputs pulled high (active low inputs)
+;	fire_alarm_panel.c:353: P0 = 0xFF;  // All inputs pulled high (active low inputs)
 	mov	_P0,#0xff
-;	fire_alarm_panel.c:370: P2 = 0xFF;  // Control inputs pulled high
+;	fire_alarm_panel.c:354: P2 = 0xFF;  // Control inputs pulled high
 	mov	_P2,#0xff
-;	fire_alarm_panel.c:371: P3 = 0xFF;
+;	fire_alarm_panel.c:355: P3 = 0xFF;
 	mov	_P3,#0xff
-;	fire_alarm_panel.c:374: P1 = 0x90;  // Set bits: P1.7=0(CFTLR OFF), P1.6=1(CFLR OFF), P1.5=0(BUZ OFF), P1.4=1(HOT OFF), P1.3-0=0(LCD)
-	mov	_P1,#0x90
-;	fire_alarm_panel.c:377: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-;	assignBit
-	setb	_HOT
-;	fire_alarm_panel.c:378: BUZ = 0;    // Buzzer OFF (normal logic - pin LOW = Buzzer OFF)
-;	assignBit
-	clr	_BUZ
-;	fire_alarm_panel.c:379: CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
-;	assignBit
-	setb	_CFLR
-;	fire_alarm_panel.c:380: CFTLR = 0;  // Fault LED OFF (normal logic - pin LOW = LED OFF)
-;	assignBit
-	clr	_CFTLR
-;	fire_alarm_panel.c:381: BL = 1;     // Backlight ON initially
+;	fire_alarm_panel.c:358: P1 = 0x00;
+	mov	_P1,#0x00
+;	fire_alarm_panel.c:362: set_indicators(1, 0, 1, 0);
+	mov	_set_indicators_PARM_2,#0x00
+	mov	_set_indicators_PARM_3,#0x01
+	mov	_set_indicators_PARM_4,#0x00
+	mov	dpl, #0x01
+	lcall	_set_indicators
+;	fire_alarm_panel.c:364: BL = 1;     // Backlight ON initially
 ;	assignBit
 	setb	_BL
-;	fire_alarm_panel.c:384: LISO = 0;
+;	fire_alarm_panel.c:367: LISO = 0;
 ;	assignBit
 	clr	_LISO
-;	fire_alarm_panel.c:385: SLC1 = 0;
+;	fire_alarm_panel.c:368: SLC1 = 0;
 ;	assignBit
 	clr	_SLC1
-;	fire_alarm_panel.c:386: SLC2 = 0;
+;	fire_alarm_panel.c:369: SLC2 = 0;
 ;	assignBit
 	clr	_SLC2
-;	fire_alarm_panel.c:387: Z1 = 0;
+;	fire_alarm_panel.c:370: Z1 = 0;
 ;	assignBit
 	clr	_Z1
-;	fire_alarm_panel.c:388: Z2 = 0;
+;	fire_alarm_panel.c:371: Z2 = 0;
 ;	assignBit
 	clr	_Z2
-;	fire_alarm_panel.c:389: PR1 = 0;
+;	fire_alarm_panel.c:372: PR1 = 0;
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:390: PR2 = 0;
+;	fire_alarm_panel.c:373: PR2 = 0;
 ;	assignBit
 	clr	_PR2
-;	fire_alarm_panel.c:392: BLT1 = 30;
+;	fire_alarm_panel.c:375: BLT1 = 30;
 	mov	_BLT1,#0x1e
-;	fire_alarm_panel.c:393: BL_TIMER = BL_TIMEOUT; // Start 5-minute countdown for normal condition
+;	fire_alarm_panel.c:376: BL_TIMER = BL_TIMEOUT; // Start 5-minute countdown for normal condition
 	mov	_BL_TIMER,#0x2c
 	mov	(_BL_TIMER + 1),#0x01
-;	fire_alarm_panel.c:394: RAP = 0;
+;	fire_alarm_panel.c:377: RAP = 0;
 	mov	_RAP,#0x00
-;	fire_alarm_panel.c:395: }
+;	fire_alarm_panel.c:378: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'prz1'
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:397: void prz1(void)
+;	fire_alarm_panel.c:380: void prz1(void)
 ;	-----------------------------------------
 ;	 function prz1
 ;	-----------------------------------------
 _prz1:
-;	fire_alarm_panel.c:399: if(!Z1) {
+;	fire_alarm_panel.c:382: if(!Z1) {
 	jb	_Z1,00102$
-;	fire_alarm_panel.c:400: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:383: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:401: lcd_disp(TZONE1);
+;	fire_alarm_panel.c:384: lcd_disp(TZONE1);
 	mov	dptr,#_TZONE1
 	mov	b, #0x80
 	lcall	_lcd_disp
 00102$:
-;	fire_alarm_panel.c:405: if(!SHORT1) {
+;	fire_alarm_panel.c:388: if(!SHORT1) {
 	jb	_SHORT1,00121$
-;	fire_alarm_panel.c:406: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:389: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:407: lcd_disp(SHORT);
+;	fire_alarm_panel.c:390: lcd_disp(SHORT);
 	mov	dptr,#_SHORT
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:409: if(!SLC1) {
+;	fire_alarm_panel.c:392: if(!SLC1) {
 	jb	_SLC1,00104$
-;	fire_alarm_panel.c:410: BUZ = 1; // Buzzer ON if not silenced
+;	fire_alarm_panel.c:393: BUZ = 1; // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00104$:
-;	fire_alarm_panel.c:412: BUZ = 0; // Buzzer OFF if silenced
+;	fire_alarm_panel.c:395: BUZ = 0; // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00121$:
-;	fire_alarm_panel.c:414: } else if(!FIRE1) {
+;	fire_alarm_panel.c:397: } else if(!FIRE1) {
 	jb	_FIRE1,00118$
-;	fire_alarm_panel.c:415: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:398: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:416: lcd_disp(FIRE);
+;	fire_alarm_panel.c:399: lcd_disp(FIRE);
 	mov	dptr,#_FIRE
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:418: if(!SLC1) {
+;	fire_alarm_panel.c:401: if(!SLC1) {
 	jb	_SLC1,00107$
-;	fire_alarm_panel.c:419: BUZ = 1;  // Buzzer ON if not silenced
+;	fire_alarm_panel.c:402: BUZ = 1;  // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00107$:
-;	fire_alarm_panel.c:421: BUZ = 0;  // Buzzer OFF if silenced
+;	fire_alarm_panel.c:404: BUZ = 0;  // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00118$:
-;	fire_alarm_panel.c:423: } else if(!OPEN1) {
+;	fire_alarm_panel.c:406: } else if(!OPEN1) {
 	jb	_OPEN1,00115$
-;	fire_alarm_panel.c:424: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:407: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:425: lcd_disp(OPEN);
+;	fire_alarm_panel.c:408: lcd_disp(OPEN);
 	mov	dptr,#_OPEN
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:427: if(!SLC1) {
+;	fire_alarm_panel.c:410: if(!SLC1) {
 	jb	_SLC1,00110$
-;	fire_alarm_panel.c:428: BUZ = 1; // Buzzer ON if not silenced
+;	fire_alarm_panel.c:411: BUZ = 1; // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00110$:
-;	fire_alarm_panel.c:430: BUZ = 0; // Buzzer OFF if silenced
+;	fire_alarm_panel.c:413: BUZ = 0; // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00115$:
-;	fire_alarm_panel.c:435: PR1 = 0;
+;	fire_alarm_panel.c:418: PR1 = 0;
 ;	assignBit
 	clr	_PR1
-;	fire_alarm_panel.c:436: SLC1 = 0;
+;	fire_alarm_panel.c:419: SLC1 = 0;
 ;	assignBit
 	clr	_SLC1
-;	fire_alarm_panel.c:438: if(ZONE1) { // If zone is not isolated
+;	fire_alarm_panel.c:421: if(ZONE1) { // If zone is not isolated
 	jnb	_ZONE1,00122$
-;	fire_alarm_panel.c:439: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:422: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:440: lcd_disp(ISO1H);
+;	fire_alarm_panel.c:423: lcd_disp(ISO1H);
 	mov	dptr,#_ISO1H
 	mov	b, #0x80
 	lcall	_lcd_disp
 00122$:
-;	fire_alarm_panel.c:444: delay1();
-;	fire_alarm_panel.c:445: }
+;	fire_alarm_panel.c:427: delay1();
+;	fire_alarm_panel.c:428: }
 	ljmp	_delay1
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'prz2'
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:447: void prz2(void)
+;	fire_alarm_panel.c:430: void prz2(void)
 ;	-----------------------------------------
 ;	 function prz2
 ;	-----------------------------------------
 _prz2:
-;	fire_alarm_panel.c:449: if(!Z2) { // Fixed: should check Z2 for zone 2 testing
+;	fire_alarm_panel.c:432: if(!Z2) { // Fixed: should check Z2 for zone 2 testing
 	jb	_Z2,00102$
-;	fire_alarm_panel.c:450: lcd_cmd(LINE1);
+;	fire_alarm_panel.c:433: lcd_cmd(LINE1);
 	mov	dptr,#_LINE1
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:451: lcd_disp(TZONE2);
+;	fire_alarm_panel.c:434: lcd_disp(TZONE2);
 	mov	dptr,#_TZONE2
 	mov	b, #0x80
 	lcall	_lcd_disp
 00102$:
-;	fire_alarm_panel.c:455: if(!SHORT2) {
+;	fire_alarm_panel.c:438: if(!SHORT2) {
 	jb	_SHORT2,00121$
-;	fire_alarm_panel.c:456: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:439: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:457: lcd_disp(SHORT);
+;	fire_alarm_panel.c:440: lcd_disp(SHORT);
 	mov	dptr,#_SHORT
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:459: if(!SLC2) {
+;	fire_alarm_panel.c:442: if(!SLC2) {
 	jb	_SLC2,00104$
-;	fire_alarm_panel.c:460: BUZ = 1; // Buzzer ON if not silenced
+;	fire_alarm_panel.c:443: BUZ = 1; // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00104$:
-;	fire_alarm_panel.c:462: BUZ = 0; // Buzzer OFF if silenced
+;	fire_alarm_panel.c:445: BUZ = 0; // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00121$:
-;	fire_alarm_panel.c:464: } else if(!FIRE2) {
+;	fire_alarm_panel.c:447: } else if(!FIRE2) {
 	jb	_FIRE2,00118$
-;	fire_alarm_panel.c:465: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:448: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:466: lcd_disp(FIRE);
+;	fire_alarm_panel.c:449: lcd_disp(FIRE);
 	mov	dptr,#_FIRE
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:468: if(!SLC2) {
+;	fire_alarm_panel.c:451: if(!SLC2) {
 	jb	_SLC2,00107$
-;	fire_alarm_panel.c:469: BUZ = 1;  // Buzzer ON if not silenced
+;	fire_alarm_panel.c:452: BUZ = 1;  // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00107$:
-;	fire_alarm_panel.c:471: BUZ = 0;  // Buzzer OFF if silenced
+;	fire_alarm_panel.c:454: BUZ = 0;  // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00118$:
-;	fire_alarm_panel.c:473: } else if(!OPEN2) {
+;	fire_alarm_panel.c:456: } else if(!OPEN2) {
 	jb	_OPEN2,00115$
-;	fire_alarm_panel.c:474: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:457: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:475: lcd_disp(OPEN);
+;	fire_alarm_panel.c:458: lcd_disp(OPEN);
 	mov	dptr,#_OPEN
 	mov	b, #0x80
 	lcall	_lcd_disp
-;	fire_alarm_panel.c:477: if(!SLC2) {
+;	fire_alarm_panel.c:460: if(!SLC2) {
 	jb	_SLC2,00110$
-;	fire_alarm_panel.c:478: BUZ = 1; // Buzzer ON if not silenced
+;	fire_alarm_panel.c:461: BUZ = 1; // Buzzer ON if not silenced
 ;	assignBit
 	setb	_BUZ
 	sjmp	00122$
 00110$:
-;	fire_alarm_panel.c:480: BUZ = 0; // Buzzer OFF if silenced
+;	fire_alarm_panel.c:463: BUZ = 0; // Buzzer OFF if silenced
 ;	assignBit
 	clr	_BUZ
 	sjmp	00122$
 00115$:
-;	fire_alarm_panel.c:485: PR2 = 0;
+;	fire_alarm_panel.c:468: PR2 = 0;
 ;	assignBit
 	clr	_PR2
-;	fire_alarm_panel.c:486: SLC2 = 0;
+;	fire_alarm_panel.c:469: SLC2 = 0;
 ;	assignBit
 	clr	_SLC2
-;	fire_alarm_panel.c:488: if(ZONE2) { // If zone is not isolated
+;	fire_alarm_panel.c:471: if(ZONE2) { // If zone is not isolated
 	jnb	_ZONE2,00122$
-;	fire_alarm_panel.c:489: lcd_cmd(LINE2);
+;	fire_alarm_panel.c:472: lcd_cmd(LINE2);
 	mov	dptr,#_LINE2
 	mov	b, #0x80
 	lcall	_lcd_cmd
-;	fire_alarm_panel.c:490: lcd_disp(ISO2H);
+;	fire_alarm_panel.c:473: lcd_disp(ISO2H);
 	mov	dptr,#_ISO2H
 	mov	b, #0x80
 	lcall	_lcd_disp
 00122$:
-;	fire_alarm_panel.c:494: delay1();
-;	fire_alarm_panel.c:495: }
+;	fire_alarm_panel.c:477: delay1();
+;	fire_alarm_panel.c:478: }
 	ljmp	_delay1
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'receive'
 ;------------------------------------------------------------
 ;received_data Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:497: void receive(void)
+;	fire_alarm_panel.c:480: void receive(void)
 ;	-----------------------------------------
 ;	 function receive
 ;	-----------------------------------------
 _receive:
-;	fire_alarm_panel.c:501: received_data = SBUF;
+;	fire_alarm_panel.c:484: received_data = SBUF;
 	mov	r7,_SBUF
-;	fire_alarm_panel.c:502: RI = 0;
+;	fire_alarm_panel.c:485: RI = 0;
 ;	assignBit
 	clr	_RI
-;	fire_alarm_panel.c:503: SBUF = received_data;
+;	fire_alarm_panel.c:486: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:504: while(!TI);
+;	fire_alarm_panel.c:487: while(!TI);
 00101$:
-;	fire_alarm_panel.c:505: TI = 0;
+;	fire_alarm_panel.c:488: TI = 0;
 ;	assignBit
 	jbc	_TI,00281$
 	sjmp	00101$
 00281$:
-;	fire_alarm_panel.c:507: switch(received_data) {
+;	fire_alarm_panel.c:490: switch(received_data) {
 	cjne	r7,#0x00,00282$
 	sjmp	00106$
 00282$:
@@ -1445,258 +1408,258 @@ _receive:
 	cjne	r7,#0xbb,00288$
 	sjmp	00105$
 00288$:
-;	fire_alarm_panel.c:508: case 0xAA:
+;	fire_alarm_panel.c:491: case 0xAA:
 	cjne	r7,#0xff,00130$
 	sjmp	00126$
 00104$:
-;	fire_alarm_panel.c:509: send_data(P2);
+;	fire_alarm_panel.c:492: send_data(P2);
 	mov	dpl, _P2
-;	fire_alarm_panel.c:510: break;
-;	fire_alarm_panel.c:512: case 0xBB:
+;	fire_alarm_panel.c:493: break;
+;	fire_alarm_panel.c:495: case 0xBB:
 	ljmp	_send_data
 00105$:
-;	fire_alarm_panel.c:513: send_data(P0 | 0xC0);
+;	fire_alarm_panel.c:496: send_data(P0 | 0xC0);
 	mov	a,#0xc0
 	orl	a,_P0
 	mov	dpl,a
-;	fire_alarm_panel.c:514: break;
-;	fire_alarm_panel.c:516: case 0x00:
+;	fire_alarm_panel.c:497: break;
+;	fire_alarm_panel.c:499: case 0x00:
 	ljmp	_send_data
 00106$:
-;	fire_alarm_panel.c:517: silence_alarms();
+;	fire_alarm_panel.c:500: silence_alarms();
 	push	ar7
 	lcall	_silence_alarms
 	pop	ar7
-;	fire_alarm_panel.c:518: SBUF = received_data;
+;	fire_alarm_panel.c:501: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:519: while(!TI);
+;	fire_alarm_panel.c:502: while(!TI);
 00107$:
-;	fire_alarm_panel.c:520: TI = 0;
+;	fire_alarm_panel.c:503: TI = 0;
 ;	assignBit
 	jbc	_TI,00290$
 	sjmp	00107$
 00290$:
-;	fire_alarm_panel.c:521: break;
-;	fire_alarm_panel.c:523: case 0x01:
+;	fire_alarm_panel.c:504: break;
+;	fire_alarm_panel.c:506: case 0x01:
 	ret
 00110$:
-;	fire_alarm_panel.c:524: silence_alarms();
+;	fire_alarm_panel.c:507: silence_alarms();
 	push	ar7
 	lcall	_silence_alarms
 	pop	ar7
-;	fire_alarm_panel.c:525: SBUF = received_data;
+;	fire_alarm_panel.c:508: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:526: while(!TI);
+;	fire_alarm_panel.c:509: while(!TI);
 00111$:
-;	fire_alarm_panel.c:527: TI = 0;
+;	fire_alarm_panel.c:510: TI = 0;
 ;	assignBit
 	jbc	_TI,00291$
 	sjmp	00111$
 00291$:
-;	fire_alarm_panel.c:528: break;
-;	fire_alarm_panel.c:530: case 0x02:
+;	fire_alarm_panel.c:511: break;
+;	fire_alarm_panel.c:513: case 0x02:
 	ret
 00114$:
-;	fire_alarm_panel.c:531: EVQ = 0;
+;	fire_alarm_panel.c:514: EVQ = 0;
 ;	assignBit
 	clr	_EVQ
-;	fire_alarm_panel.c:532: SBUF = received_data;
+;	fire_alarm_panel.c:515: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:533: while(!TI);
+;	fire_alarm_panel.c:516: while(!TI);
 00115$:
-;	fire_alarm_panel.c:534: TI = 0;
+;	fire_alarm_panel.c:517: TI = 0;
 ;	assignBit
 	jbc	_TI,00292$
 	sjmp	00115$
 00292$:
-;	fire_alarm_panel.c:535: break;
-;	fire_alarm_panel.c:537: case 0x40:
+;	fire_alarm_panel.c:518: break;
+;	fire_alarm_panel.c:520: case 0x40:
 	ret
 00118$:
-;	fire_alarm_panel.c:538: Z2 = 1;
+;	fire_alarm_panel.c:521: Z2 = 1;
 ;	assignBit
 	setb	_Z2
-;	fire_alarm_panel.c:539: SBUF = received_data;
+;	fire_alarm_panel.c:522: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:540: while(!TI);
+;	fire_alarm_panel.c:523: while(!TI);
 00119$:
-;	fire_alarm_panel.c:541: TI = 0;
+;	fire_alarm_panel.c:524: TI = 0;
 ;	assignBit
 	jbc	_TI,00293$
 	sjmp	00119$
 00293$:
-;	fire_alarm_panel.c:542: break;
-;	fire_alarm_panel.c:544: case 0x03:
+;	fire_alarm_panel.c:525: break;
+;	fire_alarm_panel.c:527: case 0x03:
 	ret
 00122$:
-;	fire_alarm_panel.c:545: silence_alarms();
+;	fire_alarm_panel.c:528: silence_alarms();
 	push	ar7
 	lcall	_silence_alarms
 	pop	ar7
-;	fire_alarm_panel.c:546: SBUF = received_data;
+;	fire_alarm_panel.c:529: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:547: while(!TI);
+;	fire_alarm_panel.c:530: while(!TI);
 00123$:
-;	fire_alarm_panel.c:548: TI = 0;
+;	fire_alarm_panel.c:531: TI = 0;
 ;	assignBit
 	jbc	_TI,00294$
 	sjmp	00123$
 00294$:
-;	fire_alarm_panel.c:549: break;
-;	fire_alarm_panel.c:551: case 0xFF:
+;	fire_alarm_panel.c:532: break;
+;	fire_alarm_panel.c:534: case 0xFF:
 	ret
 00126$:
-;	fire_alarm_panel.c:552: SBUF = received_data;
+;	fire_alarm_panel.c:535: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:553: while(!TI);
+;	fire_alarm_panel.c:536: while(!TI);
 00127$:
-;	fire_alarm_panel.c:554: TI = 0;
+;	fire_alarm_panel.c:537: TI = 0;
 ;	assignBit
 	jbc	_TI,00295$
 	sjmp	00127$
 00295$:
-;	fire_alarm_panel.c:556: init_system();
-;	fire_alarm_panel.c:557: break;
-;	fire_alarm_panel.c:559: default:
+;	fire_alarm_panel.c:539: init_system();
+;	fire_alarm_panel.c:540: break;
+;	fire_alarm_panel.c:542: default:
 	ljmp	_init_system
 00130$:
-;	fire_alarm_panel.c:561: SBUF = received_data;
+;	fire_alarm_panel.c:544: SBUF = received_data;
 	mov	_SBUF,r7
-;	fire_alarm_panel.c:562: while(!TI);
+;	fire_alarm_panel.c:545: while(!TI);
 00131$:
-;	fire_alarm_panel.c:563: TI = 0;
+;	fire_alarm_panel.c:546: TI = 0;
 ;	assignBit
 	jbc	_TI,00296$
 	sjmp	00131$
 00296$:
-;	fire_alarm_panel.c:565: }
-;	fire_alarm_panel.c:566: }
+;	fire_alarm_panel.c:548: }
+;	fire_alarm_panel.c:549: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'send_data'
 ;------------------------------------------------------------
 ;data          Allocated to registers 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:568: void send_data(unsigned char data)
+;	fire_alarm_panel.c:551: void send_data(unsigned char data)
 ;	-----------------------------------------
 ;	 function send_data
 ;	-----------------------------------------
 _send_data:
 	mov	_SBUF,dpl
-;	fire_alarm_panel.c:571: while(!TI);
+;	fire_alarm_panel.c:554: while(!TI);
 00101$:
-;	fire_alarm_panel.c:572: TI = 0;
+;	fire_alarm_panel.c:555: TI = 0;
 ;	assignBit
 	jbc	_TI,00118$
 	sjmp	00101$
 00118$:
-;	fire_alarm_panel.c:573: }
+;	fire_alarm_panel.c:556: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'silence_alarms'
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:575: void silence_alarms(void)
+;	fire_alarm_panel.c:558: void silence_alarms(void)
 ;	-----------------------------------------
 ;	 function silence_alarms
 ;	-----------------------------------------
 _silence_alarms:
-;	fire_alarm_panel.c:577: SLC1 = 1;
+;	fire_alarm_panel.c:560: SLC1 = 1;
 ;	assignBit
 	setb	_SLC1
-;	fire_alarm_panel.c:578: SLC2 = 1;
+;	fire_alarm_panel.c:561: SLC2 = 1;
 ;	assignBit
 	setb	_SLC2
-;	fire_alarm_panel.c:579: LISO = 1;
+;	fire_alarm_panel.c:562: LISO = 1;
 ;	assignBit
 	setb	_LISO
-;	fire_alarm_panel.c:580: BUZ = 0;
+;	fire_alarm_panel.c:565: BUZ = 0;
 ;	assignBit
 	clr	_BUZ
-;	fire_alarm_panel.c:581: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+;	fire_alarm_panel.c:566: HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
 ;	assignBit
 	setb	_HOT
-;	fire_alarm_panel.c:582: }
+;	fire_alarm_panel.c:567: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'spliter'
 ;------------------------------------------------------------
 ;data          Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:584: void spliter(unsigned char data)
+;	fire_alarm_panel.c:569: void spliter(unsigned char data)
 ;	-----------------------------------------
 ;	 function spliter
 ;	-----------------------------------------
 _spliter:
 	mov	r7, dpl
-;	fire_alarm_panel.c:586: L = data & 0x0F;
+;	fire_alarm_panel.c:571: L = data & 0x0F;
 	mov	a,#0x0f
 	anl	a,r7
 	mov	_L,a
-;	fire_alarm_panel.c:587: U = (data >> 4) & 0x0F;
+;	fire_alarm_panel.c:572: U = (data >> 4) & 0x0F;
 	mov	a,r7
 	swap	a
 	anl	a,#0x0f
 	mov	_U,a
-;	fire_alarm_panel.c:588: }
+;	fire_alarm_panel.c:573: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'move'
 ;------------------------------------------------------------
 ;data          Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:590: void move(unsigned char data)
+;	fire_alarm_panel.c:575: void move(unsigned char data)
 ;	-----------------------------------------
 ;	 function move
 ;	-----------------------------------------
 _move:
 	mov	r7, dpl
-;	fire_alarm_panel.c:592: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
-	mov	a,_P1
+;	fire_alarm_panel.c:577: P1 = (P1_INDICATORS & 0xF0) | (data & 0x0F);  // Use shadow register for indicators
+	mov	a,_P1_INDICATORS
 	anl	a,#0xf0
 	mov	r6,a
 	mov	a,#0x0f
 	anl	a,r7
 	orl	a,r6
 	mov	_P1,a
-;	fire_alarm_panel.c:593: EN = 1;
+;	fire_alarm_panel.c:578: EN = 1;
 ;	assignBit
 	setb	_EN
-;	fire_alarm_panel.c:594: delay();
+;	fire_alarm_panel.c:579: delay();
 	lcall	_delay
-;	fire_alarm_panel.c:595: EN = 0;
+;	fire_alarm_panel.c:580: EN = 0;
 ;	assignBit
 	clr	_EN
-;	fire_alarm_panel.c:596: delay();
-;	fire_alarm_panel.c:597: }
+;	fire_alarm_panel.c:581: delay();
+;	fire_alarm_panel.c:582: }
 	ljmp	_delay
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'move1'
 ;------------------------------------------------------------
 ;data          Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:599: void move1(unsigned char data)
+;	fire_alarm_panel.c:584: void move1(unsigned char data)
 ;	-----------------------------------------
 ;	 function move1
 ;	-----------------------------------------
 _move1:
 	mov	r7, dpl
-;	fire_alarm_panel.c:601: P1 = (P1 & 0xF0) | (data & 0x0F);  // Mask data to only lower 4 bits
-	mov	a,_P1
+;	fire_alarm_panel.c:586: P1 = (P1_INDICATORS & 0xF0) | (data & 0x0F);  // Use shadow register for indicators
+	mov	a,_P1_INDICATORS
 	anl	a,#0xf0
 	mov	r6,a
 	mov	a,#0x0f
 	anl	a,r7
 	orl	a,r6
 	mov	_P1,a
-;	fire_alarm_panel.c:602: EN = 1;
+;	fire_alarm_panel.c:587: EN = 1;
 ;	assignBit
 	setb	_EN
-;	fire_alarm_panel.c:606: __endasm;
+;	fire_alarm_panel.c:591: __endasm;
 	nop
-;	fire_alarm_panel.c:607: EN = 0;
+;	fire_alarm_panel.c:592: EN = 0;
 ;	assignBit
 	clr	_EN
-;	fire_alarm_panel.c:617: __endasm;
+;	fire_alarm_panel.c:602: __endasm;
 	nop
 	nop
 	nop
@@ -1705,7 +1668,7 @@ _move1:
 	nop
 	nop
 	nop
-;	fire_alarm_panel.c:618: }
+;	fire_alarm_panel.c:603: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'lcd_cmd'
@@ -1714,7 +1677,7 @@ _move1:
 ;cmd           Allocated to registers r3 
 ;i             Allocated to registers r4 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:620: void lcd_cmd(unsigned char *cmd_ptr)
+;	fire_alarm_panel.c:605: void lcd_cmd(unsigned char *cmd_ptr)
 ;	-----------------------------------------
 ;	 function lcd_cmd
 ;	-----------------------------------------
@@ -1722,7 +1685,7 @@ _lcd_cmd:
 	mov	r5, dpl
 	mov	r6, dph
 	mov	r7, b
-;	fire_alarm_panel.c:625: while((cmd = cmd_ptr[i]) != 0) {
+;	fire_alarm_panel.c:610: while((cmd = cmd_ptr[i]) != 0) {
 	mov	r4,#0x00
 00101$:
 	mov	a,r4
@@ -1738,22 +1701,22 @@ _lcd_cmd:
 	lcall	__gptrget
 	mov	r3,a
 	jz	00104$
-;	fire_alarm_panel.c:626: i++;
+;	fire_alarm_panel.c:611: i++;
 	inc	r4
-;	fire_alarm_panel.c:627: RS = 0;
+;	fire_alarm_panel.c:612: RS = 0;
 ;	assignBit
 	clr	_RS
-;	fire_alarm_panel.c:628: spliter(cmd);
+;	fire_alarm_panel.c:613: spliter(cmd);
 	mov	dpl, r3
 	push	ar7
 	push	ar6
 	push	ar5
 	push	ar4
 	lcall	_spliter
-;	fire_alarm_panel.c:629: move(U);
+;	fire_alarm_panel.c:614: move(U);
 	mov	dpl, _U
 	lcall	_move
-;	fire_alarm_panel.c:630: move(L);
+;	fire_alarm_panel.c:615: move(L);
 	mov	dpl, _L
 	lcall	_move
 	pop	ar4
@@ -1762,29 +1725,29 @@ _lcd_cmd:
 	pop	ar7
 	sjmp	00101$
 00104$:
-;	fire_alarm_panel.c:632: }
+;	fire_alarm_panel.c:617: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'lcd_data'
 ;------------------------------------------------------------
 ;data          Allocated to registers 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:634: void lcd_data(unsigned char data)
+;	fire_alarm_panel.c:619: void lcd_data(unsigned char data)
 ;	-----------------------------------------
 ;	 function lcd_data
 ;	-----------------------------------------
 _lcd_data:
-;	fire_alarm_panel.c:636: RS = 1;
+;	fire_alarm_panel.c:621: RS = 1;
 ;	assignBit
 	setb	_RS
-;	fire_alarm_panel.c:637: spliter(data);
+;	fire_alarm_panel.c:622: spliter(data);
 	lcall	_spliter
-;	fire_alarm_panel.c:638: move1(U);
+;	fire_alarm_panel.c:623: move1(U);
 	mov	dpl, _U
 	lcall	_move1
-;	fire_alarm_panel.c:639: move1(L);
+;	fire_alarm_panel.c:624: move1(L);
 	mov	dpl, _L
-;	fire_alarm_panel.c:640: }
+;	fire_alarm_panel.c:625: }
 	ljmp	_move1
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'lcd_disp'
@@ -1793,7 +1756,7 @@ _lcd_data:
 ;ch            Allocated to registers r3 
 ;i             Allocated to registers r4 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:642: void lcd_disp(unsigned char *text_ptr)
+;	fire_alarm_panel.c:627: void lcd_disp(unsigned char *text_ptr)
 ;	-----------------------------------------
 ;	 function lcd_disp
 ;	-----------------------------------------
@@ -1801,7 +1764,7 @@ _lcd_disp:
 	mov	r5, dpl
 	mov	r6, dph
 	mov	r7, b
-;	fire_alarm_panel.c:647: while((ch = text_ptr[i]) != 0) {
+;	fire_alarm_panel.c:632: while((ch = text_ptr[i]) != 0) {
 	mov	r4,#0x00
 00101$:
 	mov	a,r4
@@ -1817,9 +1780,9 @@ _lcd_disp:
 	lcall	__gptrget
 	mov	r3,a
 	jz	00104$
-;	fire_alarm_panel.c:648: i++;
+;	fire_alarm_panel.c:633: i++;
 	inc	r4
-;	fire_alarm_panel.c:649: lcd_data(ch);
+;	fire_alarm_panel.c:634: lcd_data(ch);
 	mov	dpl, r3
 	push	ar7
 	push	ar6
@@ -1832,7 +1795,7 @@ _lcd_disp:
 	pop	ar7
 	sjmp	00101$
 00104$:
-;	fire_alarm_panel.c:651: }
+;	fire_alarm_panel.c:636: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'lcd_disp1'
@@ -1841,7 +1804,7 @@ _lcd_disp:
 ;ch            Allocated to registers r3 
 ;i             Allocated to registers r4 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:653: void lcd_disp1(unsigned char *text_ptr)
+;	fire_alarm_panel.c:638: void lcd_disp1(unsigned char *text_ptr)
 ;	-----------------------------------------
 ;	 function lcd_disp1
 ;	-----------------------------------------
@@ -1849,7 +1812,7 @@ _lcd_disp1:
 	mov	r5, dpl
 	mov	r6, dph
 	mov	r7, b
-;	fire_alarm_panel.c:658: while((ch = text_ptr[i]) != 0) {
+;	fire_alarm_panel.c:643: while((ch = text_ptr[i]) != 0) {
 	mov	r4,#0x00
 00101$:
 	mov	a,r4
@@ -1865,16 +1828,16 @@ _lcd_disp1:
 	lcall	__gptrget
 	mov	r3,a
 	jz	00104$
-;	fire_alarm_panel.c:659: i++;
+;	fire_alarm_panel.c:644: i++;
 	inc	r4
-;	fire_alarm_panel.c:660: lcd_data(ch);
+;	fire_alarm_panel.c:645: lcd_data(ch);
 	mov	dpl, r3
 	push	ar7
 	push	ar6
 	push	ar5
 	push	ar4
 	lcall	_lcd_data
-;	fire_alarm_panel.c:661: delay2();
+;	fire_alarm_panel.c:646: delay2();
 	lcall	_delay2
 	pop	ar4
 	pop	ar5
@@ -1882,7 +1845,7 @@ _lcd_disp1:
 	pop	ar7
 	sjmp	00101$
 00104$:
-;	fire_alarm_panel.c:663: }
+;	fire_alarm_panel.c:648: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'delay2'
@@ -1891,26 +1854,26 @@ _lcd_disp1:
 ;R6            Allocated to registers r5 
 ;R7            Allocated to registers r6 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:665: void delay2(void)
+;	fire_alarm_panel.c:650: void delay2(void)
 ;	-----------------------------------------
 ;	 function delay2
 ;	-----------------------------------------
 _delay2:
-;	fire_alarm_panel.c:669: for(R5 = 1; R5 > 0; R5--) {
+;	fire_alarm_panel.c:654: for(R5 = 1; R5 > 0; R5--) {
 	mov	r7,#0x01
-;	fire_alarm_panel.c:670: for(R7 = 255; R7 > 0; R7--) {
+;	fire_alarm_panel.c:655: for(R7 = 255; R7 > 0; R7--) {
 00121$:
 	mov	r6,#0xff
-;	fire_alarm_panel.c:671: for(R6 = 255; R6 > 0; R6--);
+;	fire_alarm_panel.c:656: for(R6 = 255; R6 > 0; R6--);
 00119$:
 	mov	r5,#0xff
 00105$:
 	djnz	r5,00105$
-;	fire_alarm_panel.c:670: for(R7 = 255; R7 > 0; R7--) {
+;	fire_alarm_panel.c:655: for(R7 = 255; R7 > 0; R7--) {
 	djnz	r6,00119$
-;	fire_alarm_panel.c:669: for(R5 = 1; R5 > 0; R5--) {
+;	fire_alarm_panel.c:654: for(R5 = 1; R5 > 0; R5--) {
 	djnz	r7,00121$
-;	fire_alarm_panel.c:674: }
+;	fire_alarm_panel.c:659: }
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'delay1'
@@ -1919,29 +1882,29 @@ _delay2:
 ;R6            Allocated to registers r5 
 ;R7            Allocated to registers r6 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:676: void delay1(void)
+;	fire_alarm_panel.c:661: void delay1(void)
 ;	-----------------------------------------
 ;	 function delay1
 ;	-----------------------------------------
 _delay1:
-;	fire_alarm_panel.c:680: for(R5 = 8; R5 > 0; R5--) {
+;	fire_alarm_panel.c:665: for(R5 = 8; R5 > 0; R5--) {
 	mov	r7,#0x08
-;	fire_alarm_panel.c:681: for(R7 = 255; R7 > 0; R7--) {
+;	fire_alarm_panel.c:666: for(R7 = 255; R7 > 0; R7--) {
 00123$:
 	mov	r6,#0xff
-;	fire_alarm_panel.c:682: for(R6 = 255; R6 > 0; R6--);
+;	fire_alarm_panel.c:667: for(R6 = 255; R6 > 0; R6--);
 00121$:
 	mov	r5,#0xff
 00107$:
 	djnz	r5,00107$
-;	fire_alarm_panel.c:681: for(R7 = 255; R7 > 0; R7--) {
+;	fire_alarm_panel.c:666: for(R7 = 255; R7 > 0; R7--) {
 	djnz	r6,00121$
-;	fire_alarm_panel.c:680: for(R5 = 8; R5 > 0; R5--) {
+;	fire_alarm_panel.c:665: for(R5 = 8; R5 > 0; R5--) {
 	djnz	r7,00123$
-;	fire_alarm_panel.c:686: if(RI) {
+;	fire_alarm_panel.c:671: if(RI) {
 	jnb	_RI,00112$
-;	fire_alarm_panel.c:687: receive();
-;	fire_alarm_panel.c:689: }
+;	fire_alarm_panel.c:672: receive();
+;	fire_alarm_panel.c:674: }
 	ljmp	_receive
 00112$:
 	ret
@@ -1951,21 +1914,86 @@ _delay1:
 ;R6            Allocated to registers r6 
 ;R7            Allocated to registers r7 
 ;------------------------------------------------------------
-;	fire_alarm_panel.c:691: void delay(void)
+;	fire_alarm_panel.c:676: void delay(void)
 ;	-----------------------------------------
 ;	 function delay
 ;	-----------------------------------------
 _delay:
-;	fire_alarm_panel.c:695: for(R7 = 7; R7 > 0; R7--) {
+;	fire_alarm_panel.c:680: for(R7 = 7; R7 > 0; R7--) {
 	mov	r7,#0x07
-;	fire_alarm_panel.c:696: for(R6 = 15; R6 > 0; R6--);
+;	fire_alarm_panel.c:681: for(R6 = 15; R6 > 0; R6--);
 00114$:
 	mov	r6,#0x0f
 00104$:
 	djnz	r6,00104$
-;	fire_alarm_panel.c:695: for(R7 = 7; R7 > 0; R7--) {
+;	fire_alarm_panel.c:680: for(R7 = 7; R7 > 0; R7--) {
 	djnz	r7,00114$
-;	fire_alarm_panel.c:698: } 
+;	fire_alarm_panel.c:683: }
+	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'set_indicators'
+;------------------------------------------------------------
+;buz_on        Allocated with name '_set_indicators_PARM_2'
+;cflr_off      Allocated with name '_set_indicators_PARM_3'
+;cftlr_on      Allocated with name '_set_indicators_PARM_4'
+;hot_off       Allocated to registers r7 
+;hot_pin       Allocated to registers 
+;buz_pin       Allocated to registers r6 
+;cflr_pin      Allocated to registers r5 
+;cftlr_pin     Allocated to registers r4 
+;------------------------------------------------------------
+;	fire_alarm_panel.c:685: void set_indicators(unsigned char hot_off, unsigned char buz_on, unsigned char cflr_off, unsigned char cftlr_on)
+;	-----------------------------------------
+;	 function set_indicators
+;	-----------------------------------------
+_set_indicators:
+	mov	r7, dpl
+;	fire_alarm_panel.c:695: unsigned char buz_pin = buz_on;       // BUZ: normal logic (1=ON, 0=OFF)  
+	mov	r6,_set_indicators_PARM_2
+;	fire_alarm_panel.c:696: unsigned char cflr_pin = cflr_off;    // CFLR: inverse logic (1=OFF, 0=ON)
+	mov	r5,_set_indicators_PARM_3
+;	fire_alarm_panel.c:697: unsigned char cftlr_pin = cftlr_on;   // CFTLR: normal logic (1=ON, 0=OFF)
+	mov	r4,_set_indicators_PARM_4
+;	fire_alarm_panel.c:700: P1_INDICATORS = (hot_pin << 4) | (buz_pin << 5) | (cflr_pin << 6) | (cftlr_pin << 7);
+	mov	a,r7
+	swap	a
+	anl	a,#0xf0
+	mov	r7,a
+	mov	a,r6
+	swap	a
+	rl	a
+	anl	a,#0xe0
+	orl	ar7,a
+	mov	a,r5
+	rr	a
+	rr	a
+	anl	a,#0xc0
+	orl	ar7,a
+	mov	a,r4
+	rr	a
+	anl	a,#0x80
+	orl	a,r7
+	mov	_P1_INDICATORS,a
+;	fire_alarm_panel.c:701: update_indicators();
+;	fire_alarm_panel.c:702: }
+	ljmp	_update_indicators
+;------------------------------------------------------------
+;Allocation info for local variables in function 'update_indicators'
+;------------------------------------------------------------
+;	fire_alarm_panel.c:704: void update_indicators(void)
+;	-----------------------------------------
+;	 function update_indicators
+;	-----------------------------------------
+_update_indicators:
+;	fire_alarm_panel.c:707: P1 = (P1 & 0x0F) | (P1_INDICATORS & 0xF0);
+	mov	a,_P1
+	anl	a,#0x0f
+	mov	r7,a
+	mov	a,_P1_INDICATORS
+	anl	a,#0xf0
+	orl	a,r7
+	mov	_P1,a
+;	fire_alarm_panel.c:708: } 
 	ret
 	.area CSEG    (CODE)
 	.area CONST   (CODE)
