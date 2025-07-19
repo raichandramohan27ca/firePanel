@@ -144,6 +144,8 @@ void main(void)
             PR1 = 0; // No problems
             lcd_cmd(LINE2);
             lcd_disp(ISO1H); // Show "ZONE-01 HEALTHY"
+            // Ensure indicators remain in correct state after LCD operations
+            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
             delay1();
             if(RI) receive();
         } else {
@@ -174,6 +176,8 @@ void main(void)
             PR2 = 0; // No problems
             lcd_cmd(LINE2);
             lcd_disp(ISO2H); // Show "ZONE-02 HEALTHY"
+            // Ensure indicators remain in correct state after LCD operations
+            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
             delay1();
             if(RI) receive();
         } else {
@@ -201,6 +205,8 @@ void main(void)
         if(!ZONE1 && !ZONE2) {
             lcd_cmd(LINE2);
             lcd_disp(TEXT3);
+            // Ensure indicators remain in correct state after LCD operations
+            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
             delay1();
             if(RI) receive();
         }
@@ -274,6 +280,8 @@ void main(void)
             lcd_disp(TEXT1);
             lcd_cmd(LINE2);
             lcd_disp(TEXT3);
+            // Ensure indicators remain in correct state after LCD operations
+            HOT = 1; CFLR = 1; CFTLR = 0; BUZ = 0;
         }
         
         // Centralized LED Control - Handle all conditions
@@ -351,20 +359,28 @@ void main(void)
 
 void init_system(void)
 {
-    // Initialize ports - P1 bits 4-7 are active high indicators, should start LOW (OFF)
-    P1 = 0x00; // All indicators OFF initially
-    P0 = 0xFF;
-    P2 = 0xFF;
+    // Initialize UART first
+    TMOD = 0x20;
+    TH1 = 253;  // -3 for 9600 baud
+    SCON = 0x50;
+    TR1 = 1;
+    
+    // Initialize input ports with pull-ups
+    P0 = 0xFF;  // All inputs pulled high (active low inputs)
+    P2 = 0xFF;  // Control inputs pulled high
     P3 = 0xFF;
     
-    // Explicitly turn OFF all indicators
+    // Initialize P1 carefully - first set to known state
+    P1 = 0x90;  // Set bits: P1.7=0(CFTLR OFF), P1.6=1(CFLR OFF), P1.5=0(BUZ OFF), P1.4=1(HOT OFF), P1.3-0=0(LCD)
+    
+    // Explicitly set each indicator pin to ensure correct state
+    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
+    BUZ = 0;    // Buzzer OFF (normal logic - pin LOW = Buzzer OFF)
     CFLR = 1;   // Fire LED OFF (inverse logic - pin HIGH = LED OFF)
     CFTLR = 0;  // Fault LED OFF (normal logic - pin LOW = LED OFF)
-    HOT = 1;    // Hooter OFF (inverse logic - pin HIGH = Hooter OFF)
-    BUZ = 0;    // Buzzer OFF
-    BL = 1;     // Backlight ON initially (normal condition starts with BL ON)
+    BL = 1;     // Backlight ON initially
     
-    // Clear flags
+    // Clear all flags
     LISO = 0;
     SLC1 = 0;
     SLC2 = 0;
@@ -376,12 +392,6 @@ void init_system(void)
     BLT1 = 30;
     BL_TIMER = BL_TIMEOUT; // Start 5-minute countdown for normal condition
     RAP = 0;
-    
-    // Initialize UART
-    TMOD = 0x20;
-    TH1 = 253;  // -3 for 9600 baud
-    SCON = 0x50;
-    TR1 = 1;
 }
 
 void prz1(void)
@@ -605,7 +615,6 @@ void move1(unsigned char data)
         nop
         nop
     __endasm;
-    EN = 1;
 }
 
 void lcd_cmd(unsigned char *cmd_ptr)
